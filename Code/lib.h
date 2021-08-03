@@ -295,4 +295,6 @@ enum MODBUS_RTU_REGS {
 	MODBUS_RTU_REGS_3X = 2
 };
 
+typedef enum EBool {true, false} bool;
+
 #endif // __LIB_H__
