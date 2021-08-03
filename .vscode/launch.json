@@ -5,10 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "g++.exe - Сборка и отладка активного файла",
+      "name": "(Windows) Запустить",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "C:/Users/alexander.ananiev/Documents/GitHub/ZIOP_Optic/test.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "console": "externalTerminal",
+      "preLaunchTask": "C/C++: g++.exe сборка активного файла"
+    },
+    {
+      "name": "gcc.exe - Сборка и отладка активного файла",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+      "program": "C:/Users/alexander.ananiev/Documents/GitHub/ZIOP_Optic/test.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",
