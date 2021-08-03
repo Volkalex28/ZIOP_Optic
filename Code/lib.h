@@ -28,58 +28,58 @@ typedef unsigned long       DWORD;
 typedef unsigned char       BOOL;
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
-typedef unsigned int		UINT;
+typedef unsigned int        UINT;
 
-typedef short int			Int16;
-typedef int					Int32;
+typedef short int           Int16;
+typedef int                 Int32;
 
-typedef unsigned short		Uint16;
-typedef unsigned int		Uint32;
+typedef unsigned short      Uint16;
+typedef unsigned int        Uint32;
 
 enum {FALSE = 0, TRUE = 1};
 
 // 
 enum ECom
 {
-	HMI_LOCAL_MCH = -1,
-	DOWNLOAD,
-	PLC,
-    EXPAND,
-    REVERSE,
-    NET_0,
-    NET_1,
-    NET_2,
-    NET_3,
-    NET_4,
-    NET_5,
-    NET_6,
-    NET_7,
-    NET_8,
-    NET_9,
-	EComMax
+  HMI_LOCAL_MCH = -1,
+  DOWNLOAD,
+  PLC,
+  EXPAND,
+  REVERSE,
+  NET_0,
+  NET_1,
+  NET_2,
+  NET_3,
+  NET_4,
+  NET_5,
+  NET_6,
+  NET_7,
+  NET_8,
+  NET_9,
+  EComMax
 };
 
 enum EInnerReg
 {
-	TYPE_PSB = 0,
-	TYPE_PSW,
-	TYPE_PFW,
-	TYPE_PRW,
-	TYPE_PHW,
-	TYPE_PUW,
-	TYPE_PCW,
-	EInnerRegMax
+  TYPE_PSB = 0,
+  TYPE_PSW,
+  TYPE_PFW,
+  TYPE_PRW,
+  TYPE_PHW,
+  TYPE_PUW,
+  TYPE_PCW,
+  EInnerRegMax
 };
 
 enum EDataType
 {
-	TYPE_NONE,
-	TYPE_BIT,
-	TYPE_BYTE,
-	TYPE_WORD,
-	TYPE_DWORD,
-	TYPE_REGS,
-	TYPE_BYTE_3
+  TYPE_NONE,
+  TYPE_BIT,
+  TYPE_BYTE,
+  TYPE_WORD,
+  TYPE_DWORD,
+  TYPE_REGS,
+  TYPE_BYTE_3
 };
 
 // Method
@@ -143,57 +143,57 @@ typedef long (*Macroftell)(FILE *stream);
 #pragma arm section zidata = "MacroTable"
 extern struct MACRO_CALL_BACK
 {
-	WORD*				pPSW;
-	BYTE*				pPSB;
-	MacroFRead 			pRead;
-	MacroFReads 		pReads;
-	MacroFWrite 		pWrite;
-	MacroFWrites 		pWrites;
-	
-	MacroFComOpen		pComOpen;
-	MacroFComClose		pComClose;
-	MacroFComSend		pComSend;
-	MacroFComRcv		pComRcv;
-	MacroFHMI_malloc	pHMI_malloc;
-	MacroFHMI_free		pHMI_free;
-	MacroFOSSchedLock	pOSSchedLock;
-	MacroFOSSchedUnlock	pOSSchedUnlock;
-	MacroFDelayMs		pDelayMs;
+  WORD*				pPSW;
+  BYTE*				pPSB;
+  MacroFRead 			pRead;
+  MacroFReads 		pReads;
+  MacroFWrite 		pWrite;
+  MacroFWrites 		pWrites;
 
-	MacroFScreenJump	pScreenJump;
-	MacroFOpenWindow	pOpenWindow;
-	MacroFCloseWindow	pCloseWindow;
-	MacroFBeepOnce		pBeepOnce;
-	MacroFLightScreen	pLightScreen;
-	MacroFCRC			pCRC;
-	MacroFGeneralCRC_16	pGeneralCRC_16;
-	MacroFBendCalYDepth pBendCalYDepth;
-	MacroFBendCalForce  pBendCalForce;
-	
-	MacroFDCMapClear	pDCMapClear;
-	MacroFDCMapSetBackColor pDCMapSetBackColor;
-	MacroFDCMapDrawLine		pDCMapDrawLine;
-	MacroFDCMapDrawRect		pDCMapDrawRect;
-	MacroFDCMapDrawCircle	pDCMapDrawCircle;
-	MacroFDCMapDrawEllipse pDCMapDrawEllipse;
-	MacroFDCMapDrawCircleArc pDCMapDrawCircleArc;
-	MacroFDCMapDrawEllipseArc	pDCMapDrawEllipseArc;
+  MacroFComOpen		pComOpen;
+  MacroFComClose		pComClose;
+  MacroFComSend		pComSend;
+  MacroFComRcv		pComRcv;
+  MacroFHMI_malloc	pHMI_malloc;
+  MacroFHMI_free		pHMI_free;
+  MacroFOSSchedLock	pOSSchedLock;
+  MacroFOSSchedUnlock	pOSSchedUnlock;
+  MacroFDelayMs		pDelayMs;
 
-	#ifndef _MODEL_TH
-	MacroFXRead 		pXRead;
-	MacroFXReads 		pXReads;
-	MacroFXWrite 		pXWrite;
-	MacroFXWrites 		pXWrites;
+  MacroFScreenJump	pScreenJump;
+  MacroFOpenWindow	pOpenWindow;
+  MacroFCloseWindow	pCloseWindow;
+  MacroFBeepOnce		pBeepOnce;
+  MacroFLightScreen	pLightScreen;
+  MacroFCRC			pCRC;
+  MacroFGeneralCRC_16	pGeneralCRC_16;
+  MacroFBendCalYDepth pBendCalYDepth;
+  MacroFBendCalForce  pBendCalForce;
 
-	Macrofopen			pfopen;
-	Macrofclose			pfclose;
-	Macrofseek			pfseek;
-	Macrorewind			prewind;
-	Macroremove			premove;
-	Macrofread			pfread;
-	Macrofwrite			pfwrite;
-	Macroftell			pftell;
-	#endif
+  MacroFDCMapClear	pDCMapClear;
+  MacroFDCMapSetBackColor pDCMapSetBackColor;
+  MacroFDCMapDrawLine		pDCMapDrawLine;
+  MacroFDCMapDrawRect		pDCMapDrawRect;
+  MacroFDCMapDrawCircle	pDCMapDrawCircle;
+  MacroFDCMapDrawEllipse pDCMapDrawEllipse;
+  MacroFDCMapDrawCircleArc pDCMapDrawCircleArc;
+  MacroFDCMapDrawEllipseArc	pDCMapDrawEllipseArc;
+
+  #ifndef _MODEL_TH
+  MacroFXRead 		pXRead;
+  MacroFXReads 		pXReads;
+  MacroFXWrite 		pXWrite;
+  MacroFXWrites 		pXWrites;
+
+  Macrofopen			pfopen;
+  Macrofclose			pfclose;
+  Macrofseek			pfseek;
+  Macrorewind			prewind;
+  Macroremove			premove;
+  Macrofread			pfread;
+  Macrofwrite			pfwrite;
+  Macroftell			pftell;
+  #endif
 } Macro;
 #pragma arm section zidata
 
@@ -282,17 +282,17 @@ extern struct MACRO_CALL_BACK
 #endif
 
 enum MODBUS_RTU_BIT {
-	MODBUS_RTU_BIT_0X = 0,
-	MODBUS_RTU_BIT_1X = 1,
-	MODBUS_RTU_BIT_4X = 3
+  MODBUS_RTU_BIT_0X = 0,
+  MODBUS_RTU_BIT_1X = 1,
+  MODBUS_RTU_BIT_4X = 3
 };
 enum MODBUS_RTU_REG {
-	MODBUS_RTU_REG_4X = 3,
-	MODBUS_RTU_REG_3X = 2
+  MODBUS_RTU_REG_4X = 3,
+  MODBUS_RTU_REG_3X = 2
 };
 enum MODBUS_RTU_REGS {
-	MODBUS_RTU_REGS_4X = 3,
-	MODBUS_RTU_REGS_3X = 2
+  MODBUS_RTU_REGS_4X = 3,
+  MODBUS_RTU_REGS_3X = 2
 };
 
 typedef enum EBool {true, false} bool;
