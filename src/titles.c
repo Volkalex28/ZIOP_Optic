@@ -11,7 +11,7 @@
 const Title_t arrTitles[] = {
   {alPowerOn,               "Включение панели"},
   {alOpenUserAccess,        "Доступ пользователя открыт"},
-  {alOpenAdminAccess,       "Доступ администратора открыт"},
+  {alOpenAdminAccess,       "Доступ администратора открыт  "},
   {alNone}
 };
 
