@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-#ifndef _LIB_H
-#define _LIB_H
+#ifndef _LIB_H_
+#define _LIB_H_
 // Include
 #include <locale.h>
 #include <math.h>
@@ -275,26 +275,53 @@ extern struct MACRO_CALL_BACK
 #define		SetPSB( PSB_No )			PSB[ (PSB_No) / BITS_PER_BYTE ] |= ( 1 << ( (PSB_No) % BITS_PER_BYTE ) )
 #define		ResetPSB( PSB_No )			PSB[ (PSB_No) / BITS_PER_BYTE ] &= ( ~ ( 1 << ( (PSB_No) % BITS_PER_BYTE  ) ) )
 
+#ifndef MODBUS_RTU_H
+#define MODBUS_RTU_H
+enum MODBUS_RTU_BIT {
+	MODBUS_RTU_BIT_0X = 0,
+	MODBUS_RTU_BIT_1X = 1,
+	MODBUS_RTU_BIT_4X = 3
+};
+enum MODBUS_RTU_REG {
+	MODBUS_RTU_REG_4X = 3,
+	MODBUS_RTU_REG_3X = 2
+};
+enum MODBUS_RTU_REGS {
+	MODBUS_RTU_REGS_4X = 3,
+	MODBUS_RTU_REGS_3X = 2
+};
+#endif
+#ifndef MODBUS_TCP_H
+#define MODBUS_TCP_H
+enum MODBUS_TCP_BIT {
+	MODBUS_TCP_BIT_0X = 0,
+	MODBUS_TCP_BIT_1X = 1,
+	MODBUS_TCP_BIT_4X = 3
+};
+enum MODBUS_TCP_REG {
+	MODBUS_TCP_REG_4X = 3,
+	MODBUS_TCP_REG_3X = 2
+};
+enum MODBUS_TCP_REGS {
+	MODBUS_TCP_REGS_4X = 3,
+	MODBUS_TCP_REGS_3X = 2
+};
+#endif
+
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-enum MODBUS_RTU_BIT {
-  MODBUS_RTU_BIT_0X = 0,
-  MODBUS_RTU_BIT_1X = 1,
-  MODBUS_RTU_BIT_4X = 3
-};
-enum MODBUS_RTU_REG {
-  MODBUS_RTU_REG_4X = 3,
-  MODBUS_RTU_REG_3X = 2
-};
-enum MODBUS_RTU_REGS {
-  MODBUS_RTU_REGS_4X = 3,
-  MODBUS_RTU_REGS_3X = 2
-};
+typedef enum EBool {false, true} bool_t;
+typedef enum ECom com_t;
 
-typedef enum EBool {true, false} bool;
+#define SCREEN_HEADER(_NAME_, ...)      \
+  short ZnachReg[50];                   \
+  struct _NAME_ {                       \
+  __VA_ARGS__                           \
+  } Settings;                           \
+  char Empty[100-sizeof(struct _NAME_)]
 
 #endif // __LIB_H__

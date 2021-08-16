@@ -1,0 +1,10 @@
+{
+  "doxdocgen.generic.authorEmail": "anan20000228@gmail.com",
+  "doxdocgen.generic.authorName": "VAlex28",
+  "doxdocgen.file.fileOrder": [
+    "file",
+    "author",
+    "brief",
+    "empty"
+  ],
+}
