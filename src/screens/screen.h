@@ -9,6 +9,7 @@
 #define __SCREEN_SCREEN_H__
 
 #include "crash.h"
+#include "shot.h"
 
 enum EScreen
 {

@@ -23,9 +23,14 @@ void taskLoop()
   {
     switch (PSW[1])
     {
-    case 10: screenCrash(); break;
-    
-    default: break;
+    // case  5: screenCCrash(); break;
+    // case  6: screenZvu();    break;
+    // case  7: screenBkif();   break;
+    case  8: screenShot();   break;
+    // case  9: screenShsn();   break;
+    case 10: screenCrash();  break;
+    // case 11: screenEvent();  break;
+    default:                 break;
     }
 
     if(oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
