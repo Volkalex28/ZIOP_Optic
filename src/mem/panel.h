@@ -10,6 +10,10 @@
 
 #include "../lib.h"
 
+#define NUMBER_EVENTS           1000
+#define FIRST_RR_EVENT          5000
+#define NUMBER_RR_FOR_ONE_EVENT (sizeof(EventByte_t)/2)
+
 typedef enum EState {stateMaster, stateSlave, stateMasterInit, stateSlaveInit} State_t;
 
 typedef struct Panel_s
@@ -32,6 +36,25 @@ typedef struct Panel_s
   } ChooseDevice;
 
 } Panel_t;
+
+typedef struct Time_s {
+  uint16_t Hour;
+  uint16_t Min;
+  uint16_t Sec;
+  uint16_t Day;
+  uint16_t Month;
+  uint16_t Year;
+} Time_t;
+
+typedef struct EventByte_s {
+	uint8_t Min;
+	uint8_t Hour;
+	uint8_t Day;
+	uint8_t Sec;
+	uint8_t Year;
+	uint8_t Month;
+	uint16_t Event;
+} EventByte_t;
 
 extern Panel_t * Panel;
 

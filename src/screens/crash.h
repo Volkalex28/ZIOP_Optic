@@ -32,8 +32,6 @@ typedef struct ScreenCrash_s
     int16_t NCrash;             // 59
     int16_t NumberCrash[6];     // 60..65
   );
-
-  int16_t * _1;           // 600
 } ScreenCrash_t;
 
 void screenCrash(void);

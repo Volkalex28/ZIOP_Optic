@@ -11,6 +11,7 @@
 
 #include "screens/screen.c"
 #include "screens/crash.c"
+#include "screens/events.c"
 #include "screens/shot.c"
 
 #include "init.c"

@@ -9,6 +9,7 @@
 #define __SCREEN_SCREEN_H__
 
 #include "crash.h"
+#include "events.h"
 #include "shot.h"
 
 enum EScreen
@@ -20,6 +21,7 @@ enum EScreen
 typedef union Screens_s
 {
   ScreenCrash_t Crash;
+  ScreenEvent_t Event;
   ScreenShot_t Shot;
 } Screens_t;
 

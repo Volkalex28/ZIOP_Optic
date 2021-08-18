@@ -21,6 +21,7 @@
 
 #define FIRST_RR_SCREEN   500
 
+#define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
 #define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
 
 typedef enum EMemTypes {
@@ -65,9 +66,5 @@ void get_ptr(cell_t * ret);
 void mem_init();
 void clearRRScreens();
 void fillRRScreens();
-
-cell_t cell(void);
-
-#define CELL(...) (cell_t){__VA_ARGS__}
 
 #endif // __MEM_MANAGER_H__
