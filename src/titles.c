@@ -8,7 +8,7 @@
 #include "titles.h"
 #include "mem/manager.h"
 
-void titleInit(void)
+void title_finit(void)
 {
   int i = 0;
   uint16_t temp[COUNT_RR_ONE_TITLE] = {0};

@@ -21,6 +21,8 @@
 
 #define FIRST_RR_SCREEN   500
 
+#define FIRST_RR_DEV_MEM  2500
+
 #define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
 #define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
 

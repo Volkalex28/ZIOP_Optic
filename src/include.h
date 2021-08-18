@@ -5,6 +5,9 @@
  * 
  */
 
+#include "devices/devices.c"
+#include "devices/dDP.c"
+
 #include "mem/manager.c"
 #include "mem/panel.c"
 #include "mem/pfw.c"

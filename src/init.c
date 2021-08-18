@@ -8,6 +8,8 @@
 #include "init.h"
 #include "titles.h"
 
+#include "devices/devices.h"
+
 #include "mem/pfw.h"
 #include "mem/manager.h"
 
@@ -19,11 +21,13 @@ void finit()
 void init()
 {
   mem_init();
-  titleInit();
+  devices_init();
   
   if(PFW->flags.firstTurnOn == true)
   {
     finit();
+    title_finit();
+    devices_finit();
     PFW->flags.firstTurnOn = false;
   }
 }

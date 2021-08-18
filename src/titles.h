@@ -19,12 +19,12 @@ typedef struct Title_s
   const char * name;
 } Title_t;
 
-void titleInit(void);
+void title_finit(void);
 
 const Title_t arrTitles[] = {
-  {alPowerOn,               "Р’РєР»СЋС‡РµРЅРёРµ РїР°РЅРµР»Рё"},
-  {alOpenUserAccess,        "Р”РѕСЃС‚СѓРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РѕС‚РєСЂС‹С‚"},
-  {alOpenAdminAccess,       "Р”РѕСЃС‚СѓРї Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР° РѕС‚РєСЂС‹С‚"},
+  {alPowerOn,               "Включение панели"},
+  {alOpenUserAccess,        "Доступ пользователя открыт"},
+  {alOpenAdminAccess,       "Доступ администратора открыт"},
   {alNone}
 };
 

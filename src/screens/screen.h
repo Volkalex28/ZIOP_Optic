@@ -22,7 +22,7 @@ typedef union Screens_s
 {
   ScreenCrash_t Crash;
   ScreenEvent_t Event;
-  ScreenShot_t Shot;
+  ScreenShot_t  Shot;
 } Screens_t;
 
 extern Screens_t * Screens;
