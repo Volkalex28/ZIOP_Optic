@@ -21,6 +21,7 @@ void taskLoop()
 
   while(true)
   {
+    clearRRScreens();
     switch (PSW[1])
     {
     // case  5: screenCCrash(); break;
@@ -32,6 +33,7 @@ void taskLoop()
     // case 11: screenEvent();  break;
     default:                 break;
     }
+    fillRRScreens();
 
     if(oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
     if(Panel->flags.menuIsOpen) OpenWindow(10, 600, 68); else CloseWindow(10);

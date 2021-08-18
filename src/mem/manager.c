@@ -224,3 +224,26 @@ cell_t cell(void)
   cell_t c;
   return c;
 }
+
+void clearRRScreens()
+{
+  int i;
+
+  for(i = 0; i < 50; i++)
+  {
+    PSW[FIRST_RR_SCREEN + i] = 0;
+    CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) = NULL;
+  }
+}
+
+void fillRRScreens()
+{
+  int i;
+
+  for(i = 0; i < 50; i++)
+  {
+    PSW[FIRST_RR_SCREEN + i] = CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) != NULL 
+                                ? *CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) 
+                                : 0;
+  }
+}
