@@ -20,6 +20,7 @@ enum EScreen
 typedef union Screens_s
 {
   ScreenCrash_t Crash;
+  ScreenShot_t Shot;
 } Screens_t;
 
 extern Screens_t * Screens;

@@ -15,57 +15,57 @@ void screenShot(void)
 {
     static short Offset = 0;
 
-    AnP[0].Reg->AI2 = 2300;
-    AnP[0].Reg->AI3 = 150;
-    AnP[0].Reg->AI12 = 2000;
-    AnP[0].Reg->AI1 = 100;
-    AnP[0].Reg->Umax1 = 3000;
-    AnP[0].Reg->Umin1 = 100;
-    AnP[0].Reg->Umin3 = 300;
-    PFW->CrashUmaxAnP = 2000;
-    PFW->CrashUminAnP = 1000;
-    BKIf[0].Reg->R1Plus = 200;
-    BKIf[0].Reg->R1Minus = 300;
-    BKIf[0].Reg->U1Plus = 400;
-    BKIf[0].Reg->U1Minus = 500;
+    static short AI2 = 2300;
+    static short AI3 = 150;
+    static short AI12 = 2000;
+    static short AI1 = 100;
+    static short Umax1 = 3000;
+    static short Umin1 = 100;
+    static short Umin3 = 300;
+    static short CrashUmaxAnP = 2000;
+    static short CrashUminAnP = 1000;
+    static short R1Plus = 200;
+    static short R1Minus = 300;
+    static short U1Plus = 400;
+    static short U1Minus = 500;
 
-    Screen->ShOT.Ues1 = &AnP[0].Reg->AI2;  //2300;
-    Screen->ShOT.Ies1 = &AnP[0].Reg->AI3;   //150;
-    Screen->ShOT.Uab  = &AnP[0].Reg->AI12;  //2000;
-    Screen->ShOT.Iab  = &AnP[0].Reg->AI1;   //100;
+    Screens->Shot.Ues1 = &AI2;  //2300;
+    Screens->Shot.Ies1 = &AI3;   //150;
+    Screens->Shot.Uab  = &AI12;  //2000;
+    Screens->Shot.Iab  = &AI1;   //100;
 
-    Screen->ShOT.Riz_p = &BKIf[0].Reg->R1Plus;
-    Screen->ShOT.Riz_m = &BKIf[0].Reg->R1Minus;
-    Screen->ShOT.Uec_p = &BKIf[0].Reg->U1Plus;
-    Screen->ShOT.Uec_m = &BKIf[0].Reg->U1Minus;
+    Screens->Shot.Riz_p = &R1Plus;
+    Screens->Shot.Riz_m = &R1Minus;
+    Screens->Shot.Uec_p = &U1Plus;
+    Screens->Shot.Uec_m = &U1Minus;
 
-    Screen->ShOT.MaxW = &PFW->CrashUmaxAnP;//2000;//
-    Screen->ShOT.MinW = &PFW->CrashUminAnP;//1000;//
+    Screens->Shot.MaxW = &CrashUmaxAnP;//2000;//
+    Screens->Shot.MinW = &CrashUminAnP;//1000;//
 
-    if(Screen->ShOT.Setting.EventSh.WindowUstEC1 == true) {
+    if(Screens->Shot.Settings.Event.WindowUstEC1 == true) {
         Offset = 0;
 
-        strcpy(Screen->ShOT.Setting.TitleWindowUst, "±ESI");
+        strcpy(Screens->Shot.Settings.TitleWindowUst, "±ESI");
 
-        Screen->ShOT.Setting.VisibleSh.UmaxUst = true;
-        Screen->ShOT.Setting.VisibleSh.UminUst = true;
+        Screens->Shot.Settings.Visible.UmaxUst = true;
+        Screens->Shot.Settings.Visible.UminUst = true;
 
         OpenWindow(7, 100, 90);
 
-        Screen->ShOT.Setting.EventSh.WindowUstEC1 = false;
+        Screens->Shot.Settings.Event.WindowUstEC1 = false;
     }
-    if(Screen->ShOT.Setting.EventSh.WindowUstAB == true) {
+    if(Screens->Shot.Settings.Event.WindowUstAB == true) {
         Offset = 2;
 
-        strcpy(Screen->ShOT.Setting.TitleWindowUst, "ÀÁ");
+        strcpy(Screens->Shot.Settings.TitleWindowUst, "ÀÁ");
 
-        Screen->ShOT.Setting.VisibleSh.UmaxUst = false;
-        Screen->ShOT.Setting.VisibleSh.UminUst = true;
+        Screens->Shot.Settings.Visible.UmaxUst = false;
+        Screens->Shot.Settings.Visible.UminUst = true;
 
         OpenWindow(7, 100, 90);
 
-        Screen->ShOT.Setting.EventSh.WindowUstAB = false;
+        Screens->Shot.Settings.Event.WindowUstAB = false;
     }
-    Screen->ShOT.MaxA = &AnP[0].Reg->Umax1 + Offset*2;
-    Screen->ShOT.MinA = &AnP[0].Reg->Umin1 + Offset*2;
+    Screens->Shot.MaxA = &Umax1 + Offset*2;
+    Screens->Shot.MinA = &Umin1 + Offset*2;
  }
