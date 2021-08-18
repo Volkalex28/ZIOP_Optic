@@ -17,7 +17,7 @@ void title_finit(void)
   {
     cell_t c; 
     c.type = memPFW; 
-    c.number = FIRST_RR_TITLES + (arrTitles[i].number - 1) * COUNT_RR_ONE_TITLE;
+    c.number = FIRST_RR_TITLES + arrTitles[i].number * COUNT_RR_ONE_TITLE;
 
     snprintf((char *)temp, COUNT_RR_ONE_TITLE * 2, "%s", arrTitles[i].name);
     writes(c, COUNT_RR_ONE_TITLE, temp);

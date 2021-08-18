@@ -26,6 +26,15 @@
 #define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
 #define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
 
+enum PSW_Registers {
+  TIME_HOUR    = 4090,
+  TIME_MIN,
+  TIME_SEC,
+  TIME_DAY,
+  TIME_MONTH,
+  TIME_YEAR
+};
+
 typedef enum EMemTypes {
   memPFW,
   memPSW,

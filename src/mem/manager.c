@@ -225,6 +225,9 @@ void clearRRScreens()
 {
   int i;
 
+  if(PSW[1] == 11)
+    return;
+
   for(i = 0; i < 50; i++)
   {
     PSW[FIRST_RR_SCREEN + i] = 0;
@@ -235,6 +238,9 @@ void clearRRScreens()
 void fillRRScreens()
 {
   int i;
+
+  if(PSW[1] == 11)
+    return;
 
   for(i = 0; i < 50; i++)
   {

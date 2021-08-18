@@ -9,6 +9,7 @@
 #define __MEM_PANEL_H__
 
 #include "../lib.h"
+#include "../alarms.h"
 
 #define NUMBER_EVENTS           1000
 #define FIRST_RR_EVENT          5000
@@ -59,5 +60,6 @@ typedef struct EventByte_s {
 extern Panel_t * Panel;
 
 uint8_t getMyIP(void);
+void addEvent(Alarm_t number);
 
 #endif // __MEM_PANEL_H__

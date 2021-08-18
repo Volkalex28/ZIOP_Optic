@@ -10,12 +10,17 @@
 
 #include "devices/devices.h"
 
-#include "mem/pfw.h"
 #include "mem/manager.h"
+#include "mem/panel.h"
+#include "mem/pfw.h"
+
+#include "screens/events.h"
 
 void finit()
 {
-
+  eventClear();
+  title_finit();
+  devices_finit();
 }
 
 void init()
@@ -26,8 +31,9 @@ void init()
   if(PFW->flags.firstTurnOn == true)
   {
     finit();
-    title_finit();
-    devices_finit();
     PFW->flags.firstTurnOn = false;
   }
+
+  addEvent(alPowerOn);
+  addEvent(alOpenAdminAccess);
 }

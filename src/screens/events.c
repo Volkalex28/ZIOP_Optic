@@ -13,8 +13,6 @@
 #include "../mem/panel.h"
 #include "../mem/pfw.h"
 
-void eventClear(void);
-
 void screenEvent(void)
 {
   int i;
