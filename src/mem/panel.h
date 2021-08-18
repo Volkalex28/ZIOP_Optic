@@ -10,6 +10,16 @@
 
 #include "../lib.h"
 
+
+#define GetUserLevelAvtorisation 	GetPSBStatus(B_ACCES_2LEVEL)
+#define GetAdminLevelAvtorisation 	GetPSBStatus(B_ACCES_9LEVEL)
+
+#define SetUserLevelAvtorisation 	SetPSB(B_ACCES_2LEVEL)
+#define SetAdminLevelAvtorisation 	SetPSB(B_ACCES_9LEVEL)
+
+#define ResetUserLevelAvtorisation 	ResetPSB(B_ACCES_2LEVEL)
+#define ResetAdminLevelAvtorisation	ResetPSB(B_ACCES_9LEVEL)
+
 typedef enum EState {stateMaster, stateSlave, stateMasterInit, stateSlaveInit} State_t;
 
 typedef struct Panel_s
@@ -30,7 +40,7 @@ typedef struct Panel_s
     int16_t Select;                   // 259
     char TitleCh[6];                  // 260..262
   } ChooseDevice;
-
+  uint16_t oldScreen;                 // 263
 } Panel_t;
 
 extern Panel_t * Panel;

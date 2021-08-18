@@ -16,7 +16,7 @@ Screens_t * Screens;
 
 void taskLoop()
 {
-  uint16_t oldScreen = 0;
+//  uint16_t oldScreen = 0;
   init();
 
   while(true)
@@ -24,21 +24,21 @@ void taskLoop()
     clearRRScreens();
     switch (PSW[1])
     {
-    // case  5: screenCCrash(); break;
-    // case  6: screenZvu();    break;
-    // case  7: screenBkif();   break;
+    case  5: screenConfCrash(); break;
+    case  6: screenZvu();    break;
+    case  7: screenBkif();   break;
     case  8: screenShot();   break;
-    // case  9: screenShsn();   break;
+    case  9: screenShsn();   break;
     case 10: screenCrash();  break;
-    // case 11: screenEvent();  break;
+    //case 11: screenEvent();  break;
     default:                 break;
     }
     fillRRScreens();
 
-    if(oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
+    if(Panel->oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
     if(Panel->flags.menuIsOpen) OpenWindow(10, 600, 68); else CloseWindow(10);
 
-    oldScreen = PSW[1];
+    Panel->oldScreen = PSW[1];
     updatePFW();
     Delay(20);
   }

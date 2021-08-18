@@ -12,6 +12,10 @@
 #include "screens/screen.c"
 #include "screens/crash.c"
 #include "screens/shot.c"
+#include "screens/shsn.c"
+#include "screens/zvu.c"
+#include "screens/bki_f.c"
+#include "screens/confcrash.c"
 
 #include "init.c"
 #include "exchange.c"

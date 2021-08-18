@@ -15,7 +15,7 @@ void screenCrash(void)
 {
   int i, n, k;
 
-  Alarms->count = 20;
+  Alarms->count = 14;
   for (i = 1; i <= Alarms->count; i++)
   {
     Alarms->buf[i] = i;
@@ -23,7 +23,7 @@ void screenCrash(void)
 
   selectDeviceInCrashAndEvent();
   
-  selectNormal(&Screens->Crash.Settings.Count, (Alarms->count < 6) ? 0 : Alarms->count - 6 , 0, \
+  selectCircle(&Screens->Crash.Settings.Count, (Alarms->count < 6) ? 0 : Alarms->count - 6 , 0, \
     Screens->Crash.Settings.Event.Up, Screens->Crash.Settings.Event.Down);
   Screens->Crash.Settings.Event.Up = Screens->Crash.Settings.Event.Down = false;
 
