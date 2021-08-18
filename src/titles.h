@@ -21,4 +21,11 @@ typedef struct Title_s
 
 void titleInit(void);
 
+const Title_t arrTitles[] = {
+  {alPowerOn,               "Включение панели"},
+  {alOpenUserAccess,        "Доступ пользователя открыт"},
+  {alOpenAdminAccess,       "Доступ администратора открыт"},
+  {alNone}
+};
+
 #endif // __TITLES_H__
