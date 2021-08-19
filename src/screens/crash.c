@@ -19,7 +19,7 @@ void screenCrash(void)
   Alarms->count = 14;
   for (i = 1; i <= Alarms->count; i++)
   {
-    Alarms->buf[i] = i;
+    Alarms->buf[i - 1] = i;
   }
 
   selectDeviceInCrashAndEvent();

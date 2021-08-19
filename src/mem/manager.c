@@ -10,10 +10,10 @@
 #include "pfw.h"
 
 #include "../alarms.h"
-
+#include "../devices/devices_mem.h"
 #include "../screens/screen.h"
 
-Alarms_t * Alarms;
+Alarms_t      * Alarms;
 
 com_t get_com(MemTypes_t type);
 
@@ -169,10 +169,12 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
 
 void mem_init() 
 {
-  Panel   = (Panel_t *)   &PSW[FIRST_RR_PANEL];
-  PFW     = (PFW_t *)     &PSW[FIRST_RR_FOR_EEP];
-  Screens = (Screens_t *) &PSW[FIRST_RR_SCREEN];
-  Alarms  = (Alarms_t *)  &PSW[FIRST_RR_ALARMS];
+  Panel   = (Panel_t *)         &PSW[FIRST_RR_PANEL];
+  PFW     = (PFW_t *)           &PSW[FIRST_RR_FOR_EEP];
+  Screens = (Screens_t *)       &PSW[FIRST_RR_SCREEN];
+  Alarms  = (Alarms_t *)        &PSW[FIRST_RR_ALARMS];
+  dMem    = (devices_mem_t * )  &PSW[FIRST_RR_DEV_MEM];
+  dMemPFW = &PFW->dMemPFW;
 
   getPFW();
 }
@@ -223,6 +225,9 @@ void clearRRScreens()
 {
   int i;
 
+  if(PSW[1] == 11)
+    return;
+
   for(i = 0; i < 50; i++)
   {
     PSW[FIRST_RR_SCREEN + i] = 0;
@@ -235,6 +240,9 @@ void clearRRScreens()
 void fillRRScreens()
 {
   int i;
+
+  if(PSW[1] == 11)
+    return;
 
   for(i = 0; i < 50; i++)
   {

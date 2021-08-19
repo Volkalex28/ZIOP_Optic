@@ -19,7 +19,7 @@ typedef struct Title_s
   const char * name;
 } Title_t;
 
-void titleInit(void);
+void title_finit(void);
 
 const Title_t arrTitles[] = {
   {alPowerOn,               "Включение панели"},
