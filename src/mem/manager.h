@@ -33,6 +33,7 @@ enum PSW_Registers {
   TIME_DAY,
   TIME_MONTH,
   TIME_YEAR
+};
 
 enum PSB_Register {
 	B_ON,
