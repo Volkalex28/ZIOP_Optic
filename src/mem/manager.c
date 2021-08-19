@@ -219,12 +219,6 @@ void get_ptr(cell_t * cell)
   }
 }
 
-cell_t cell(void)
-{
-  cell_t c;
-  return c;
-}
-
 void clearRRScreens()
 {
   int i;

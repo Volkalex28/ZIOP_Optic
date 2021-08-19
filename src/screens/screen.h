@@ -10,6 +10,7 @@
 
 #include "confcrash.h"
 #include "crash.h"
+#include "events.h"
 #include "shot.h"
 #include "zvu.h"
 #include "bki_f.h"
@@ -23,12 +24,13 @@ enum EScreen
 
 typedef union Screens_s
 {
-  ScreenCrash_t Crash;
-  ScreenShot_t  Shot;
-  ScreenZvu_t   Zvu;
-  ScreenBkif_t  Bkif;
-  ScreenShsn_t  Shsn;  
+  ScreenCrash_t     Crash;
+  ScreenShot_t      Shot;
+  ScreenZvu_t       Zvu;
+  ScreenBkif_t      Bkif;
+  ScreenShsn_t      Shsn;  
   ScreenConfCrash_t ConfCrash;
+  ScreenEvent_t     Event;
 } Screens_t;
 
 extern Screens_t * Screens;

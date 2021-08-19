@@ -5,6 +5,7 @@
  * 
  */
 
+#include "crash.h"
 #include "screen.h"
 
 #include "..\alarms.h"
