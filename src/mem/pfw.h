@@ -9,6 +9,7 @@
 #define __PFW_H__
 
 #include "../lib.h"
+#include "../devices/devices_mem.h"
 
 typedef struct PFW_s
 {
@@ -18,6 +19,10 @@ typedef struct PFW_s
   } flags;
   uint16_t N_Event;       // 257
   uint16_t CB;            // 258
+  // *
+  // *
+  // *
+  devices_pfw_t dMemPFW;  // 
 } PFW_t;
 
 extern PFW_t * PFW;

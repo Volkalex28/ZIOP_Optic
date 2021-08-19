@@ -9,6 +9,7 @@
 #define __MEM_PANEL_H__
 
 #include "../lib.h"
+#include "../alarms.h"
 
 #define GetUserLevelAvtorisation 	GetPSBStatus(B_ACCES_2LEVEL)
 #define GetAdminLevelAvtorisation 	GetPSBStatus(B_ACCES_9LEVEL)
@@ -67,5 +68,6 @@ typedef struct EventByte_s {
 extern Panel_t * Panel;
 
 uint8_t getMyIP(void);
+void addEvent(Alarm_t number);
 
 #endif // __MEM_PANEL_H__

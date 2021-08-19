@@ -8,11 +8,20 @@
 #include "init.h"
 #include "titles.h"
 
-#include "mem/pfw.h"
+#include "devices/devices.h"
+
 #include "mem/manager.h"
+#include "mem/panel.h"
+#include "mem/pfw.h"
+
+#include "screens/events.h"
 
 void finit()
 {
+  eventClear();
+  title_finit();
+  devices_finit();
+  
   SetUserLevelAvtorisation;
   SetAdminLevelAvtorisation;
 }
@@ -20,11 +29,14 @@ void finit()
 void init()
 {
   mem_init();
-  titleInit();
+  devices_init();
   
   if(PFW->flags.firstTurnOn == true)
   {
     finit();
     PFW->flags.firstTurnOn = false;
   }
+
+  addEvent(alPowerOn);
+  addEvent(alOpenAdminAccess);
 }

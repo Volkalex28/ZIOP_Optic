@@ -39,5 +39,6 @@ typedef struct ScreenEvent_s
 } ScreenEvent_t;
 
 void screenEvent(void);
+void eventClear(void);
 
 #endif // __EVENTS_H__

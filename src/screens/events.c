@@ -102,3 +102,16 @@ void screenEvent(void)
   }
   Screens->Event.OffsetLine = NEventForLine*41;
 }
+
+void eventClear(void)
+{
+  int i;
+  uint16_t zero_buf[NUMBER_RR_FOR_ONE_EVENT] = {0};
+  
+  PFW->CB = PFW->N_Event = 0;
+  for(i = 0; i < NUMBER_EVENTS; i++)
+  {
+    cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT + i*NUMBER_RR_FOR_ONE_EVENT;
+    writes(c, NUMBER_RR_FOR_ONE_EVENT, zero_buf);
+  }
+}

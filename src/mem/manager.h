@@ -21,12 +21,19 @@
 
 #define FIRST_RR_SCREEN   500
 
+#define FIRST_RR_DEV_MEM  2500
+
 #define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
 #define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
 
-//----------------------------------------------------------------------
-//	PSB
-//----------------------------------------------------------------------
+enum PSW_Registers {
+  TIME_HOUR    = 4090,
+  TIME_MIN,
+  TIME_SEC,
+  TIME_DAY,
+  TIME_MONTH,
+  TIME_YEAR
+};
 
 enum PSB_Register {
 	B_ON,
