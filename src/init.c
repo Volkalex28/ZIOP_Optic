@@ -13,7 +13,8 @@
 
 void finit()
 {
-
+  SetUserLevelAvtorisation;
+  SetAdminLevelAvtorisation;
 }
 
 void init()

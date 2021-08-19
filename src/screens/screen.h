@@ -8,9 +8,13 @@
 #ifndef __SCREEN_SCREEN_H__
 #define __SCREEN_SCREEN_H__
 
+#include "confcrash.h"
 #include "crash.h"
 #include "events.h"
 #include "shot.h"
+#include "zvu.h"
+#include "bki_f.h"
+#include "shsn.h"
 
 enum EScreen
 {
@@ -20,9 +24,13 @@ enum EScreen
 
 typedef union Screens_s
 {
-  ScreenCrash_t Crash;
-  ScreenEvent_t Event;
-  ScreenShot_t Shot;
+  ScreenCrash_t     Crash;
+  ScreenShot_t      Shot;
+  ScreenZvu_t       Zvu;
+  ScreenBkif_t      Bkif;
+  ScreenShsn_t      Shsn;  
+  ScreenConfCrash_t ConfCrash;
+  ScreenEvent_t     Event;
 } Screens_t;
 
 extern Screens_t * Screens;
