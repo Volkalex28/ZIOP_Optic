@@ -174,6 +174,10 @@ void mem_init()
   Screens = (Screens_t *)       &PSW[FIRST_RR_SCREEN];
   Alarms  = (Alarms_t *)        &PSW[FIRST_RR_ALARMS];
   dMem    = (devices_mem_t * )  &PSW[FIRST_RR_DEV_MEM];
+  // T1      = (Trans_t * )        &PSW[FIRST_RR_TRANS];
+  // T2      = (Trans_t * )        &PSW[FIRST_RR_TRANS+2];
+  // T3      = (Trans_t * )        &PSW[FIRST_RR_TRANS+4];
+  // T4      = (Trans_t * )        &PSW[FIRST_RR_TRANS+6];
   dMemPFW = &PFW->dMemPFW;
 
   getPFW();

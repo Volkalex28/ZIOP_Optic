@@ -70,4 +70,7 @@ extern Panel_t * Panel;
 uint8_t getMyIP(void);
 void addEvent(Alarm_t number);
 
+
+
+
 #endif // __MEM_PANEL_H__
