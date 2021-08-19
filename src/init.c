@@ -21,6 +21,9 @@ void finit()
   eventClear();
   title_finit();
   devices_finit();
+  
+  SetUserLevelAvtorisation;
+  SetAdminLevelAvtorisation;
 }
 
 void init()

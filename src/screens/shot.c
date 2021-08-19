@@ -48,7 +48,7 @@ void screenShot(void)
   if(Screens->Shot.Settings.Event.WindowUstEC1 == true) {
     Offset = 0;
 
-    strcpy(Screens->Shot.Settings.TitleWindowUst, "ÅÑ1");
+    strcpy(Screens->Shot.Settings.TitleWindowUst, "ÅSI");
 
     Screens->Shot.Settings.Visible.UmaxUst = true;
     Screens->Shot.Settings.Visible.UminUst = true;

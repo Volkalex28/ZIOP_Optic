@@ -33,6 +33,20 @@ enum PSW_Registers {
   TIME_DAY,
   TIME_MONTH,
   TIME_YEAR
+
+enum PSB_Register {
+	B_ON,
+	B_OFF,
+	B_GOTO_WAKEUPSCREEN = 9,
+	B_ACCES_1LEVEL = 60,
+	B_ACCES_2LEVEL,
+	B_ACCES_3LEVEL,
+	B_ACCES_4LEVEL,
+	B_ACCES_5LEVEL,
+	B_ACCES_6LEVEL,
+	B_ACCES_7LEVEL,
+	B_ACCES_8LEVEL,
+	B_ACCES_9LEVEL
 };
 
 typedef enum EMemTypes {
@@ -66,6 +80,7 @@ typedef struct cell_s
   uint16_t * ptr;
   int8_t status;
 } cell_t;
+
 
 cell_t read(cell_t cell);
 cell_t write(cell_t cell);

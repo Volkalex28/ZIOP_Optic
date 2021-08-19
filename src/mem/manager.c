@@ -231,6 +231,8 @@ void clearRRScreens()
   for(i = 0; i < 50; i++)
   {
     PSW[FIRST_RR_SCREEN + i] = 0;
+    if(Panel->oldScreen != PSW[1])
+      PSW[FIRST_RR_SCREEN + 50 + i] = 0;
     CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) = NULL;
   }
 }
