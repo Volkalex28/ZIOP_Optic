@@ -37,6 +37,8 @@ void taskLoop()
 
     if(Panel->oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
     if(Panel->flags.menuIsOpen) OpenWindow(10, 600, 68); else CloseWindow(10);
+  
+    selectDeviceInCrashAndEvent();
 
     Panel->oldScreen = PSW[1];
     updatePFW();

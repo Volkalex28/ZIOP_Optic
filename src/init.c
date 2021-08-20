@@ -38,5 +38,4 @@ void init()
   }
 
   addEvent(alPowerOn);
-  addEvent(alOpenAdminAccess);
 }
