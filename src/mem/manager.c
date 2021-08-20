@@ -224,10 +224,7 @@ void get_ptr(cell_t * cell)
 void clearRRScreens()
 {
   int i;
-
-  if(PSW[1] == 11)
-    return;
-
+  
   for(i = 0; i < 50; i++)
   {
     PSW[FIRST_RR_SCREEN + i] = 0;

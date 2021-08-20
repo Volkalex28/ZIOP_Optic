@@ -7,7 +7,4 @@
     "brief",
     "empty"
   ],
-  "files.associations": {
-    "crash.c": "cpp"
-  },
 }
