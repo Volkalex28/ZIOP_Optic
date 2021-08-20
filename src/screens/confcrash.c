@@ -22,10 +22,8 @@ void screenConfCrash(void)
   Alarms->count = 14;
   for (i = 1; i <= Alarms->count; i++)
   {
-    Alarms->buf[i] = i;
+    Alarms->buf[i - 1] = i;
   }
-
-  selectDeviceInCrashAndEvent();
   
   selectNormal(&Screens->ConfCrash.Settings.Count, (Alarms->count < 6) ? 0 : Alarms->count - 6 , 0, \
     Screens->ConfCrash.Settings.Event.Up, Screens->ConfCrash.Settings.Event.Down);
@@ -35,15 +33,6 @@ void screenConfCrash(void)
   {
     Screens->ConfCrash.Settings.Count = 0; 						
     Screens->ConfCrash.Settings.Event.JumpScreen = true; 
-  }
-
-  switch (Panel->ChooseDevice.Select)
-  {
-    case 0:  strcpy(Panel->ChooseDevice.TitleCh, "юпл");   break;
-    case 1:  strcpy(Panel->ChooseDevice.TitleCh, "ьнр");   break;
-    case 2:  strcpy(Panel->ChooseDevice.TitleCh, "ьям");   break;
-    case 3:  strcpy(Panel->ChooseDevice.TitleCh, "ьям-д"); break;
-    default: strcpy(Panel->ChooseDevice.TitleCh, " "); break;
   }
 
   Screens->ConfCrash.Settings.NCrash = Alarms->count;

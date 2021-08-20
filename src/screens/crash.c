@@ -21,8 +21,6 @@ void screenCrash(void)
   {
     Alarms->buf[i - 1] = i;
   }
-
-  selectDeviceInCrashAndEvent();
   
   selectCircle(&Screens->Crash.Settings.Count, (Alarms->count < 6) ? 0 : Alarms->count - 6 , 0, \
     Screens->Crash.Settings.Event.Up, Screens->Crash.Settings.Event.Down);
@@ -32,15 +30,6 @@ void screenCrash(void)
   {
     Screens->Crash.Settings.Count = 0; 						
     Screens->Crash.Settings.Event.JumpScreen = true; 
-  }
-
-  switch (Panel->ChooseDevice.Select)
-  {
-    case 0:  strcpy(Panel->ChooseDevice.TitleCh, "ÀĞÌ");   break;
-    case 1:  strcpy(Panel->ChooseDevice.TitleCh, "ØÎÒ");   break;
-    case 2:  strcpy(Panel->ChooseDevice.TitleCh, "ØÑÍ");   break;
-    case 3:  strcpy(Panel->ChooseDevice.TitleCh, "ØÑÍ-Ä"); break;
-    default: strcpy(Panel->ChooseDevice.TitleCh, " "); break;
   }
 
   Screens->Crash.Settings.NCrash = Alarms->count;
