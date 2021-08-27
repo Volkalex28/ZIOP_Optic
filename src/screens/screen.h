@@ -37,6 +37,7 @@ extern Screens_t * Screens;
 
 void selectCircle(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
 void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
 
 void selectDeviceInCrashAndEvent(void);
 

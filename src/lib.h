@@ -82,6 +82,7 @@ enum EDataType
   TYPE_BYTE_3
 };
 
+
 // Method
 /*******************************************************************************
  * Macro Function define

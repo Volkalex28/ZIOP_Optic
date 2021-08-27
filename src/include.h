@@ -11,6 +11,7 @@
 #include "mem/manager.c"
 #include "mem/panel.c"
 #include "mem/pfw.c"
+#include "mem/crashset.c"
 
 #include "screens/screen.c"
 #include "screens/crash.c"
@@ -20,6 +21,7 @@
 #include "screens/zvu.c"
 #include "screens/bki_f.c"
 #include "screens/confcrash.c"
+
 
 #include "init.c"
 #include "exchange.c"

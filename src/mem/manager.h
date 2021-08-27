@@ -15,6 +15,7 @@
 
 #define FIRST_RR_EEP      256
 #define FIRST_RR_FOR_EEP  2000
+#define FIRST_RR_FOR_EEP  2000
 #define COUNT_RR_EEP      500
 
 #define FIRST_RR_ALARMS   700
@@ -24,6 +25,7 @@
 #define FIRST_RR_DEV_MEM  2500
 
 #define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
+#define CAST_TO_U32(_REG_)    (*(uint32_t *)&##_REG_)
 #define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
 
 enum PSW_Registers {

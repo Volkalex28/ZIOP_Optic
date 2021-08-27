@@ -35,7 +35,14 @@ void taskLoop()
     }
     fillRRScreens();
 
-    if(Panel->oldScreen != PSW[1]) Panel->flags.menuIsOpen = false;
+    if(Panel->oldScreen != PSW[1]) 
+    {
+      Panel->flags.menuIsOpen = false;
+      if (PSW[1] == 5)
+      {
+        Panel->ChooseDevice.ResetCrashList = 1;
+      }
+    }
     if(Panel->flags.menuIsOpen) OpenWindow(10, 600, 68); else CloseWindow(10);
   
     selectDeviceInCrashAndEvent();
@@ -60,6 +67,15 @@ void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t 
 {
   if(Up)   (*Select)++;
   if(Down) (*Select)--;
+
+  if(*Select < Min) (*Select) = Min; 
+  if(*Select > Max) (*Select) = Max;
+}
+
+void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
+{
+  if(Up)   (*Select)+=6;
+  if(Down) (*Select)-=6;
 
   if(*Select < Min) (*Select) = Min; 
   if(*Select > Max) (*Select) = Max;

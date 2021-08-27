@@ -14,6 +14,7 @@
 
 typedef enum EAlarm
 {
+//------  ARM  ------
   alNone,
   alPowerOn,
   alOpenUserAccess,
@@ -42,7 +43,23 @@ typedef enum EAlarm
   alConRestoredDP5,
   alConRestoredDP6,
   alConRestoredGate,
-
+  alEndArm,
+//------  SHOT  ------
+  alShotCon_1 = alEndArm,
+  alShotCon_2,
+  alShotCon_3,
+  alShotCon_4,
+  alShotCon_5,
+  alShotCon_6,
+  alShotCon_7,
+  alShotCon_8,
+  alShotCon_9,
+  alShotCon_10,
+  alShotCon_11,
+  alShotCon_12,
+  alShotCon_13,
+  alShotCon_14,
+  alShotCon_15,
   alShotB118_1,
   alShotB118_2,
   alShotAnP_1,
@@ -115,7 +132,13 @@ typedef enum EAlarm
   alShotBKIf_12,
   alShotBKIf_13,
   alShotBKIf_14,
-
+  alEndShort,
+//------  SHSN  ------
+  alShsnCon_1 = alEndShort,
+  alShsnCon_2,
+  alShsnCon_3,
+  alShsnCon_4,
+  alShsnCon_5,
   alShsn_1,  
   alShsn_2,  
   alShsn_3,  
@@ -135,7 +158,35 @@ typedef enum EAlarm
   alShsn_17,  
   alShsn_18,  
   alShsn_19,  
-  alShsn_20
+  alShsn_20,
+  alEndShsn,
+//------  SHSN-D  ------
+  alShsnDCon_1 = alEndShsn,
+  alShsnDCon_2,
+  alShsnDCon_3,
+  alShsnDCon_4,
+  alShsnDCon_5,
+  alShsnD_1,  
+  alShsnD_2,  
+  alShsnD_3,  
+  alShsnD_4,  
+  alShsnD_5,  
+  alShsnD_6,  
+  alShsnD_7,  
+  alShsnD_8,  
+  alShsnD_9,  
+  alShsnD_10,  
+  alShsnD_11,  
+  alShsnD_12,  
+  alShsnD_13,  
+  alShsnD_14,  
+  alShsnD_15,  
+  alShsnD_16,  
+  alShsnD_17,  
+  alShsnD_18,  
+  alShsnD_19,  
+  alShsnD_20,
+  alAll
 } Alarm_t;
 
 typedef struct Alarms_s

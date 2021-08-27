@@ -23,6 +23,9 @@
 #define FIRST_RR_EVENT          5000
 #define NUMBER_RR_FOR_ONE_EVENT (sizeof(EventByte_t)/2)
 
+#define FIRST_RR_CONFCRASH      1000
+
+
 typedef enum EState {stateMaster, stateSlave, stateMasterInit, stateSlaveInit} State_t;
 
 typedef struct Panel_s
@@ -42,8 +45,9 @@ typedef struct Panel_s
     } EventBut;                       // 258
     int16_t Select;                   // 259
     char TitleCh[6];                  // 260..262
+    uint16_t ResetCrashList;          // 263
   } ChooseDevice;
-  uint16_t oldScreen;                 // 263
+  uint16_t oldScreen;                 // 264
 } Panel_t;
 
 typedef struct Time_s {

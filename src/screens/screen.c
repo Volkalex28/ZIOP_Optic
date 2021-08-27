@@ -16,7 +16,6 @@ void selectDeviceInCrashAndEvent(void)
 {
   selectCircle(&Panel->ChooseDevice.Select, 3, 0, \
     Panel->ChooseDevice.EventBut.SelectUp, Panel->ChooseDevice.EventBut.SelectDown);
-  Panel->ChooseDevice.EventBut.SelectUp = Panel->ChooseDevice.EventBut.SelectDown = false;
 
   switch (Panel->ChooseDevice.Select)
   {
@@ -26,4 +25,9 @@ void selectDeviceInCrashAndEvent(void)
     case 3:  strcpy(Panel->ChooseDevice.TitleCh, "ьям-д"); break;
     default: strcpy(Panel->ChooseDevice.TitleCh, " "); break;
   }
+
+  if (Panel->ChooseDevice.EventBut.SelectUp || Panel->ChooseDevice.EventBut.SelectDown)
+    Panel->ChooseDevice.ResetCrashList = 1;
+
+  Panel->ChooseDevice.EventBut.SelectUp = Panel->ChooseDevice.EventBut.SelectDown = false;
 }
