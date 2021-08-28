@@ -275,6 +275,8 @@ extern struct MACRO_CALL_BACK
 #define		SetPSB( PSB_No )			PSB[ (PSB_No) / BITS_PER_BYTE ] |= ( 1 << ( (PSB_No) % BITS_PER_BYTE ) )
 #define		ResetPSB( PSB_No )			PSB[ (PSB_No) / BITS_PER_BYTE ] &= ( ~ ( 1 << ( (PSB_No) % BITS_PER_BYTE  ) ) )
 
+#endif
+
 #ifndef MODBUS_RTU_H
 #define MODBUS_RTU_H
 enum MODBUS_RTU_BIT {
@@ -306,8 +308,6 @@ enum MODBUS_TCP_REGS {
 	MODBUS_TCP_REGS_4X = 3,
 	MODBUS_TCP_REGS_3X = 2
 };
-#endif
-
 #endif
 
 #ifdef __cplusplus

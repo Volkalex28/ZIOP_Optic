@@ -50,7 +50,11 @@ typedef struct device_s
   uint8_t     errCon  : 1;
 } device_t;
 
+extern device_t * devices[];
+
 void devices_finit();
 void devices_init();
+
+void addDevice(device_t * ptr);
 
 #endif // __DEVICES_H__

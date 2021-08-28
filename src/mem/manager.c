@@ -118,7 +118,7 @@ cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues)
         cell.number, 
         count, 
         pvalues
-      );
+      ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
     break;
