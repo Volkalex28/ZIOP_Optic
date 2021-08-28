@@ -18,6 +18,10 @@
 
 void finit()
 {
+  cell_t c; c.type = memPFW; c.number = 130;
+  c.value = 2000;
+  write(c);
+
   eventClear();
   title_finit();
   devices_finit();
@@ -38,6 +42,11 @@ void init()
   }
   
   ReadConfigCrashAndEvent();
+  if(getMyIP() == 41)
+  {
+    Panel->flags.initMaster = true;
+  }
+
   addEvent(alPowerOn);
 }
 

@@ -7,6 +7,7 @@
 
 #include "dDP.h"
 
+#include "devices.h"
 #include "devices_mem.h"
 
 dDP_t DP[N_DP];
@@ -38,5 +39,7 @@ void DP_init(void)
     DP[i].reqs[0].buf     = (uint16_t *)DP[i].mem->regs;
     DP[i].reqs[0].first   = 0;
     DP[i].reqs[0].count   = 4;
+
+    addDevice(&DP[i].instance);
   }
 }

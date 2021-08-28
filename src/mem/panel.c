@@ -6,6 +6,7 @@
  */
 
 #include "manager.h"
+#include "pfw.h"
 #include "panel.h"
 #include "..\mem\crashset.h"
 
