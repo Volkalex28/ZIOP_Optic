@@ -125,6 +125,9 @@ void AddCrash(short NumberCrash)
 	Alarms[1]->buf[Alarms[1]->count] = NumberCrash;
 	Alarms[1]->count++;
 	addEvent(NumberCrash);
+
+  if (!(ReadState[(Alarms[1]->buf[i])/16] & (1 << ((Alarms[1]->buf[i])%16)))) 
+    Panel->flags.cvitCrash = 0;
 	// Panel->SettPanel.Crash = 0;
 	// Panel->SettPanel.KvitCrash = 0;
 }

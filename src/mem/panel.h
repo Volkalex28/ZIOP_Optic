@@ -35,8 +35,10 @@ typedef struct Panel_s
     uint32_t initEx       : 1;        // 0
     uint32_t enableEx     : 1;        // 1
     uint32_t menuIsOpen   : 1;        // 2
-    uint32_t noneCrash     : 1;        // 3
-  } flags;                            // 256
+    uint32_t noneCrash    : 1;        // 3
+    uint32_t reserve      : 5;        // 4..8
+    uint32_t cvitCrash    : 1;        // 9
+  } flags;                            // 256-257
   struct ChooseDevicePanel_s 
   {
     struct EventButChooseDevicePanel_s 

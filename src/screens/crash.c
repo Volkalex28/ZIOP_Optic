@@ -12,11 +12,18 @@
 
 #include "..\mem\panel.h"
 
+int j=0;
+
 void screenCrash(void)
 {
   int i, n, k;
 
   // Alarms[0]->count = 14;
+  if (PSW[256] & 1<<4)
+  {
+    AddCrash(15+(j++));
+    PSW[256] &= ~(1<<4);
+  }
   for (i = 1; i <= 14; i++)
   {
     AddCrash(i);
