@@ -32,6 +32,12 @@ typedef struct Panel_s
     uint32_t initEx       : 1;        // 0
     uint32_t enableEx     : 1;        // 1
     uint32_t menuIsOpen   : 1;        // 2
+    uint32_t bit : 1;
+    uint32_t isMaster     : 1;        // 4
+    uint32_t initMaster   : 1;        // 5
+    uint32_t errConMaster : 1;        // 6
+    uint32_t errConPanel1 : 1;        // 7
+    uint32_t errConPanel2 : 1;        // 8
   } flags;                            // 256
   struct ChooseDevicePanel_s 
   {
@@ -44,6 +50,7 @@ typedef struct Panel_s
     char TitleCh[6];                  // 260..262
   } ChooseDevice;
   uint16_t oldScreen;                 // 263
+
 } Panel_t;
 
 typedef struct Time_s {
