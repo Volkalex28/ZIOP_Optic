@@ -36,7 +36,8 @@ void init()
     finit();
     PFW->flags.firstTurnOn = false;
   }
-
+  
+  ReadConfigCrashAndEvent();
   addEvent(alPowerOn);
 }
 

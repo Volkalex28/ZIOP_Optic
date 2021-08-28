@@ -30,6 +30,10 @@ uint16_t ReadState[NumberOFCrashes*3];
 
 void FillAndEditConfigFields (void);
 void conversion(void);
+void AddCrash(short NumberCrash);
+void FillCrash(void);
+void DeleteCrash(short NumberCrash);
+void ReadConfigCrashAndEvent(void);
 
 #endif // __CRASHSET_H__
 

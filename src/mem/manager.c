@@ -13,7 +13,7 @@
 #include "../devices/devices_mem.h"
 #include "../screens/screen.h"
 
-Alarms_t      * Alarms;
+Alarms_t      * Alarms[3];
 
 com_t get_com(MemTypes_t type);
 
@@ -169,11 +169,13 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
 
 void mem_init() 
 {
-  Panel   = (Panel_t *)         &PSW[FIRST_RR_PANEL];
-  PFW     = (PFW_t *)           &PSW[FIRST_RR_FOR_EEP];
-  Screens = (Screens_t *)       &PSW[FIRST_RR_SCREEN];
-  Alarms  = (Alarms_t *)        &PSW[FIRST_RR_ALARMS];
-  dMem    = (devices_mem_t * )  &PSW[FIRST_RR_DEV_MEM];
+  Panel       = (Panel_t *)         &PSW[FIRST_RR_PANEL];
+  PFW         = (PFW_t *)           &PSW[FIRST_RR_FOR_EEP];
+  Screens     = (Screens_t *)       &PSW[FIRST_RR_SCREEN];
+  Alarms[0]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS];
+  Alarms[1]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS+sizeof(Alarms_t)/2];
+  Alarms[2]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS+sizeof(Alarms_t)];
+  dMem        = (devices_mem_t * )  &PSW[FIRST_RR_DEV_MEM];
   // T1      = (Trans_t * )        &PSW[FIRST_RR_TRANS];
   // T2      = (Trans_t * )        &PSW[FIRST_RR_TRANS+2];
   // T3      = (Trans_t * )        &PSW[FIRST_RR_TRANS+4];

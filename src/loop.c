@@ -16,11 +16,12 @@ Screens_t * Screens;
 
 void taskLoop()
 {
-//  uint16_t oldScreen = 0;
+
   init();
 
   while(true)
   {
+
     clearRRScreens();
     switch (PSW[1])
     {
@@ -46,6 +47,8 @@ void taskLoop()
     if(Panel->flags.menuIsOpen) OpenWindow(10, 600, 68); else CloseWindow(10);
   
     selectDeviceInCrashAndEvent();
+    ReadConfigCrashAndEvent();
+    FillCrash();
 
     Panel->oldScreen = PSW[1];
     updatePFW();

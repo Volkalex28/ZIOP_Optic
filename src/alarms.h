@@ -193,8 +193,9 @@ typedef struct Alarms_s
 {
   uint16_t count;
   uint16_t buf[COUNT_ALARMS];
+  // uint16_t bufTemp[COUNT_ALARMS];
 } Alarms_t;
 
-extern Alarms_t * Alarms;
+extern Alarms_t * Alarms[3];
 
 #endif // __ALARMS_H__

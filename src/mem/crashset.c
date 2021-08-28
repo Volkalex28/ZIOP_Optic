@@ -57,9 +57,9 @@ void FillAndEditConfigFields (void)
     {
       n = NumberOFCrashes*k;
 
-      c.type = memPFW; 
-      c.number = FIRST_RR_CONFCRASH + n;// + Screens->ConfCrash.Settings.Offset[0]/16; 
-      reads(c, NumberOFCrashes, &ReadState[n]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
+      // c.type = memPFW; 
+      // c.number = FIRST_RR_CONFCRASH + n;// + Screens->ConfCrash.Settings.Offset[0]/16; 
+      // reads(c, NumberOFCrashes, &ReadState[n]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
 
       number_alarm = Screens->ConfCrash.Settings.Offset[0] + i;
       if(ReadState[n + number_alarm/16] & (1 << (number_alarm%16)))
@@ -101,3 +101,83 @@ void FillAndEditConfigFields (void)
     }
   }
 }
+
+void ReadConfigCrashAndEvent(void)
+{
+  cell_t c; 
+  c.type = memPFW; 
+  c.number = FIRST_RR_CONFCRASH;// + Screens->ConfCrash.Settings.Offset[0]/16; 
+  reads(c, NumberOFCrashes*3, ReadState);  // Вкл/Выкл аварию + Маска аварий + Маска событий
+
+}
+
+void AddCrash(short NumberCrash) 
+{
+	int i, n;
+
+	if(Alarms[1]->count == COUNT_ALARMS) return;
+
+	for(i = 0; i < Alarms[1]->count; i++) {
+		if(Alarms[1]->buf[i] == NumberCrash) {
+			return;
+		}
+	}
+	Alarms[1]->buf[Alarms[1]->count] = NumberCrash;
+	Alarms[1]->count++;
+	addEvent(NumberCrash);
+	// Panel->SettPanel.Crash = 0;
+	// Panel->SettPanel.KvitCrash = 0;
+}
+
+void FillCrash(void) 
+{
+	int i, n;
+
+  Alarms[2]->count = 0;
+
+  for(i = 0; i < Alarms[1]->count; i++) 
+  {
+    if (!(ReadState[NumberOFCrashes + (Alarms[1]->buf[i])/16] & (1 << ((Alarms[1]->buf[i])%16))))
+      Alarms[2]->buf[Alarms[2]->count++] = Alarms[1]->buf[i];
+  }
+
+  for(i = 0; i < Alarms[2]->count; i++)
+  {
+    Alarms[0]->buf[i] = Alarms[2]->buf[i];
+  }
+  Alarms[0]->count = Alarms[2]->count;
+
+  for(i = 0; i < Alarms[1]->count; i++) 
+  {
+    if (!(ReadState[(Alarms[1]->buf[i])/16] & (1 << ((Alarms[1]->buf[i])%16)))) 
+    {
+      Panel->flags.noneCrash = false;
+      return;
+    }
+  }
+  Panel->flags.noneCrash = true;
+}
+
+
+void DeleteCrash(short NumberCrash) {
+	int i, n;
+
+	if(!Alarms[1]->count) {
+		// Panel->SettPanel.Crash = 1;
+		return;
+	}
+	for(i = 0; i < Alarms[1]->count; i++) {
+		if(Alarms[1]->buf[i] == NumberCrash) {
+			Alarms[1]->count--;
+			for(; i < Alarms[1]->count; i++) {
+				Alarms[1]->buf[i] = Alarms[1]->buf[i+1];
+			}
+			Alarms[1]->buf[i] = 0;
+
+			// if(NumberCrash >= EndEventPanel && NumberCrash < EndEventErrCon) {
+			// 	Event(NumberCrash+EndEventErrCon-EndEventPanel);
+			// }
+		}
+	}
+}
+

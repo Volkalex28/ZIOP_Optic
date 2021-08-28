@@ -7,6 +7,7 @@
 
 #include "manager.h"
 #include "panel.h"
+#include "..\mem\crashset.h"
 
 Panel_t * Panel;
 
@@ -33,7 +34,10 @@ void addEvent(Alarm_t number)
   EventByte_t	EventS;
   Time_t * pTime;
   cell_t c;
-    
+
+  if (ReadState[NumberOFCrashes*2 + number/16] & (1 << (number%16)))
+    return;
+
   if(PFW->N_Event >= NUMBER_EVENTS) {
     PFW->N_Event = 0;											
     PFW->CB++;
@@ -51,6 +55,7 @@ void addEvent(Alarm_t number)
   c.type = memPFW; 
   c.number = FIRST_RR_EVENT + PFW->N_Event*NUMBER_RR_FOR_ONE_EVENT;
   writes(c, NUMBER_RR_FOR_ONE_EVENT, &CAST_TO_U16(EventS));
-  
+
   PFW->N_Event++;
+
 }
