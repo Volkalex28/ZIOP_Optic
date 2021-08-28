@@ -5,10 +5,10 @@
  * 
  */
 
+#include "panel.h"
+
 #include "manager.h"
 #include "pfw.h"
-#include "panel.h"
-#include "..\mem\crashset.h"
 
 Panel_t * Panel;
 
@@ -17,7 +17,7 @@ uint8_t getMyIP(void) {
   return read(c).value; 
 }
 
-Time_t * time()
+Time_t * time(void)
 {
   PSW[TIME_SEC]    = (PSW[35]/16)*10 + PSW[35]%16;
   PSW[TIME_MIN]    = (PSW[34]/16)*10 + PSW[34]%16;
@@ -29,34 +29,7 @@ Time_t * time()
   return (Time_t *)&PSW[TIME_HOUR];
 }
 
-void addEvent(Alarm_t number)
+void initPanel(void)
 {
-  int i;
-  EventByte_t	EventS;
-  Time_t * pTime;
-  cell_t c;
-
-  if (ReadState[NumberOFCrashes*2 + number/16] & (1 << (number%16)))
-    return;
-
-  if(PFW->N_Event >= NUMBER_EVENTS) {
-    PFW->N_Event = 0;											
-    PFW->CB++;
-  }
-    
-  pTime = time();		
-  EventS.Sec    = pTime->Sec;
-  EventS.Min    = pTime->Min;
-  EventS.Hour   = pTime->Hour;
-  EventS.Day    = pTime->Day;
-  EventS.Month  = pTime->Month;
-  EventS.Year   = pTime->Year;
-  EventS.Event  = number;
-
-  c.type = memPFW; 
-  c.number = FIRST_RR_EVENT + PFW->N_Event*NUMBER_RR_FOR_ONE_EVENT;
-  writes(c, NUMBER_RR_FOR_ONE_EVENT, &CAST_TO_U16(EventS));
-
-  PFW->N_Event++;
-
+  Panel = (Panel_t *)&PSW[FIRST_RR_PANEL];
 }

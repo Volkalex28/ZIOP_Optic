@@ -10,20 +10,16 @@
 #include "..\alarms.h"
 
 #include "..\mem\panel.h"
-#include "..\mem\crashset.h"
 #include "..\mem\manager.h"
+
+void fillAndEditMaskMessage(void);
+void conversion(void);
 
 void screenConfCrash(void)
 {
   uint16_t i, n, k, off;
-  cell_t c; 
-  
 
-  // ReadState[0]=126;
-  // ReadState[NumberOFCrashes]=102;
-  // ReadState[NumberOFCrashes*2]=84;
-
-  if (Panel->ChooseDevice.ResetCrashList)
+  if(Panel->ChooseDevice.ResetCrashList)
   {
     conversion();
     Screens->ConfCrash.Settings.Count = 0;
@@ -31,18 +27,12 @@ void screenConfCrash(void)
     Screens->ConfCrash.Settings.OffsetConf = 0;
   }
   
-  FillAndEditConfigFields();
-  // Screens->ConfCrash.Settings.Maska.State = 0;
-  // for (i = 0; i < 7; i++)
-  // {
-  //   k = ReadState [(Screens->ConfCrash.Settings.Offset[0]+i)/16] >> ((Screens->ConfCrash.Settings.Offset[0]+i)%16); 
-  //   Screens->ConfCrash.Settings.Maska.State |= k << i;
-  // }
+  fillAndEditMaskMessage();
 
   selectNormalBlock(&Screens->ConfCrash.Settings.Count, 
     (Screens->ConfCrash.Settings.NumbersCrash < 6) 
       ? 0 
-      : Screens->ConfCrash.Settings.NumbersCrash - 6 , 
+      : Screens->ConfCrash.Settings.NumbersCrash - 6, 
     0,
     Screens->ConfCrash.Settings.Event.Up, 
     Screens->ConfCrash.Settings.Event.Down
@@ -105,47 +95,62 @@ void screenConfCrash(void)
       break;
    }
   }
-  
-  // Screens->ConfCrash.Settings.Maska.ChState = ReadState [(Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf)/16] >> ((Screens->ConfCrash.Settings.Offset[0]+Screens->ConfCrash.Settings.OffsetConf)%16); 
-  // Screens->ConfCrash.Settings._71 = Screens->ConfCrash.Settings.Maska.ChState;
-
-  // if (Screens->ConfCrash.Settings.Event.ChState)
-  // {
-  //   off = Screens->ConfCrash.Settings.Offset[0]+Screens->ConfCrash.Settings.OffsetConf;
-  //   c.type = memPFW; c.number = off/16; c.value = ReadState[c.number];
-  //   if (c.value & (1<<(off%16)))
-  //   {
-  //     c.value &= ~(1<<(off%16));
-  //   }
-  //   else
-  //   {
-  //     c.value |= (1<<(off%16));
-  //   }
-  //   Screens->ConfCrash.Settings._71 = off;
-  //   Screens->ConfCrash.Settings.Event.ChState = false;
-  //   c.number += FIRST_RR_CONFCRASH + NumberOFCrashes*0;
-  //   write(c);
-  // }
-    
-    Screens->ConfCrash.Settings._72 = ReadState[Screens->ConfCrash.Settings.Offset[0]/16];
-    
-    // c.type = memPFW; 
-    // c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*0;// + Screens->ConfCrash.Settings.Offset[0]/16; 
-    // reads(c, NumberOFCrashes, &ReadState[0]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
-
-    // c.type = memPFW; 
-    // c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*1 + Screens->ConfCrash.Settings.Offset[0]/16; 
-    // reads(c, 2, &ReadMCrash[Screens->ConfCrash.Settings.Offset[0]/16]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
-
-    // c.type = memPFW; 
-    // c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*2 + Screens->ConfCrash.Settings.Offset[0]/16; 
-    // reads(c, 2, &ReadMEvent[Screens->ConfCrash.Settings.Offset[0]/16]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
-
-  // for (i == 0; i < 3; i++)
-  // {
-  //   c.type = memPFW; 
-  //   c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*i + Screens->ConfCrash.Settings.Offset[0]/16; 
-  //   reads(c, 2, &ReadState[Screens->ConfCrash.Settings.Offset[0]/16]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
-  // }
 }
 
+void fillAndEditMaskMessage(void)
+{
+  size_t i, k;
+
+  for (k = 0; k < alarmsMaskCount; k++)
+  {
+    for(i = 0; i < 6; i++)
+    {
+      if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + i))
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= (1 << (6*k + i));
+      else
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= ~(1 << (6*k + i));
+    }
+//-------------------------------------------------------------------------------------------------
+    if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf))
+      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= (1 << (24 + k));
+    else
+      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= ~(1 << (24 + k));
+//-------------------------------------------------------------------------------------------------
+    if(CAST_TO_U16(Screens->ConfCrash.Settings.Event) & (1 << (4 + k)))
+    {
+      uint16_t off;
+
+      off = Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf;
+      setMask(k, off, !isMasked(k, off));
+      
+      CAST_TO_U16(Screens->ConfCrash.Settings.Event) &= ~(1 << (4 + k));
+    }
+  }
+}
+
+void conversion(void)
+{
+  switch(Panel->ChooseDevice.Select)
+  {
+    case 0:   
+      Screens->ConfCrash.Settings.OffsetOfCrash = alNone + 1;
+      Screens->ConfCrash.Settings.NumbersCrash = alEndArm - 1;
+    break;
+    case 1:
+      Screens->ConfCrash.Settings.OffsetOfCrash = alEndArm;
+      Screens->ConfCrash.Settings.NumbersCrash = alEndShort - alEndArm;
+    break;
+    case 2:
+      Screens->ConfCrash.Settings.OffsetOfCrash = alEndShort;
+      Screens->ConfCrash.Settings.NumbersCrash = alEndShsn - alEndShort;
+    break;
+    case 3:
+      Screens->ConfCrash.Settings.OffsetOfCrash = alEndShsn;
+      Screens->ConfCrash.Settings.NumbersCrash = alAll - alEndShsn;
+    break;
+    default:
+      Screens->ConfCrash.Settings.OffsetOfCrash = 0;
+      Screens->ConfCrash.Settings.NumbersCrash = 0;
+    break;
+  }
+}

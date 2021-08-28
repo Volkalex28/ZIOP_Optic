@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_ZVU_H__
-#define __SCREEN_ZVU_H__
+#ifndef __SCREENS_ZVU_H__
+#define __SCREENS_ZVU_H__
 
 #include "../lib.h"
 
@@ -43,5 +43,5 @@ typedef struct ScreenZvu_s
 
 void screenZvu(void);
 
-#endif // __ZVU_H__
+#endif // __SCREENS_ZVU_H__
 

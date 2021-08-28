@@ -8,11 +8,12 @@
 #include "lib.h"
 
 #include "devices/devices.h"
+
 #include "mem/panel.h"
 
 //-------------------------
-void writeDevice();
-void readDevice();
+void writeDevice(void);
+void readDevice(void);
 
 void taskExchangeRead(void)
 {
@@ -50,26 +51,12 @@ void taskExchangeWrite(void)
 
 void writeDeviceMaster(MemTypes_t port, uint8_t number)
 {
-  int i;
-  for(i = 0; i < 2; i++)
-  {
-    if(PSW[300] & (1 << (number + 8*i)))
-    {
-      cell_t c;
-      c.type = port; c.adress = 1; c.number = 1000 + 2*number + i; c.value = PSW[c.number];
-      if(write(c).status == memStatusOK)
-      { 
-        c.number = 900; c.value = 1 << (number + i*8);
-        if(write(c).status == memStatusOK)
-          PSW[300] &= ~(1 << (number + 8*i));
-      }
-    }
-  }
+  
 }
 
 void writeDeviceSlave(MemTypes_t port, uint8_t number)
 {
-  int i;
+  size_t i;
   for(i = 0; i < 2; i++)
   {
     if(PSW[900] & (1 << (number + 8*i)))
@@ -82,25 +69,23 @@ void writeDeviceSlave(MemTypes_t port, uint8_t number)
   }
 }
 
-void writeDevice()
+void writeDevice(void)
 {
-  int i;
+  size_t i;
+
   switch (getMyIP())
   {
   case 41:
   case 42:
-    // writeDeviceMaster(net0, 0);
-    // writeDeviceMaster(net1, 1);
-    // writeDeviceMaster(net0, 2);
-    // writeDeviceMaster(net0, 3);
-    // writeDeviceMaster(net1, 4);
-    // writeDeviceMaster(net1, 5);
+
     break;
+
   case 43: 
     writeDeviceSlave(net0, 0); 
     writeDeviceSlave(net1, 2); 
     writeDeviceSlave(net2, 3); 
     break;
+    
   case 44: 
     writeDeviceSlave(net0, 1); 
     writeDeviceSlave(net1, 4); 
@@ -112,9 +97,9 @@ void writeDevice()
   }
 }
 
-void readDevice()
+void readDevice(void)
 {
-  int i;
+  size_t i;
   struct FlagsPanel_s flags;
   cell_t c;
 

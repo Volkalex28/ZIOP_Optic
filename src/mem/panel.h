@@ -8,25 +8,22 @@
 #ifndef __MEM_PANEL_H__
 #define __MEM_PANEL_H__
 
-#include "../lib.h"
-#include "../alarms.h"
+#include "manager.h"
 
-#define GetUserLevelAvtorisation 	GetPSBStatus(B_ACCES_2LEVEL)
+#include "../alarms.h"
+#include "../lib.h"
+
+#define FIRST_RR_PANEL    256
+#define COUNT_RR_PANEL    (500 - FIRST_RR_PANEL)
+
+#define GetUserLevelAvtorisation 	  GetPSBStatus(B_ACCES_2LEVEL)
 #define GetAdminLevelAvtorisation 	GetPSBStatus(B_ACCES_9LEVEL)
 
-#define SetUserLevelAvtorisation 	SetPSB(B_ACCES_2LEVEL)
+#define SetUserLevelAvtorisation 	  SetPSB(B_ACCES_2LEVEL)
 #define SetAdminLevelAvtorisation 	SetPSB(B_ACCES_9LEVEL)
 
 #define ResetUserLevelAvtorisation 	ResetPSB(B_ACCES_2LEVEL)
 #define ResetAdminLevelAvtorisation	ResetPSB(B_ACCES_9LEVEL)
-#define NUMBER_EVENTS           1000
-#define FIRST_RR_EVENT          5000
-#define NUMBER_RR_FOR_ONE_EVENT (sizeof(EventByte_t)/2)
-
-#define FIRST_RR_CONFCRASH      1000
-
-
-typedef enum EState {stateMaster, stateSlave, stateMasterInit, stateSlaveInit} State_t;
 
 typedef struct Panel_s
 {
@@ -53,7 +50,7 @@ typedef struct Panel_s
     int16_t Select;                   // 259
     char TitleCh[6];                  // 260..262
     uint16_t ResetCrashList;          // 263
-  } ChooseDevice;
+  } ChooseDevice;                     // 258-263
   uint16_t oldScreen;                 // 264
 } Panel_t;
 
@@ -66,22 +63,10 @@ typedef struct Time_s {
   uint16_t Year;
 } Time_t;
 
-typedef struct EventByte_s {
-	uint8_t Min;
-	uint8_t Hour;
-	uint8_t Day;
-	uint8_t Sec;
-	uint8_t Year;
-	uint8_t Month;
-	uint16_t Event;
-} EventByte_t;
-
 extern Panel_t * Panel;
 
 uint8_t getMyIP(void);
-void addEvent(Alarm_t number);
-
-
-
+Time_t * time(void);
+void initPanel(void);
 
 #endif // __MEM_PANEL_H__

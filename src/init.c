@@ -6,6 +6,8 @@
  */
 
 #include "init.h"
+
+#include "alarms.h"
 #include "titles.h"
 
 #include "devices/devices.h"
@@ -14,26 +16,30 @@
 #include "mem/panel.h"
 #include "mem/pfw.h"
 
-#include "screens/events.h"
+#include "screens/screen.h"
 
-void finit()
+void finit(void)
 {
   cell_t c; c.type = memPFW; c.number = 130;
   c.value = 2000;
   write(c);
 
-  eventClear();
-  title_finit();
-  devices_finit();
+  clearEvets();
+  finitDevices();
+  finitTitle();
   
   SetUserLevelAvtorisation;
   SetAdminLevelAvtorisation;
 }
 
-void init()
+void init(void)
 {
-  mem_init();
-  devices_init();
+  initMem();
+  initPFW();
+  initPanel();
+  initDevices();
+  initAlarms();
+  initScreens();
   
   if(PFW->flags.firstTurnOn == true)
   {
@@ -41,12 +47,10 @@ void init()
     PFW->flags.firstTurnOn = false;
   }
   
-  ReadConfigCrashAndEvent();
+  readMaskMessages();
   if(getMyIP() == 41)
   {
     Panel->flags.initMaster = true;
   }
-
-  addEvent(alPowerOn);
 }
 

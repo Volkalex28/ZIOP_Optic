@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_SHOT_H__
-#define __SCREEN_SHOT_H__
+#ifndef __SCREENS_SHOT_H__
+#define __SCREENS_SHOT_H__
 
 #include "../lib.h"
 
@@ -47,4 +47,4 @@ typedef struct ScreenShot_s
 
 void screenShot(void);
 
-#endif // __SHOT_H__
+#endif // __SCREENS_SHOT_H__

@@ -12,24 +12,24 @@
 
 #include "..\mem\panel.h"
 
-int j=0;
+size_t j = 0;
 
 void screenCrash(void)
 {
-  int i, n, k;
+  size_t i, n, k;
 
   // Alarms[0]->count = 14;
-  if (PSW[256] & 1<<4)
-  {
-    AddCrash(15+(j++));
-    PSW[256] &= ~(1<<4);
-  }
+  // if (PSW[256] & 1<<4)
+  // {
+  //   addCrash(15+(j++));
+  //   PSW[256] &= ~(1<<4);
+  // }
   for (i = 1; i <= 14; i++)
   {
-    AddCrash(i);
+    addCrash(i);
   }
   
-  selectCircle(&Screens->Crash.Settings.Count, (Alarms[0]->count < 6) ? 0 : Alarms[0]->count - 6 , 0, \
+  selectCircle(&Screens->Crash.Settings.Count, (Alarms[alarmsActual]->count < 6) ? 0 : Alarms[alarmsActual]->count - 6 , 0, \
     Screens->Crash.Settings.Event.Up, Screens->Crash.Settings.Event.Down);
   Screens->Crash.Settings.Event.Up = Screens->Crash.Settings.Event.Down = false;
 
@@ -39,13 +39,13 @@ void screenCrash(void)
     Screens->Crash.Settings.Event.JumpScreen = true; 
   }
 
-  Screens->Crash.Settings.NCrash = Alarms[0]->count;
-  if(Alarms[0]->count != 0) 
+  Screens->Crash.Settings.NCrash = Alarms[alarmsActual]->count;
+  if(Alarms[alarmsActual]->count != 0) 
   {
-    for(i = 0; i < (Alarms[0]->count < 6 ? Alarms[0]->count : 6); i++) 
+    for(i = 0; i < (Alarms[alarmsActual]->count < 6 ? Alarms[alarmsActual]->count : 6); i++) 
     {
-      Screens->Crash.Settings.NumberCrash[i] = Alarms[0]->count - Screens->Crash.Settings.Count - i;
-      Screens->Crash.Settings.Offset[i] = Alarms[0]->buf[Screens->Crash.Settings.NumberCrash[i] - 1];
+      Screens->Crash.Settings.NumberCrash[i] = Alarms[alarmsActual]->count - Screens->Crash.Settings.Count - i;
+      Screens->Crash.Settings.Offset[i] = Alarms[alarmsActual]->buf[Screens->Crash.Settings.NumberCrash[i] - 1];
       Screens->Crash.Settings.Visible.EnOffset |= (1<<i);
     }
     for(; i < 6; i++) 
@@ -59,7 +59,7 @@ void screenCrash(void)
     Screens->Crash.Settings.Visible.EnOffset = false;
   }
 
-  if(Alarms[0]->count <= 6) 
+  if(Alarms[alarmsActual]->count <= 6) 
   {
     Screens->Crash.Settings.Visible.ArrowUp = Screens->Crash.Settings.Visible.ArrowDown = false;
   }
@@ -68,7 +68,7 @@ void screenCrash(void)
     Screens->Crash.Settings.Visible.ArrowUp = false;
     Screens->Crash.Settings.Visible.ArrowDown = true;
   }
-  else if(Screens->Crash.Settings.Count == Alarms[0]->count - 6) 
+  else if(Screens->Crash.Settings.Count == Alarms[alarmsActual]->count - 6) 
   {
     Screens->Crash.Settings.Visible.ArrowUp = true;
     Screens->Crash.Settings.Visible.ArrowDown = false;

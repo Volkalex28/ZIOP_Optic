@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __DDP_H__
-#define __DDP_H__
+#ifndef __DEVICES_DDP_H__
+#define __DEVICES_DDP_H__
 
 #include "devices.h"
 
@@ -16,4 +16,4 @@ DEF_DEVICE(DP, 1,
   uint16_t regs[4];
 )
 
-#endif // __DDP_H__
+#endif // __DEVICES_DDP_H__

@@ -11,4 +11,5 @@
     "panel.h": "c",
     "screen.h": "c"
   },
+  "files.encoding": "windows1251",
 }

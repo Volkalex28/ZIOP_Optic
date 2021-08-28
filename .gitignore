@@ -2,3 +2,4 @@ test.*
 build/
 ZIOP_Optic.txp
 test_for_support_of_owen.txp
+doc/html/

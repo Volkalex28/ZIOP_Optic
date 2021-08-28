@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_CRASH_H__
-#define __SCREEN_CRASH_H__
+#ifndef __SCREENS_CRASH_H__
+#define __SCREENS_CRASH_H__
 
 #include "../lib.h"
 
@@ -36,4 +36,4 @@ typedef struct ScreenCrash_s
 
 void screenCrash(void);
 
-#endif // __CRASH_H__
+#endif // __SCREENS_CRASH_H__

@@ -6,11 +6,12 @@
  */
 
 #include "titles.h"
+
 #include "mem/manager.h"
 
-void title_finit(void)
+void finitTitle(void)
 {
-  int i = 0;
+  size_t i = 0;
   uint16_t temp[COUNT_RR_ONE_TITLE] = {0};
 
   for(i = 0; arrTitles[i].number != alNone; i++)

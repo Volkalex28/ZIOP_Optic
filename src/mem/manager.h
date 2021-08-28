@@ -1,8 +1,17 @@
 /**
  * @file manager.h
  * @author VAlex28 (anan20000228@gmail.com)
- * @brief 
+ * @brief Заголовочный файл модуля для работы с памятью и портами
  * 
+ * С помощью этого модуля осуществяется обмен с внешними устройствами 
+ * посредством портов, а также чтение/запись во внутреннюю память панели
+ */
+
+/**
+ * @defgroup Manager Менеджер данных
+ * @ingroup Data
+ * 
+ * Модуль работы с данными (как из внутренней памяти, так и из памяти внешних устройств)
  */
 
 #ifndef __MEM_MANAGER_H__
@@ -10,23 +19,11 @@
 
 #include "../lib.h"
 
-#define FIRST_RR_PANEL    256
-#define COUNT_RR_PANEL    (500-FIRST_RR_PANEL)
+#define CAST_TO_U16(_REG_)    (*(uint16_t *)& ## _REG_)
+#define CAST_TO_U32(_REG_)    (*(uint32_t *)& ## _REG_)
+#define CAST_TO_PU16(_REG_)   (*(uint16_t **)& ## _REG_)
 
-#define FIRST_RR_EEP      256
-#define FIRST_RR_FOR_EEP  2000
-#define FIRST_RR_FOR_EEP  2000
-#define COUNT_RR_EEP      500
-
-#define FIRST_RR_ALARMS   700
-
-#define FIRST_RR_SCREEN   500
-
-#define FIRST_RR_DEV_MEM  2500
-
-#define CAST_TO_U16(_REG_)    (*(uint16_t *)&##_REG_)
-#define CAST_TO_U32(_REG_)    (*(uint32_t *)&##_REG_)
-#define CAST_TO_PU16(_REG_)   (*(uint16_t **)&##_REG_)
+#define CALC_COUNT_RR(_OBJ_)  (sizeof( _OBJ_ ) / sizeof(uint16_t))
 
 enum PSW_Registers {
   TIME_HOUR    = 4090,
@@ -84,16 +81,57 @@ typedef struct cell_s
   int8_t status;
 } cell_t;
 
-
+/**
+ * @brief 
+ * 
+ * @param cell 
+ * @return cell_t 
+ */
 cell_t read(cell_t cell);
+
+/**
+ * @brief 
+ * 
+ * @param cell 
+ * @return cell_t 
+ */
 cell_t write(cell_t cell);
+
+/**
+ * @brief 
+ * 
+ * @param cell 
+ * @param count 
+ * @param pvalues 
+ * @return cell_t 
+ */
 cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues);
+
+/**
+ * @brief 
+ * 
+ * @param cell 
+ * @param count 
+ * @param pvalues 
+ * @return cell_t 
+ */
 cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues);
 
+/**
+ * @brief Get the ptr object
+ * 
+ * @param ret 
+ */
 void get_ptr(cell_t * ret);
 
-void mem_init();
-void clearRRScreens();
-void fillRRScreens();
+/**
+ * @brief 
+ * 
+ */
+void initMem();
+
+void selectCircle(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
 
 #endif // __MEM_MANAGER_H__

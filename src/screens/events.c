@@ -6,16 +6,18 @@
  */
 
 #include "events.h"
+
 #include "screen.h"
 
 #include "../alarms.h"
+
 #include "../mem/manager.h"
 #include "../mem/panel.h"
 #include "../mem/pfw.h"
 
 void screenEvent(void)
 {
-  int i;
+  size_t i;
   short Stroka = 0;
   short NEventForLine = 0;
   EventByte_t EventBuf[NUMBER_LINES_ON_SCREEN];
@@ -26,23 +28,23 @@ void screenEvent(void)
 
   if(Screens->Event.Config.Zero) 
   {
-    eventClear();
+    clearEvets();
     Screens->Event.Config.Zero = 0;
   }
 
   if(Screens->Event.Mode == 0) 
   {
     Stroka = PFW->N_Event;
-    Screens->Event.N_Event = (PFW->CB != 0) ? NUMBER_EVENTS : PFW->N_Event;
+    Screens->Event.N_Event = (PFW->CB != 0) ? COUNT_EVENTS : PFW->N_Event;
   }
   
-  Screens->Event.MaxEvent = NUMBER_EVENTS;
+  Screens->Event.MaxEvent = COUNT_EVENTS;
   
   if(!Screens->Event.Config.JumpScreen || Screens->Event.Config.Auto) 
   {
     if(Stroka < (NUMBER_LINES_ON_SCREEN - 1))
       Screens->Event.Cnt = 0;
-    else if(Stroka <= (NUMBER_EVENTS - 1)) 
+    else if(Stroka <= (COUNT_EVENTS - 1)) 
       Screens->Event.Cnt = Stroka - (NUMBER_LINES_ON_SCREEN - 1);	
     else 
       Screens->Event.Cnt = Stroka - NUMBER_LINES_ON_SCREEN;
@@ -56,18 +58,18 @@ void screenEvent(void)
     {
       if(Stroka < (NUMBER_LINES_ON_SCREEN - 1))
         Screens->Event.CntMax = 0;	
-      else if(Stroka <= (NUMBER_EVENTS - 1))
+      else if(Stroka <= (COUNT_EVENTS - 1))
         Screens->Event.CntMax = Stroka - (NUMBER_LINES_ON_SCREEN - 1);	
       else
         Screens->Event.CntMax = Stroka - NUMBER_LINES_ON_SCREEN;
     }
     else 
     {
-      Screens->Event.CntMax = NUMBER_EVENTS - NUMBER_LINES_ON_SCREEN;
+      Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN;
     }
   }
   else {
-    Screens->Event.CntMax = NUMBER_EVENTS - NUMBER_LINES_ON_SCREEN;
+    Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN;
   }
   Screens->Event.CntMin = 0;
   
@@ -77,9 +79,9 @@ void screenEvent(void)
 
   for(i = 0; i < NUMBER_LINES_ON_SCREEN; i++) 
   {
-    short Number = Screens->Event.Cnt + PFW->CB*NUMBER_EVENTS + 1 + i;
+    short Number = Screens->Event.Cnt + PFW->CB*COUNT_EVENTS + 1 + i;
     
-    if(Number <= Stroka + PFW->CB*NUMBER_EVENTS) 
+    if(Number <= Stroka + PFW->CB*COUNT_EVENTS) 
     {
       Screens->Event.EventReg[i].Number = Number;
       if(PFW->CB != 0)
@@ -87,7 +89,7 @@ void screenEvent(void)
     }
     else 
     {
-      Screens->Event.EventReg[i].Number = Number - NUMBER_EVENTS;
+      Screens->Event.EventReg[i].Number = Number - COUNT_EVENTS;
     }
 
     Screens->Event.EventReg[i].Time.Hour     = EventBuf[i].Hour;
@@ -105,11 +107,11 @@ void screenEvent(void)
 
 void eventClear(void)
 {
-  int i;
+  size_t i;
   uint16_t zero_buf[NUMBER_RR_FOR_ONE_EVENT] = {0};
   
   PFW->CB = PFW->N_Event = 0;
-  for(i = 0; i < NUMBER_EVENTS; i++)
+  for(i = 0; i < COUNT_EVENTS; i++)
   {
     cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT + i*NUMBER_RR_FOR_ONE_EVENT;
     writes(c, NUMBER_RR_FOR_ONE_EVENT, zero_buf);

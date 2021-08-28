@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __EVENTS_H__
-#define __EVENTS_H__
+#ifndef __SCREENS_EVENTS_H__
+#define __SCREENS_EVENTS_H__
 
 #include "../lib.h"
 #include "../mem/panel.h"
@@ -39,6 +39,5 @@ typedef struct ScreenEvent_s
 } ScreenEvent_t;
 
 void screenEvent(void);
-void eventClear(void);
 
-#endif // __EVENTS_H__
+#endif // __SCREENS_EVENTS_H__

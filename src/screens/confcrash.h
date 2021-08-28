@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_CONFCRASH_H__
-#define __SCREEN_CONFCRASH_H__
+#ifndef __SCREENS_CONFCRASH_H__
+#define __SCREENS_CONFCRASH_H__
 
 #include "../lib.h"
 
@@ -55,4 +55,4 @@ typedef struct ScreenConfCrash_s
 
 void screenConfCrash(void);
 
-#endif // __CONFCRASH_H__
+#endif // __SCREENS_CONFCRASH_H__

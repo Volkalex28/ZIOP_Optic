@@ -7,7 +7,7 @@
 
 void screenBkif(void)
 {
-  int i;
+  size_t i;
 
   static short Nfider, KalibrK, LevelR, En_Sekcion;
   static short U1Osn, U1Dop, R1Plus, R1Minus, U1Plus, U1Minus;

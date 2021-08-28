@@ -19,12 +19,21 @@ typedef struct Title_s
   const char * name;
 } Title_t;
 
-void title_finit(void);
+void finitTitle(void);
 
 const Title_t arrTitles[] = {
-  {alPowerOn,               "Включение панели"},
-  {alOpenUserAccess,        "Доступ пользователя открыт"},
-  {alOpenAdminAccess,       "Доступ администратора открыт"},
+  {alPowerOn1,               "Включение панели 1"},
+  {alPowerOn2,               "Включение панели 2"},
+  {alPowerOn3,               "Включение панели 3"},
+  {alPowerOn4,               "Включение панели 4"},
+  {alOpenUserAccess1,        "Доступ пользователя панели 1 открыт"},
+  {alOpenUserAccess2,        "Доступ пользователя панели 2 открыт"},
+  {alOpenUserAccess3,        "Доступ пользователя панели 3 открыт"},
+  {alOpenUserAccess4,        "Доступ пользователя панели 4 открыт"},
+  {alOpenAdminAccess1,       "Доступ администратора панели 1 открыт"},
+  {alOpenAdminAccess2,       "Доступ администратора панели 2 открыт"},
+  {alOpenAdminAccess3,       "Доступ администратора панели 3 открыт"},
+  {alOpenAdminAccess4,       "Доступ администратора панели 4 открыт"},
 
   {alConFailPanel1,         "Обрыв связи с АРМ1"},
   {alConFailPanel2,         "Обрыв связи с АРМ2"},

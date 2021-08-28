@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __DEVICES_H__
-#define __DEVICES_H__
+#ifndef __DEVICES_DEVICES_H__
+#define __DEVICES_DEVICES_H__
 
 #include "../mem/manager.h"
 
@@ -19,8 +19,8 @@
     request_t reqs[NREQ];           \
     d##NAME##mem_t * mem;           \
   } d##NAME##_t;                    \
-  void NAME##_finit(void);          \
-  void NAME##_init(void);
+  void finit##NAME(void);          \
+  void init##NAME(void);
 
 typedef struct dmain_s
 {
@@ -40,7 +40,6 @@ typedef struct request_s
   uint8_t     count;
 } request_t;
 
-
 typedef struct device_s
 {
   dmain_t *   main;
@@ -52,9 +51,9 @@ typedef struct device_s
 
 extern device_t * devices[];
 
-void devices_finit();
-void devices_init();
+void finitDevices();
+void initDevices();
 
 void addDevice(device_t * ptr);
 
-#endif // __DEVICES_H__
+#endif // __DEVICES_DEVICES_H__

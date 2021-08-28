@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_SCREEN_H__
-#define __SCREEN_SCREEN_H__
+#ifndef __SCREENS_SCREEN_H__
+#define __SCREENS_SCREEN_H__
 
 #include "confcrash.h"
 #include "crash.h"
@@ -15,6 +15,8 @@
 #include "zvu.h"
 #include "bki_f.h"
 #include "shsn.h"
+
+#define FIRST_RR_SCREEN 500
 
 enum EScreen
 {
@@ -35,10 +37,20 @@ typedef union Screens_s
 
 extern Screens_t * Screens;
 
-void selectCircle(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
-void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
-void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
-
 void selectDeviceInCrashAndEvent(void);
 
-#endif // __SCREEN_H__
+/**
+ * @brief 
+ * 
+ */
+void clearRRScreens();
+
+/**
+ * @brief 
+ * 
+ */
+void fillRRScreens();
+
+void initScreens(void);
+
+#endif // __SCREENS_SCREEN_H__

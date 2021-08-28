@@ -5,7 +5,10 @@
  * 
  */
 
+#include "devices.h"
+
 #include "devices_mem.h"
+
 #include "dDP.h"
 
 devices_mem_t * dMem;
@@ -14,19 +17,21 @@ devices_pfw_t * dMemPFW;
 uint16_t countDevice;
 device_t * devices[N_DP+1];
 
-void devices_finit()
+void finitDevices()
 {
   DP_finit();
 }
 
-void devices_init()
+void initDevices()
 {
   countDevice = 0;
+  dMem = (devices_mem_t * )&PSW[FIRST_RR_DEV_MEM];
+
   DP_init();
   addDevice(NULL);
 }
 
 void addDevice(device_t * ptr)
 {
-  devices[countDevice++]  = ptr;
+  devices[countDevice++] = ptr;
 }

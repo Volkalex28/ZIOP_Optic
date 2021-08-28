@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef __SCREEN_SHSN_H__
-#define __SCREEN_SHSN_H__
+#ifndef __SCREENS_SHSN_H__
+#define __SCREENS_SHSN_H__
 
 #include "../lib.h"
 
@@ -41,5 +41,5 @@ typedef struct ScreenShsn_s
 
 void screenShsn(void);
 
-#endif // __SHSN_H__
+#endif // __SCREENS_SHSN_H__
 

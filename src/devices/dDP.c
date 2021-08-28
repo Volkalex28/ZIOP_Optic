@@ -12,9 +12,9 @@
 
 dDP_t DP[N_DP];
 
-void DP_finit(void)
+void finitDP(void)
 {
-  int i, n;
+  size_t i, n;
 
   for(i = 0; i < N_DP; i++)
   {
@@ -24,9 +24,9 @@ void DP_finit(void)
   }
 }
 
-void DP_init(void)
+void initDP(void)
 {
-  int i, n;
+  size_t i, n;
 
   for(i = 0; i < N_DP; i++)
   {

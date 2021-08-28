@@ -6,7 +6,10 @@
  */
 
 #include "pfw.h"
+
 #include "manager.h"
+
+#include "../devices/devices_mem.h"
 
 PFW_t * PFW;
 
@@ -18,7 +21,7 @@ void getPFW()
 
 void updatePFW()
 {
-  int i;
+  size_t i;
   for(i = 0; i < COUNT_RR_EEP; i++)
   {
     cell_t c; c.type = memPFW; c.number = FIRST_RR_EEP + i; 
@@ -29,4 +32,12 @@ void updatePFW()
       write(c);
     }
   }
+}
+
+void initPFW(void)
+{
+  PFW     = (PFW_t *)&PSW[FIRST_RR_FOR_EEP];
+  dMemPFW = &PFW->dMemPFW;
+
+  getPFW();
 }

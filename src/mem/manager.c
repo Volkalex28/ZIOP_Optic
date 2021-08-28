@@ -6,17 +6,13 @@
  */
 
 #include "manager.h"
-#include "panel.h"
+
 #include "pfw.h"
 
-#include "../alarms.h"
-#include "../devices/devices_mem.h"
-#include "../screens/screen.h"
-
-Alarms_t      * Alarms[3];
-
+// function prototipes
 com_t get_com(MemTypes_t type);
 
+// external functions
 cell_t read(cell_t cell) 
 {  
   com_t com = get_com(cell.type);
@@ -42,7 +38,7 @@ cell_t read(cell_t cell)
         0, 
         TYPE_WORD, 
         &cell.value
-      );
+      ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
     break;
@@ -78,7 +74,7 @@ cell_t write(cell_t cell)
         0, 
         TYPE_WORD, 
         cell.value
-      );
+      ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
       
@@ -91,7 +87,7 @@ cell_t write(cell_t cell)
 
 cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues) 
 {
-  int i;
+  size_t i;
   com_t com = get_com(cell.type);
 
   switch (cell.type)
@@ -130,7 +126,7 @@ cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues)
 
 cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues) 
 {
-  int i;
+  size_t i;
   com_t com = get_com(cell.type);
 
   switch (cell.type)
@@ -157,7 +153,7 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
         cell.number, 
         count, 
         pvalues
-      );
+      ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
     break;
@@ -165,42 +161,6 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
   get_ptr(&cell);
 
   return cell;
-}
-
-void mem_init() 
-{
-  Panel       = (Panel_t *)         &PSW[FIRST_RR_PANEL];
-  PFW         = (PFW_t *)           &PSW[FIRST_RR_FOR_EEP];
-  Screens     = (Screens_t *)       &PSW[FIRST_RR_SCREEN];
-  Alarms[0]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS];
-  Alarms[1]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS+sizeof(Alarms_t)/2];
-  Alarms[2]   = (Alarms_t *)        &PSW[FIRST_RR_ALARMS+sizeof(Alarms_t)];
-  dMem        = (devices_mem_t * )  &PSW[FIRST_RR_DEV_MEM];
-  // T1      = (Trans_t * )        &PSW[FIRST_RR_TRANS];
-  // T2      = (Trans_t * )        &PSW[FIRST_RR_TRANS+2];
-  // T3      = (Trans_t * )        &PSW[FIRST_RR_TRANS+4];
-  // T4      = (Trans_t * )        &PSW[FIRST_RR_TRANS+6];
-  dMemPFW = &PFW->dMemPFW;
-
-  getPFW();
-}
-
-com_t get_com(MemTypes_t type)
-{
-  switch (type)
-  {
-  case portDownload:  return DOWNLOAD;
-  case portPLC:       return PLC;
-
-  case net0: return NET_0; break;
-  case net1: return NET_1; break;
-  case net2: return NET_2; break;
-  case net3: return NET_3; break;
-  case net4: return NET_4; break;
-  case net5: return NET_5; break;
-  
-  default: return EComMax;
-  }
 }
 
 void get_ptr(cell_t * cell) 
@@ -227,30 +187,57 @@ void get_ptr(cell_t * cell)
   }
 }
 
-void clearRRScreens()
+void initMem(void) 
+{ }
+
+void selectCircle(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
 {
-  int i;
-  
-  for(i = 0; i < 50; i++)
-  {
-    PSW[FIRST_RR_SCREEN + i] = 0;
-    if(Panel->oldScreen != PSW[1])
-      PSW[FIRST_RR_SCREEN + 50 + i] = 0;
-    CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) = NULL;
-  }
+  if(Up)   (*Select)++;
+  if(Down) (*Select)--;
+
+  if(*Select < Min) (*Select) = Max; 
+  if(*Select > Max) (*Select) = Min;
 }
 
-void fillRRScreens()
+void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
 {
-  int i;
+  if(Up)   (*Select)++;
+  if(Down) (*Select)--;
 
-  if(PSW[1] == 11)
-    return;
+  if(*Select < Min) (*Select) = Min; 
+  if(*Select > Max) (*Select) = Max;
+}
 
-  for(i = 0; i < 50; i++)
+void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
+{
+  if(Up)   (*Select)+=6;
+  if(Down) (*Select)-=6;
+
+  if(*Select < Min) (*Select) = Min; 
+  if(*Select > Max) (*Select) = Max;
+}
+
+// local functions
+/**
+ * @brief Get the com object
+ * 
+ * @param type 
+ * @return com_t 
+ */
+com_t get_com(MemTypes_t type)
+{
+  switch (type)
   {
-    PSW[FIRST_RR_SCREEN + i] = CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) != NULL 
-                                ? *CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) 
-                                : 0;
+  case portDownload:  return DOWNLOAD;
+  case portPLC:       return PLC;
+
+  case net0: return NET_0; break;
+  case net1: return NET_1; break;
+  case net2: return NET_2; break;
+  case net3: return NET_3; break;
+  case net4: return NET_4; break;
+  case net5: return NET_5; break;
+  
+  default: return EComMax;
   }
 }
