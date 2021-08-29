@@ -15,8 +15,8 @@ PFW_t * PFW;
 
 void getPFW()
 {
-  cell_t c; c.type = memPFW; c.number = FIRST_RR_EEP;
-  reads(c, COUNT_RR_EEP, &PSW[FIRST_RR_FOR_EEP]);
+  cell_t c; c.type = memPFW; c.number = FIRST_RR_EEP; c.ptr = &PSW[FIRST_RR_FOR_EEP];
+  reads(c, COUNT_RR_EEP);
 }
 
 void updatePFW()

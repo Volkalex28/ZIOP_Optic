@@ -20,7 +20,7 @@ void screenEvent(void)
   size_t i;
   short Stroka = 0;
   short NEventForLine = 0;
-  EventByte_t EventBuf[NUMBER_LINES_ON_SCREEN];
+  EventByte_t EventBuf[NUMBER_LINES_ON_SCREEN_EVENT];
   cell_t cell_first_rr_event;
 
   Screens->Event.Mode = 0;
@@ -28,7 +28,7 @@ void screenEvent(void)
 
   if(Screens->Event.Config.Zero) 
   {
-    clearEvets();
+    clearEvents();
     Screens->Event.Config.Zero = 0;
   }
 
@@ -42,12 +42,12 @@ void screenEvent(void)
   
   if(!Screens->Event.Config.JumpScreen || Screens->Event.Config.Auto) 
   {
-    if(Stroka < (NUMBER_LINES_ON_SCREEN - 1))
+    if(Stroka < (NUMBER_LINES_ON_SCREEN_EVENT - 1))
       Screens->Event.Cnt = 0;
     else if(Stroka <= (COUNT_EVENTS - 1)) 
-      Screens->Event.Cnt = Stroka - (NUMBER_LINES_ON_SCREEN - 1);	
+      Screens->Event.Cnt = Stroka - (NUMBER_LINES_ON_SCREEN_EVENT - 1);	
     else 
-      Screens->Event.Cnt = Stroka - NUMBER_LINES_ON_SCREEN;
+      Screens->Event.Cnt = Stroka - NUMBER_LINES_ON_SCREEN_EVENT;
   }
   if(!Screens->Event.Config.JumpScreen) 
     Screens->Event.Config.JumpScreen = 1;
@@ -56,28 +56,29 @@ void screenEvent(void)
   {
     if(PFW->CB == 0) 
     {
-      if(Stroka < (NUMBER_LINES_ON_SCREEN - 1))
+      if(Stroka < (NUMBER_LINES_ON_SCREEN_EVENT - 1))
         Screens->Event.CntMax = 0;	
       else if(Stroka <= (COUNT_EVENTS - 1))
-        Screens->Event.CntMax = Stroka - (NUMBER_LINES_ON_SCREEN - 1);	
+        Screens->Event.CntMax = Stroka - (NUMBER_LINES_ON_SCREEN_EVENT - 1);	
       else
-        Screens->Event.CntMax = Stroka - NUMBER_LINES_ON_SCREEN;
+        Screens->Event.CntMax = Stroka - NUMBER_LINES_ON_SCREEN_EVENT;
     }
     else 
     {
-      Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN;
+      Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN_EVENT;
     }
   }
   else {
-    Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN;
+    Screens->Event.CntMax = COUNT_EVENTS - NUMBER_LINES_ON_SCREEN_EVENT;
   }
   Screens->Event.CntMin = 0;
   
   cell_first_rr_event.type    = memPFW;
   cell_first_rr_event.number  = FIRST_RR_EVENT+Screens->Event.Cnt*NUMBER_RR_FOR_ONE_EVENT;
-  reads(cell_first_rr_event, NUMBER_RR_FOR_ONE_EVENT*NUMBER_LINES_ON_SCREEN, &CAST_TO_U16(EventBuf));
+  cell_first_rr_event.ptr     = &CAST_TO_U16(EventBuf);
+  reads(cell_first_rr_event, NUMBER_RR_FOR_ONE_EVENT*NUMBER_LINES_ON_SCREEN_EVENT);
 
-  for(i = 0; i < NUMBER_LINES_ON_SCREEN; i++) 
+  for(i = 0; i < NUMBER_LINES_ON_SCREEN_EVENT; i++) 
   {
     short Number = Screens->Event.Cnt + PFW->CB*COUNT_EVENTS + 1 + i;
     
@@ -103,17 +104,4 @@ void screenEvent(void)
     Screens->Event.EventReg[i].En = (Screens->Event.EventReg[i].Event != 0);
   }
   Screens->Event.OffsetLine = NEventForLine*41;
-}
-
-void eventClear(void)
-{
-  size_t i;
-  uint16_t zero_buf[NUMBER_RR_FOR_ONE_EVENT] = {0};
-  
-  PFW->CB = PFW->N_Event = 0;
-  for(i = 0; i < COUNT_EVENTS; i++)
-  {
-    cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT + i*NUMBER_RR_FOR_ONE_EVENT;
-    writes(c, NUMBER_RR_FOR_ONE_EVENT, zero_buf);
-  }
 }

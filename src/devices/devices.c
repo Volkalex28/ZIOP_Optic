@@ -19,7 +19,7 @@ device_t * devices[N_DP+1];
 
 void finitDevices()
 {
-  DP_finit();
+  finitDP();
 }
 
 void initDevices()
@@ -27,7 +27,7 @@ void initDevices()
   countDevice = 0;
   dMem = (devices_mem_t * )&PSW[FIRST_RR_DEV_MEM];
 
-  DP_init();
+  initDP();
   addDevice(NULL);
 }
 

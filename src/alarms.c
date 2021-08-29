@@ -54,6 +54,7 @@ void addEvent(Alarm_t number)
   EventByte_t	EventS;
   Time_t * pTime;
   cell_t c;
+  // return;
 
   if(isMasked(alarmsMaskEvent, number)) return;
 
@@ -72,26 +73,28 @@ void addEvent(Alarm_t number)
   EventS.Year   = pTime->Year;
   EventS.Event  = number;
 
-  c.type = memPFW; 
-  c.number = FIRST_RR_EVENT + PFW->N_Event*NUMBER_RR_FOR_ONE_EVENT;
-  writes(c, NUMBER_RR_FOR_ONE_EVENT, &CAST_TO_U16(EventS));
+  c.type    = memPFW; 
+  c.number  = FIRST_RR_EVENT + PFW->N_Event*NUMBER_RR_FOR_ONE_EVENT;
+  c.ptr     = &CAST_TO_U16(EventS);
+  writes(c, NUMBER_RR_FOR_ONE_EVENT);
 
   PFW->N_Event++;
 
 }
 
-void clearEvets(void)
+void clearEvents(void)
 {
   size_t i;
-  uint16_t temp[NUMBER_RR_FOR_ONE_EVENT];
+  // uint16_t temp[NUMBER_RR_FOR_ONE_EVENT];
   cell_t c; c.type = memPFW;
 
-  PFW->CB = PFW->N_Event = 0;
-  for(i = 0; i < COUNT_EVENTS; i++)
+
+  for(i = 0; i < NUMBER_RR_FOR_ONE_EVENT*COUNT_EVENTS; i++)
   {
-    c.adress = FIRST_RR_EVENT + NUMBER_RR_FOR_ONE_EVENT*i;
-    writes(c, NUMBER_RR_FOR_ONE_EVENT, temp);
+    c.adress = FIRST_RR_EVENT + i; c.value = 0;
+    write(c);
   }
+  PFW->CB = PFW->N_Event = 0;
 }
 
 void addCrash(Alarm_t NumberCrash) 
@@ -178,8 +181,8 @@ void readMaskMessages(void)
 
   for(i = 0; i < alarmsMaskCount; i++)
   {
-    c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*i;// + Screens->ConfCrash.Settings.Offset[0]/16; 
-    reads(c, NumberOFCrashes, AlarmsMasks[i]);  // Вкл/Выкл аварию + Маска аварий + Маска событий
+    c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*i; c.ptr = AlarmsMasks[i];
+    reads(c, NumberOFCrashes);  // Вкл/Выкл аварию + Маска аварий + Маска событий
   }
 }
 
@@ -206,6 +209,7 @@ void setMask(AlarmsMask_t typeMask, Alarm_t numberAlarm, bool_t state)
 }
 
 // local functions --------------------------------------------------------------------------------
+
 uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)
 {
   return AlarmsMasks[typeMask][numberAlarm/16];

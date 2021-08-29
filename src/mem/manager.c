@@ -5,14 +5,37 @@
  * 
  */
 
+/**
+ * @defgroup Data Данные и память
+ * 
+ * Содержит функции для выделения инициализации памяти панели, а также занмается
+ * управлением внутренними и внешними данными
+ */
+
 #include "manager.h"
 
 #include "pfw.h"
 
-// function prototipes
+// local functions --------------------------------------------------------------------------------
+/**
+ * @defgroup Manager_Functions Локальные функции
+ * @ingroup Manager
+ * @{
+ */
+
+/**
+ * @brief Функция получения порта для для обмена с внешними устройствами
+ * 
+ * @param type Тип памяти для обмена
+ * @return Порт для обмена данными
+ * @retval com_t Если тип памяти поддерживает обмен с внешними устройствами
+ * @retval EComMax Если тип памяти не поддерживает обмен с внешними устройствами
+ * 
+ */
 com_t get_com(MemTypes_t type);
 
-// external functions
+///@}
+
 cell_t read(cell_t cell) 
 {  
   com_t com = get_com(cell.type);
@@ -85,7 +108,7 @@ cell_t write(cell_t cell)
   return cell;
 }
 
-cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues) 
+cell_t reads(cell_t cell, uint16_t count) 
 {
   size_t i;
   com_t com = get_com(cell.type);
@@ -93,16 +116,16 @@ cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues)
   switch (cell.type)
   {
   case memPFW:
-    cell.status = Reads(HMI_LOCAL_MCH, 0, TYPE_PFW, cell.number, count, pvalues);
+    cell.status = Reads(HMI_LOCAL_MCH, 0, TYPE_PFW, cell.number, count, cell.ptr);
     break;
   case memPSW:
-    cell.status = Reads(HMI_LOCAL_MCH, 0, TYPE_PSW, cell.number, count, pvalues);
+    cell.status = Reads(HMI_LOCAL_MCH, 0, TYPE_PSW, cell.number, count, cell.ptr);
     break;
   case memPSB:
     cell.status = ((cell.number + count) < 1024) ? memStatusOK : memStatusFAIL;
     if(cell.status != memStatusOK) break;
     for(i = 0; i < count; i++)
-      pvalues[i] = GetPSBStatus(cell.number + i);
+      cell.ptr[i] = GetPSBStatus(cell.number + i);
     break;
 
   default:
@@ -113,18 +136,18 @@ cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues)
         com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
         cell.number, 
         count, 
-        pvalues
+        cell.ptr
       ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
     break;
   }
-  get_ptr(&cell);
+  // get_ptr(&cell);
 
   return cell;
 }
 
-cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues) 
+cell_t writes(cell_t cell, uint16_t count) 
 {
   size_t i;
   com_t com = get_com(cell.type);
@@ -132,16 +155,16 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
   switch (cell.type)
   {
   case memPFW:
-    cell.status = Writes(HMI_LOCAL_MCH, 0, TYPE_PFW, cell.number, count, pvalues);
+    cell.status = Writes(HMI_LOCAL_MCH, 0, TYPE_PFW, cell.number, count, cell.ptr);
     break;
   case memPSW:
-    cell.status = Writes(HMI_LOCAL_MCH, 0, TYPE_PSW, cell.number, count, pvalues);
+    cell.status = Writes(HMI_LOCAL_MCH, 0, TYPE_PSW, cell.number, count, cell.ptr);
     break;
   case memPSB:
     cell.status = ((cell.number + count) < 1024) ? memStatusOK : memStatusFAIL;
     if(cell.status != memStatusOK) break;
     for(i = 0; i < count; i++)
-      if(pvalues[i] != 0) SetPSB(cell.number + i); else ResetPSB(cell.number + i);
+      if(cell.ptr[i] != 0) SetPSB(cell.number + i); else ResetPSB(cell.number + i);
     break;
 
   default:
@@ -152,7 +175,7 @@ cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues)
         com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
         cell.number, 
         count, 
-        pvalues
+        cell.ptr
       ) == 1 ? memStatusOK : memStatusFAIL;
     else
       cell.status = memStatusIncorrectData;
@@ -208,22 +231,17 @@ void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t 
   if(*Select > Max) (*Select) = Max;
 }
 
-void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
+void selectNormalBlock(int16_t * Select, uint16_t Offset, int16_t Max, int16_t Min, bool_t Up, bool_t Down) 
 {
-  if(Up)   (*Select)+=6;
-  if(Down) (*Select)-=6;
+  if(Up)   (*Select) += Offset;
+  if(Down) (*Select) -= Offset;
 
   if(*Select < Min) (*Select) = Min; 
   if(*Select > Max) (*Select) = Max;
 }
 
-// local functions
-/**
- * @brief Get the com object
- * 
- * @param type 
- * @return com_t 
- */
+// local functions --------------------------------------------------------------------------------
+
 com_t get_com(MemTypes_t type)
 {
   switch (type)

@@ -17,10 +17,11 @@ void finitTitle(void)
   for(i = 0; arrTitles[i].number != alNone; i++)
   {
     cell_t c; 
-    c.type = memPFW; 
-    c.number = FIRST_RR_TITLES + arrTitles[i].number * COUNT_RR_ONE_TITLE;
+    c.type    = memPFW; 
+    c.number  = FIRST_RR_TITLES + arrTitles[i].number * COUNT_RR_ONE_TITLE;
+    c.ptr     = temp;
 
     snprintf((char *)temp, COUNT_RR_ONE_TITLE * 2, "%s", arrTitles[i].name);
-    writes(c, COUNT_RR_ONE_TITLE, temp);
+    writes(c, COUNT_RR_ONE_TITLE);
   }
 }

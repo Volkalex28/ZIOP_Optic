@@ -17,121 +17,247 @@
 #ifndef __MEM_MANAGER_H__
 #define __MEM_MANAGER_H__
 
+// includes ---------------------------------------------------------------------------------------
 #include "../lib.h"
 
-#define CAST_TO_U16(_REG_)    (*(uint16_t *)& ## _REG_)
-#define CAST_TO_U32(_REG_)    (*(uint32_t *)& ## _REG_)
-#define CAST_TO_PU16(_REG_)   (*(uint16_t **)& ## _REG_)
-
-#define CALC_COUNT_RR(_OBJ_)  (sizeof( _OBJ_ ) / sizeof(uint16_t))
-
-enum PSW_Registers {
-  TIME_HOUR    = 4090,
-  TIME_MIN,
-  TIME_SEC,
-  TIME_DAY,
-  TIME_MONTH,
-  TIME_YEAR
-};
-
-enum PSB_Register {
-	B_ON,
-	B_OFF,
-	B_GOTO_WAKEUPSCREEN = 9,
-	B_ACCES_1LEVEL = 60,
-	B_ACCES_2LEVEL,
-	B_ACCES_3LEVEL,
-	B_ACCES_4LEVEL,
-	B_ACCES_5LEVEL,
-	B_ACCES_6LEVEL,
-	B_ACCES_7LEVEL,
-	B_ACCES_8LEVEL,
-	B_ACCES_9LEVEL
-};
-
-typedef enum EMemTypes {
-  memPFW,
-  memPSW,
-  memPSB,
-  portDownload,
-  portPLC,
-  net0,
-  net1,
-  net2,
-  net3,
-  net4,
-  net5
-} MemTypes_t;
-
-enum EMemStatus {
-  memStatusIncorrectData = -1,
-  memStatusFAIL,
-  memStatusOK
-};
-
-typedef struct cell_s
-{
-  MemTypes_t type;
-  uint8_t adress;
-  uint32_t number;
-
-  uint16_t value;
-
-  uint16_t * ptr;
-  int8_t status;
-} cell_t;
+// macroses ---------------------------------------------------------------------------------------
+/**
+ * @defgroup Manager_Macros Макросы 
+ * @ingroup Manager
+ * @{
+ */
 
 /**
- * @brief 
+ * @brief Преобразование переменной _VAR_ в тип uint16_t 
+ */
+#define CAST_TO_U16(_VAR_)    (*(uint16_t *)& ## _VAR_)
+/**
+ * @brief Преобразование переменной _VAR_ в тип uint32_t 
+ */
+#define CAST_TO_U32(_VAR_)    (*(uint32_t *)& ## _VAR_)
+/**
+ * @brief Преобразование переменной _VAR_ в указатель на тип uint16_t 
+ */
+#define CAST_TO_PU16(_VAR_)   (*(uint16_t **)& ## _VAR_)
+/**
+ * @brief Расчет количества регистров, которые занимает объект _OBJ_
+ */
+#define CALC_COUNT_RR(_OBJ_)  (sizeof( _OBJ_ ) / sizeof(uint16_t))
+
+///@}
+
+// enums ------------------------------------------------------------------------------------------
+/**
+ * @defgroup Manager_Enums Перечисления
+ * @ingroup Manager
+ * @{
+ */
+
+/**
+ * @brief Регистры области PSB
  * 
- * @param cell 
- * @return cell_t 
+ * Однобитные регистры оперативной памяти (Флаги)
+ */
+enum PSB_Register 
+{
+	B_ON,                           ///< Всегда включенный бит
+	B_OFF,                          ///< Всегда выключеный бит
+
+	B_GOTO_WAKEUPSCREEN   = 9,      ///< Бит включения подсветки
+  
+	B_ACCES_1LEVEL        = 60,     ///< Бит открытия доступа уровня 1
+	B_ACCES_2LEVEL,                 ///< Бит открытия доступа уровня 2
+	B_ACCES_3LEVEL,                 ///< Бит открытия доступа уровня 3
+	B_ACCES_4LEVEL,                 ///< Бит открытия доступа уровня 4
+	B_ACCES_5LEVEL,                 ///< Бит открытия доступа уровня 5
+	B_ACCES_6LEVEL,                 ///< Бит открытия доступа уровня 6
+	B_ACCES_7LEVEL,                 ///< Бит открытия доступа уровня 7
+	B_ACCES_8LEVEL,                 ///< Бит открытия доступа уровня 8
+	B_ACCES_9LEVEL                  ///< Бит открытия доступа уровня 9
+};
+
+/**
+ * @brief Регистры области PSW
+ * 
+ * Шестнадцатибитные регистры оперативной памяти
+ */
+enum PSW_Registers 
+{
+  CURRENT_SCREEN  = 1,        ///< Текущий экран
+
+  TIME_YEAR_HEX   = 30,       ///< Не преобразованный регистр времени (Год)
+  TIME_MONTH_HEX,             ///< Не преобразованный регистр времени (Месяц)
+  TIME_DAY_HEX,               ///< Не преобразованный регистр времени (День)
+  TIME_HOUR_HEX,              ///< Не преобразованный регистр времени (Часы)
+  TIME_MIN_HEX,               ///< Не преобразованный регистр времени (Минуты)
+  TIME_SEC_HEX,               ///< Не преобразованный регистр времени (Секунды)
+
+  TIME_HOUR       = 4090,     ///< Преобразованный регистр времени (Часы)
+  TIME_MIN,                   ///< Преобразованный регистр времени (Минуты)
+  TIME_SEC,                   ///< Преобразованный регистр времени (Секунды)
+  TIME_DAY,                   ///< Преобразованный регистр времени (День)
+  TIME_MONTH,                 ///< Преобразованный регистр времени (Месяц)
+  TIME_YEAR                   ///< Преобразованный регистр времени (Год)
+};
+
+/**
+ * @brief Регистры области PFW
+ * 
+ * Шестнадцатибитные регистры энергонезавичимой памяти
+ */
+enum PFW_Registers
+{
+  PFW_IP_ADRESS_4   = 87    ///< Четвертый октет собственного IP адреса
+};
+
+///@}
+
+// typedefs ---------------------------------------------------------------------------------------
+/**
+ * @defgroup Manager_Typedef Определения типов 
+ * @ingroup Manager
+ * @{
+ */
+
+/**
+ * @brief Тип данных для статуса чтения/записи данных 
+ */
+typedef enum EMemStatus 
+{
+  memStatusIncorrectData = -1,  ///< Неверно переданный запрос на обмен данных
+  memStatusFAIL,                ///< Ошибка обмена данными
+  memStatusOK                   ///< Успешно проведенный обмен
+} MemStatus_t;
+
+/**
+ * @brief Тип данных для которых производится обмен 
+ */
+typedef enum EMemTypes 
+{
+  memPFW,         ///< Энергонезависимая память панели
+  memPSW,         ///< Оперативная память (регистры)
+  memPSB,         ///< Оперативная память (флаги)
+  portDownload,   ///< Модбас порт Download
+  portPLC,        ///< Модбас порт PLC
+  net0,           ///< Порт Ethernet по IP адресу 1
+  net1,           ///< Порт Ethernet по IP адресу 2
+  net2,           ///< Порт Ethernet по IP адресу 3
+  net3,           ///< Порт Ethernet по IP адресу 4
+  net4,           ///< Порт Ethernet по IP адресу 5
+  net5            ///< Порт Ethernet по IP адресу 6
+} MemTypes_t;
+
+/**
+ * @brief Тип данных ячейки для запроса/возврата обмена данными 
+ */
+typedef struct cell_s
+{
+  MemTypes_t    type;     ///< Тип памяти для обмена
+  uint8_t       adress;   ///< Адрес внешнего устройства (ID)
+  uint32_t      number;   ///< Номер регистра для обмена
+
+  uint16_t      value;    ///< Значение для записи или после чтения регистра
+
+  uint16_t *    ptr;      ///< Указатель на ячейку памяти если его можно взять или NULL
+  MemStatus_t   status;   ///< Статус обмена
+} cell_t;
+
+///@}
+
+// functions --------------------------------------------------------------------------------------
+/**
+ * @defgroup Manager_ExFunctions Функции доступные извне
+ * @ingroup Manager
+ * @{
+ */
+
+/**
+ * @brief Функция для чтения одного регистра.
+ * 
+ * @param cell Описание регистра, который необходимо прочитать
+ * @return Описание прочитанного регистра и статуса обмена 
  */
 cell_t read(cell_t cell);
 
 /**
- * @brief 
+ * @brief Функция для записи одного регистра.
  * 
- * @param cell 
- * @return cell_t 
+ * @param cell Описание регистра, который необходимо записать
+ * @return Описание записанного регистра и статуса обмена  
  */
 cell_t write(cell_t cell);
 
 /**
- * @brief 
+ * @brief Функция для чтения нескольких регистров.
  * 
- * @param cell 
- * @param count 
- * @param pvalues 
- * @return cell_t 
+ * @param cell Описание начального регистра, из которого необходимо начать чтение
+ * @param count Количество регистров для чтения
+ * @return Описание начального регистра для чтения и статуса обмена  
  */
-cell_t reads(cell_t cell, uint16_t count, uint16_t * pvalues);
+cell_t reads(cell_t cell, uint16_t count);
 
 /**
- * @brief 
+ * @brief Функция для записи нескольких регистров.
  * 
- * @param cell 
- * @param count 
- * @param pvalues 
- * @return cell_t 
+ * @param cell Описание начального регистра, из которого необходимо начать запись
+ * @param count Количество регистров для записи
+ * @return Описание начального регистра для записи и статуса обмена 
  */
-cell_t writes(cell_t cell, uint16_t count, uint16_t * pvalues);
+cell_t writes(cell_t cell, uint16_t count);
 
 /**
- * @brief Get the ptr object
+ * @brief Получение указателя на описанный регистр.
+ * Если указатель нельзя получить - NULL
  * 
- * @param ret 
+ * @param[in, out] ret Описание региста для получания указателя
  */
 void get_ptr(cell_t * ret);
 
 /**
- * @brief 
- * 
+ * @brief Функция инициализации модуля памяти.
  */
 void initMem();
 
+/**
+ * @brief Функция инкрементации/декрементации счетчика \p Select с зацикливанием.
+ * Если величина \p Select после операции больше \p Max то \p Select приравнивается к \p Min .
+ * Если величина \p Select после операции меньше \p Min то \p Select приравнивается к \p Max .
+ * 
+ * @param[in, out] Select Указатель на счетчик
+ * @param Max Максимальное значение счетчика
+ * @param Min Минимальное значение счетчика
+ * @param Up Событие вызывающее инкрементацию
+ * @param Down Событие вызывающее декрементацию
+ */
 void selectCircle(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+
+/**
+ * @brief Функция инкрементации/декрементации счетчика \p Select с остановкой на крайних значениях.
+ * Если величина \p Select после операции больше \p Max то \p Select приравнивается к \p Max .
+ * Если величина \p Select после операции меньше \p Min то \p Select приравнивается к \p Min .
+ * 
+ * @param[in, out] Select Указатель на счетчик
+ * @param Max Максимальное значение счетчика
+ * @param Min Минимальное значение счетчика
+ * @param Up Событие вызывающее инкрементацию
+ * @param Down Событие вызывающее декрементацию
+ */
 void selectNormal(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
-void selectNormalBlock(int16_t * Select, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+
+/**
+ * @brief Функция инкрементации/декрементации на \p Offset счетчика \p Select с остановкой на крайних значениях.
+ * Если величина \p Select после операции больше \p Max то \p Select приравнивается к \p Max .
+ * Если величина \p Select после операции меньше \p Min то \p Select приравнивается к \p Min .
+ * 
+ * @param[in, out] Select Указатель на счетчик
+ * @param Offset На сколько небходимо сдвинуть счетчик
+ * @param Max Максимальное значение счетчика
+ * @param Min Минимальное значение счетчика
+ * @param Up Событие вызывающее инкрементацию
+ * @param Down Событие вызывающее декрементацию
+ */
+void selectNormalBlock(int16_t * Select, uint16_t Offset, int16_t Max, int16_t Min, bool_t Up, bool_t Down);
+
+///@}
 
 #endif // __MEM_MANAGER_H__

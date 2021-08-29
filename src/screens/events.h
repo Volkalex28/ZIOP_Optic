@@ -11,21 +11,23 @@
 #include "../lib.h"
 #include "../mem/panel.h"
 
-#define VERS_EVENT                2
-#define NUMBER_LINES_ON_SCREEN    6
+#define VERS_EVENT                      2
+#define NUMBER_LINES_ON_SCREEN_EVENT    6
 
 typedef struct ScreenEvent_s 
 {
-  struct ScreenEventEvent_s {
+  struct ScreenEventEvent_s 
+  {
     Time_t Time;
     uint16_t Number;
     uint16_t Event;
     uint16_t Empty;
     uint16_t En;
-  } EventReg[NUMBER_LINES_ON_SCREEN];     //0-59
+  } EventReg[NUMBER_LINES_ON_SCREEN_EVENT];     //0-59
   int16_t CntMax;         //60
   int16_t CntMin;         //61
-  struct EventConfig {
+  struct EventConfig 
+  {
     unsigned short JumpScreen       : 1;  // 0
     unsigned short Auto             : 1;  // 1
     unsigned short VisibleButtMode  : 1;  // 2

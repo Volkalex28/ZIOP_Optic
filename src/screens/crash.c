@@ -29,8 +29,14 @@ void screenCrash(void)
     addCrash(i);
   }
   
-  selectCircle(&Screens->Crash.Settings.Count, (Alarms[alarmsActual]->count < 6) ? 0 : Alarms[alarmsActual]->count - 6 , 0, \
-    Screens->Crash.Settings.Event.Up, Screens->Crash.Settings.Event.Down);
+  selectCircle(&Screens->Crash.Settings.Count, 
+    (Alarms[alarmsActual]->count < NUMBER_LINES_ON_SCREEN_CRASH) 
+      ? 0 
+      : Alarms[alarmsActual]->count - NUMBER_LINES_ON_SCREEN_CRASH, 
+    0,
+    Screens->Crash.Settings.Event.Up, 
+    Screens->Crash.Settings.Event.Down
+  );
   Screens->Crash.Settings.Event.Up = Screens->Crash.Settings.Event.Down = false;
 
   if(Screens->Crash.Settings.Event.JumpScreen == false) 
@@ -42,13 +48,19 @@ void screenCrash(void)
   Screens->Crash.Settings.NCrash = Alarms[alarmsActual]->count;
   if(Alarms[alarmsActual]->count != 0) 
   {
-    for(i = 0; i < (Alarms[alarmsActual]->count < 6 ? Alarms[alarmsActual]->count : 6); i++) 
-    {
-      Screens->Crash.Settings.NumberCrash[i] = Alarms[alarmsActual]->count - Screens->Crash.Settings.Count - i;
-      Screens->Crash.Settings.Offset[i] = Alarms[alarmsActual]->buf[Screens->Crash.Settings.NumberCrash[i] - 1];
+    for(i = 0; 
+      i < (Alarms[alarmsActual]->count < NUMBER_LINES_ON_SCREEN_CRASH 
+        ? Alarms[alarmsActual]->count 
+        : NUMBER_LINES_ON_SCREEN_CRASH); 
+      i++
+    ) {
+      Screens->Crash.Settings.NumberCrash[i] = 
+        Alarms[alarmsActual]->count - Screens->Crash.Settings.Count - i;
+      Screens->Crash.Settings.Offset[i] = 
+        Alarms[alarmsActual]->buf[Screens->Crash.Settings.NumberCrash[i] - 1];
       Screens->Crash.Settings.Visible.EnOffset |= (1<<i);
     }
-    for(; i < 6; i++) 
+    for(; i < NUMBER_LINES_ON_SCREEN_CRASH; i++) 
     {
       Screens->Crash.Settings.Visible.EnOffset &= ~(1<<i);
     }
@@ -59,7 +71,7 @@ void screenCrash(void)
     Screens->Crash.Settings.Visible.EnOffset = false;
   }
 
-  if(Alarms[alarmsActual]->count <= 6) 
+  if(Alarms[alarmsActual]->count <= NUMBER_LINES_ON_SCREEN_CRASH) 
   {
     Screens->Crash.Settings.Visible.ArrowUp = Screens->Crash.Settings.Visible.ArrowDown = false;
   }

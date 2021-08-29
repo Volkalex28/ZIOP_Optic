@@ -24,7 +24,7 @@ void finit(void)
   c.value = 2000;
   write(c);
 
-  clearEvets();
+  clearEvents();
   finitDevices();
   finitTitle();
   
@@ -35,8 +35,8 @@ void finit(void)
 void init(void)
 {
   initMem();
-  initPFW();
   initPanel();
+  initPFW();
   initDevices();
   initAlarms();
   initScreens();
@@ -47,7 +47,7 @@ void init(void)
     PFW->flags.firstTurnOn = false;
   }
   
-  readMaskMessages();
+  // readMaskMessages();
   if(getMyIP() == 41)
   {
     Panel->flags.initMaster = true;

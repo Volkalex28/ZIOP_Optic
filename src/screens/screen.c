@@ -44,7 +44,7 @@ void clearRRScreens()
   for(i = 0; i < 50; i++)
   {
     PSW[FIRST_RR_SCREEN + i] = 0;
-    if(Panel->oldScreen != PSW[1])
+    if(Panel->oldScreen != PSW[CURRENT_SCREEN])
       PSW[FIRST_RR_SCREEN + 50 + i] = 0;
     CAST_TO_PU16(PSW[FIRST_RR_SCREEN + 100 + i*2]) = NULL;
   }
@@ -54,7 +54,7 @@ void fillRRScreens()
 {
   size_t i;
 
-  if(PSW[1] == 11)
+  if(PSW[CURRENT_SCREEN] == 11)
     return;
 
   for(i = 0; i < 50; i++)

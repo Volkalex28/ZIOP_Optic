@@ -25,7 +25,7 @@
 void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit);
 void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit);
 void controlLogic(void);
-void hanlerLogic(void);
+void handlerLogic(void);
 
 void taskLoop(void)
 {
@@ -37,7 +37,7 @@ void taskLoop(void)
   {
 
     clearRRScreens();
-    switch (PSW[1])
+    switch (PSW[CURRENT_SCREEN])
     {
     case  5:
       screenConfCrash();
@@ -61,10 +61,10 @@ void taskLoop(void)
     }
     fillRRScreens();
 
-    if(Panel->oldScreen != PSW[1]) 
+    if(Panel->oldScreen != PSW[CURRENT_SCREEN]) 
     {
       Panel->flags.menuIsOpen = false;
-      if (PSW[1] == 5)
+      if (PSW[CURRENT_SCREEN] == 5)
         Panel->ChooseDevice.ResetCrashList = 1;
     }
     if(Panel->flags.menuIsOpen) 
@@ -72,13 +72,13 @@ void taskLoop(void)
     else
       CloseWindow(10);
   
-    readMaskMessages();
-    fillCrash();
+    // readMaskMessages();
+    // fillCrash();
 
-    hanlerLogic();
-    controlLogic();
+    handlerLogic();
+    // controlLogic();
 
-    Panel->oldScreen = PSW[1];
+    Panel->oldScreen = PSW[CURRENT_SCREEN];
     updatePFW();
     time();
     Delay(50);
@@ -99,7 +99,7 @@ void controlLogic(void)
   }
 }
 
-void hanlerLogic(void)
+void handlerLogic(void)
 {
   //- 51
   normConrtol(2500, 2533, 9, 0);

@@ -29,10 +29,11 @@ void screenConfCrash(void)
   
   fillAndEditMaskMessage();
 
-  selectNormalBlock(&Screens->ConfCrash.Settings.Count, 
-    (Screens->ConfCrash.Settings.NumbersCrash < 6) 
+  selectNormalBlock(&Screens->ConfCrash.Settings.Count,
+    NUMBER_LINES_ON_SCREEN_CONFCRASH,
+    (Screens->ConfCrash.Settings.NumbersCrash < NUMBER_LINES_ON_SCREEN_CONFCRASH) 
       ? 0 
-      : Screens->ConfCrash.Settings.NumbersCrash - 6, 
+      : Screens->ConfCrash.Settings.NumbersCrash - NUMBER_LINES_ON_SCREEN_CONFCRASH, 
     0,
     Screens->ConfCrash.Settings.Event.Up, 
     Screens->ConfCrash.Settings.Event.Down
@@ -48,14 +49,18 @@ void screenConfCrash(void)
   Screens->ConfCrash.Settings.NCrash = Screens->ConfCrash.Settings.NumbersCrash;
   if(Screens->ConfCrash.Settings.NumbersCrash != 0) 
   {
-    for(i = 0; i < (Screens->ConfCrash.Settings.NumbersCrash < 6 ? Screens->ConfCrash.Settings.NumbersCrash : 6); i++) 
-    {
+    for(i = 0; 
+      i < (Screens->ConfCrash.Settings.NumbersCrash < NUMBER_LINES_ON_SCREEN_CONFCRASH 
+        ? Screens->ConfCrash.Settings.NumbersCrash 
+        : NUMBER_LINES_ON_SCREEN_CONFCRASH); 
+      i++
+    ) {
       Screens->ConfCrash.Settings.NumberCrash[i] = 
         Screens->ConfCrash.Settings.OffsetOfCrash + Screens->ConfCrash.Settings.Count + i;
       Screens->ConfCrash.Settings.Offset[i] = Screens->ConfCrash.Settings.NumberCrash[i];
       Screens->ConfCrash.Settings.Visible.EnOffset |= (1<<i);
     }
-    for(; i < 6; i++) 
+    for(; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++) 
     {
       Screens->ConfCrash.Settings.Visible.EnOffset &= ~(1<<i);
     }
@@ -66,26 +71,29 @@ void screenConfCrash(void)
     Screens->ConfCrash.Settings.Visible.EnOffset = false;
   }
 
-  if(Screens->ConfCrash.Settings.NumbersCrash <= 6) 
+  if(Screens->ConfCrash.Settings.NumbersCrash <= NUMBER_LINES_ON_SCREEN_CONFCRASH) 
   {
-    Screens->ConfCrash.Settings.Visible.ArrowUp = Screens->ConfCrash.Settings.Visible.ArrowDown = false;
+    Screens->ConfCrash.Settings.Visible.ArrowUp = false;
+    Screens->ConfCrash.Settings.Visible.ArrowDown = false;
   }
   else if(Screens->ConfCrash.Settings.Count == 0) 
   {
     Screens->ConfCrash.Settings.Visible.ArrowUp = false;
     Screens->ConfCrash.Settings.Visible.ArrowDown = true;
   }
-  else if(Screens->ConfCrash.Settings.Count == (Screens->ConfCrash.Settings.NumbersCrash - 6)) 
-  {
+  else if(Screens->ConfCrash.Settings.Count == 
+    (Screens->ConfCrash.Settings.NumbersCrash - NUMBER_LINES_ON_SCREEN_CONFCRASH)
+  ) {
     Screens->ConfCrash.Settings.Visible.ArrowUp = true;
     Screens->ConfCrash.Settings.Visible.ArrowDown = false;
   }
   else 
   {
-    Screens->ConfCrash.Settings.Visible.ArrowUp = Screens->ConfCrash.Settings.Visible.ArrowDown = true;
+    Screens->ConfCrash.Settings.Visible.ArrowUp = true;
+    Screens->ConfCrash.Settings.Visible.ArrowDown = true;
   }
 
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++)
   {
     if (Screens->ConfCrash.Settings.Maska.OpenWind & (1 << i))
     {
@@ -103,18 +111,26 @@ void fillAndEditMaskMessage(void)
 
   for (k = 0; k < alarmsMaskCount; k++)
   {
-    for(i = 0; i < 6; i++)
+    for(i = 0; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++)
     {
       if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + i))
-        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= (1 << (6*k + i));
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= 
+          (1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * k + i)
+        );
       else
-        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= ~(1 << (6*k + i));
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= 
+          ~(1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * k + i)
+        );
     }
 //-------------------------------------------------------------------------------------------------
     if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf))
-      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= (1 << (24 + k));
+      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= 
+        (1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * alarmsMaskCount + k)
+      );
     else
-      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= ~(1 << (24 + k));
+      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= 
+        ~(1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * alarmsMaskCount + k)
+      );
 //-------------------------------------------------------------------------------------------------
     if(CAST_TO_U16(Screens->ConfCrash.Settings.Event) & (1 << (4 + k)))
     {
