@@ -24,7 +24,10 @@ typedef struct ScreenShot_s
       uint16_t WindowUstEC1	: 1;    // 0
       uint16_t WindowUstAB	: 1;    // 1
     } Event;                    // 51
-    char TitleWindowUst[6];//552..554
+    char TitleWindowUst[6];     // 52..54
+    
+    int16_t CrashUmaxAnP;
+    int16_t CrashUminAnP;
   );
 
   int16_t* Ues1;  // 600	

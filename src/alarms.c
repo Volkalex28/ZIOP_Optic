@@ -7,6 +7,7 @@
  * сообщений и событий. Обабатывается маскировка сообщений
  */
 
+#include "stdlib.h"
 
 #include "alarms.h"
 
@@ -26,7 +27,7 @@ Alarms_t * Alarms[alarmsCount];
 /**
  * @brief Массив указателей на буферы в куче, которые синхронизированные с энергонезависимой памятью
  */
-uint16_t * AlarmsMasks[alarmsMaskCount];
+// uint16_t * AlarmsMasks[alarmsMaskCount];
 
 ///@}
 
@@ -54,9 +55,8 @@ void addEvent(Alarm_t number)
   EventByte_t	EventS;
   Time_t * pTime;
   cell_t c;
-  // return;
 
-  if(isMasked(alarmsMaskEvent, number)) return;
+  // if(isMasked(alarmsMaskEvent, number)) return;
 
   if(PFW->N_Event >= COUNT_EVENTS) 
   {
@@ -64,7 +64,7 @@ void addEvent(Alarm_t number)
     PFW->CB++;
   }
     
-  pTime = time();		
+  pTime = getTime();		
   EventS.Sec    = pTime->Sec;
   EventS.Min    = pTime->Min;
   EventS.Hour   = pTime->Hour;
@@ -84,17 +84,15 @@ void addEvent(Alarm_t number)
 
 void clearEvents(void)
 {
-  size_t i;
-  // uint16_t temp[NUMBER_RR_FOR_ONE_EVENT];
-  cell_t c; c.type = memPFW;
+  int i;
+  uint16_t zero_buf[NUMBER_RR_FOR_ONE_EVENT] = {0};
 
-
-  for(i = 0; i < NUMBER_RR_FOR_ONE_EVENT*COUNT_EVENTS; i++)
-  {
-    c.adress = FIRST_RR_EVENT + i; c.value = 0;
-    write(c);
-  }
   PFW->CB = PFW->N_Event = 0;
+  for(i = 0; i < COUNT_EVENTS; i++)
+  {
+    cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT + i*NUMBER_RR_FOR_ONE_EVENT; c.ptr = zero_buf;
+    writes(c, NUMBER_RR_FOR_ONE_EVENT);
+  }
 }
 
 void addCrash(Alarm_t NumberCrash) 
@@ -118,23 +116,17 @@ void fillCrash(void)
 {
 	size_t i, n;
 
-  Alarms[alarmsTemp]->count = 0;
+  Alarms[alarmsActual]->count = 0;
 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
   {
     if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false)
-      Alarms[alarmsTemp]->buf[Alarms[alarmsTemp]->count++] = Alarms[alarmsBacklog]->buf[i];
+      Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
   }
-
-  for(i = 0; i < Alarms[alarmsTemp]->count; i++)
-  {
-    Alarms[alarmsActual]->buf[i] = Alarms[alarmsTemp]->buf[i];
-  }
-  Alarms[alarmsActual]->count = Alarms[alarmsTemp]->count;
 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
   {
-    if(isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i])) 
+    if(isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i]) == false) 
     {
       Panel->flags.noneCrash = false;
       return;
@@ -167,23 +159,11 @@ void initAlarms(void)
   size_t i;
   
   Alarms[alarmsActual]  = (Alarms_t *)&PSW[FIRST_RR_ALARMS];
-  Alarms[alarmsBacklog] = (Alarms_t *)Malloc(sizeof(Alarms_t)*sizeof(uint16_t));
-  Alarms[alarmsTemp]    = (Alarms_t *)Malloc(sizeof(Alarms_t)*sizeof(uint16_t));
+  Alarms[alarmsBacklog] = &Alarms[alarmsActual][1];
   
-  for(i = 0; i < alarmsMaskCount; i++)
-    AlarmsMasks[i] = (uint16_t *)Malloc(NumberOFCrashes*sizeof(uint16_t));
-}
-
-void readMaskMessages(void)
-{
-  size_t i;
-  cell_t c; c.type = memPFW; 
-
-  for(i = 0; i < alarmsMaskCount; i++)
-  {
-    c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*i; c.ptr = AlarmsMasks[i];
-    reads(c, NumberOFCrashes);  // Вкл/Выкл аварию + Маска аварий + Маска событий
-  }
+  Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE];
+  Alarms[alarmsSHSN]    = &Alarms[alarmsSHOT][1];
+  Alarms[alarmsSHSND]   = &Alarms[alarmsSHOT][2];
 }
 
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm)
@@ -212,5 +192,6 @@ void setMask(AlarmsMask_t typeMask, Alarm_t numberAlarm, bool_t state)
 
 uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)
 {
-  return AlarmsMasks[typeMask][numberAlarm/16];
+  cell_t c; c.type = memPFW; c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*typeMask + numberAlarm/16;
+  return read(c).value;
 }

@@ -24,21 +24,33 @@ typedef struct ScreenZvu_s
       uint16_t StateTcomp	: 1;    // 0
       uint16_t _1	        : 1;    // 1
     } Event;                    // 51
+
+    uint16_t Uout;              // 52
+    uint16_t Iout;	            // 53
+    uint16_t Tbat;	            // 54
+    uint16_t Uzad;	            // 55
+    uint16_t Izad;	            // 56
+    uint16_t ModeZVU;		        // 57
+    uint16_t StateZVU[2];	      // 58-59
+
+    uint16_t Uel;               // 60
+    uint16_t Kel;               // 61
+    uint16_t Koef;              // 62
+    uint16_t Ucalc;             // 63
   );
 
-  short* Uout;  	// 500	
-  short* Iout;	// 501
-  short* Tbat;	// 502
-  short* Uzad;	// 503
-  short* Izad;	// 504
-  short* ModeZVU;		// 505
-  short* StateZVU1;	// 506
-  short* StateZVU2;	// 507
+  uint16_t * Uout;  	// 500	
+  uint16_t * Iout;	// 501
+  uint16_t * Tbat;	// 502
+  uint16_t * Uzad;	// 503
+  uint16_t * Izad;	// 504
+  uint16_t * ModeZVU;		// 505
+  uint16_t * StateZVU[2];	// 506-507
 
-  short* Uel;		// 508
-  short* Kel;		// 509
-  short* Koef; 	// 510
-  short* Ucalc;	// 511
+  uint16_t * Uel;		// 508
+  uint16_t * Kel;		// 509
+  uint16_t * Koef; 	// 510
+  uint16_t * Ucalc;	// 511
 } ScreenZvu_t;
 
 void screenZvu(void);

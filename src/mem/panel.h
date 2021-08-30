@@ -66,7 +66,7 @@ typedef struct Time_s {
 extern Panel_t * Panel;
 
 uint8_t getMyIP(void);
-Time_t * time(void);
+Time_t * getTime(void);
 void initPanel(void);
 
 #endif // __MEM_PANEL_H__

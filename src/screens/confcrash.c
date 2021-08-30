@@ -42,7 +42,8 @@ void screenConfCrash(void)
 
   if(Screens->ConfCrash.Settings.Event.JumpScreen == false) 
   {
-    Screens->ConfCrash.Settings.Count = 0; 						
+    Screens->ConfCrash.Settings.Count = 0; 	
+    CAST_TO_U32(Screens->ConfCrash.Settings.Maska) = 0;
     Screens->ConfCrash.Settings.Event.JumpScreen = true; 
   }
 
@@ -92,54 +93,44 @@ void screenConfCrash(void)
     Screens->ConfCrash.Settings.Visible.ArrowUp = true;
     Screens->ConfCrash.Settings.Visible.ArrowDown = true;
   }
-
-  for (i = 0; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++)
-  {
-    if (Screens->ConfCrash.Settings.Maska.OpenWind & (1 << i))
-    {
-      OpenWindow(8, 100, 64);
-      Screens->ConfCrash.Settings.Maska.OpenWind = 0;
-      Screens->ConfCrash.Settings.OffsetConf = i;
-      break;
-   }
-  }
 }
 
 void fillAndEditMaskMessage(void)
 {
-  size_t i, k;
+  size_t i;
 
-  for (k = 0; k < alarmsMaskCount; k++)
+  for (i = 0; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++)
   {
-    for(i = 0; i < NUMBER_LINES_ON_SCREEN_CONFCRASH; i++)
-    {
-      if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + i))
-        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= 
-          (1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * k + i)
-        );
-      else
-        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= 
-          ~(1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * k + i)
-        );
-    }
-//-------------------------------------------------------------------------------------------------
-    if(isMasked(k, Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf))
-      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= 
-        (1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * alarmsMaskCount + k)
-      );
-    else
-      CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= 
-        ~(1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH * alarmsMaskCount + k)
-      );
-//-------------------------------------------------------------------------------------------------
-    if(CAST_TO_U16(Screens->ConfCrash.Settings.Event) & (1 << (4 + k)))
-    {
-      uint16_t off;
+    size_t k;
 
-      off = Screens->ConfCrash.Settings.Offset[0] + Screens->ConfCrash.Settings.OffsetConf;
-      setMask(k, off, !isMasked(k, off));
-      
-      CAST_TO_U16(Screens->ConfCrash.Settings.Event) &= ~(1 << (4 + k));
+    if (Screens->ConfCrash.Settings.Event.OpenWind & (1 << i))
+    {
+      OpenWindow(8, 100, 64);
+      Screens->ConfCrash.Settings.OffsetConf = i;
+      Screens->ConfCrash.Settings.Event.OpenWind = 0;
+    }
+
+    for (k = 0; k < alarmsMaskCount; k++)
+    {
+      Alarm_t number = Screens->ConfCrash.Settings.Offset[Screens->ConfCrash.Settings.OffsetConf];
+
+      if(isMasked(k, Screens->ConfCrash.Settings.Offset[i]))
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) 
+          |= (1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH*k + i));
+      else
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) 
+          &= ~(1 << (NUMBER_LINES_ON_SCREEN_CONFCRASH*k + i));
+
+      if(isMasked(k, number))
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) |= (1 << (18 + k));
+      else
+        CAST_TO_U32(Screens->ConfCrash.Settings.Maska) &= ~(1 << (18 + k));
+
+      if(CAST_TO_U16(Screens->ConfCrash.Settings.Event) & (1 << (4 + k)))
+      {
+        setMask(k, number, !isMasked(k, number));
+        CAST_TO_U16(Screens->ConfCrash.Settings.Event) &= ~(1 << (4 + k));
+      }
     }
   }
 }

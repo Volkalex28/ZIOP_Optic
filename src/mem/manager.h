@@ -159,7 +159,7 @@ typedef struct cell_s
   uint16_t      value;    ///< Значение для записи или после чтения регистра
 
   uint16_t *    ptr;      ///< Указатель на ячейку памяти если его можно взять или NULL
-  MemStatus_t   status;   ///< Статус обмена
+  int8_t        status;   ///< Статус обмена
 } cell_t;
 
 ///@}

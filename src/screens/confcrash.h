@@ -32,6 +32,7 @@ typedef struct ScreenConfCrash_s
       uint16_t ChState    : 1;	                              // 4
       uint16_t ChMCrash   : 1;                                // 5
       uint16_t ChMEvent   : 1;                                // 6
+      uint16_t OpenWind   : NUMBER_LINES_ON_SCREEN_CONFCRASH; // 7..12
     } Event;                                                  // 57
     int16_t Count;                                            // 58
     int16_t NCrash;                                           // 59
@@ -41,10 +42,9 @@ typedef struct ScreenConfCrash_s
       uint32_t State    : NUMBER_LINES_ON_SCREEN_CONFCRASH;   // 0..5
       uint32_t MCrash   : NUMBER_LINES_ON_SCREEN_CONFCRASH;   // 6..11
       uint32_t MEvent   : NUMBER_LINES_ON_SCREEN_CONFCRASH;   // 12..17
-      uint32_t OpenWind : NUMBER_LINES_ON_SCREEN_CONFCRASH;   // 18..23
-      uint32_t ChState  : 1;	                                // 24
-      uint32_t ChMCrash : 1;                                  // 25
-      uint32_t ChMEvent : 1;                                  // 26
+      uint32_t ChState  : 1;	                                // 18
+      uint32_t ChMCrash : 1;                                  // 19
+      uint32_t ChMEvent : 1;                                  // 20
     } Maska;				                                          // 66-67
     uint16_t OffsetConf;                                      // 68
     uint16_t OffsetOfCrash;                                   // 69

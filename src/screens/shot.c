@@ -8,42 +8,28 @@
 #include "screen.h"
 
 #include "..\alarms.h"
-
+#include "..\devices\dGate.h"
 #include "..\mem\panel.h"
 
 void screenShot(void)
 {
   static short Offset = 0;
 
-  static short AI2, AI3, AI12, AI1, Umax1, Umin1, Umin3, CrashUmaxAnP;
-  static short CrashUminAnP, R1Plus, R1Minus, U1Plus, U1Minus;
+  Screens->Shot.Settings.CrashUmaxAnP = 2000;
+  Screens->Shot.Settings.CrashUminAnP = 1000;
 
-  AI2 = 2300;
-  AI3 = 150;
-  AI12 = 2000;
-  AI1 = 100;
-  Umax1 = 3000;
-  Umin1 = 100;
-  Umin3 = 300;
-  CrashUmaxAnP = 2000;
-  CrashUminAnP = 1000;
-  R1Plus = 200;
-  R1Minus = 300;
-  U1Plus = 400;
-  U1Minus = 500;
+  Screens->Shot.Ues1 = &dMem->Gate->SHOT.AnP.AI2;   // &AI2;  //2300;
+  Screens->Shot.Ies1 = &dMem->Gate->SHOT.AnP.AI3;   //150;
+  Screens->Shot.Uab  = &dMem->Gate->SHOT.AnP.AI12;  //2000;
+  Screens->Shot.Iab  = &dMem->Gate->SHOT.AnP.AI1;   //100;
 
-  Screens->Shot.Ues1 = &AI2;  //2300;
-  Screens->Shot.Ies1 = &AI3;   //150;
-  Screens->Shot.Uab  = &AI12;  //2000;
-  Screens->Shot.Iab  = &AI1;   //100;
+  Screens->Shot.Riz_p = &dMem->Gate->SHOT.BKI.R1Plus;
+  Screens->Shot.Riz_m = &dMem->Gate->SHOT.BKI.R1Minus;
+  Screens->Shot.Uec_p = &dMem->Gate->SHOT.BKI.U1Plus;
+  Screens->Shot.Uec_m = &dMem->Gate->SHOT.BKI.U1Minus;
 
-  Screens->Shot.Riz_p = &R1Plus;
-  Screens->Shot.Riz_m = &R1Minus;
-  Screens->Shot.Uec_p = &U1Plus;
-  Screens->Shot.Uec_m = &U1Minus;
-
-  Screens->Shot.MaxW = &CrashUmaxAnP;//2000;//
-  Screens->Shot.MinW = &CrashUminAnP;//1000;//
+  Screens->Shot.MaxW = &Screens->Shot.Settings.CrashUmaxAnP;//2000;//
+  Screens->Shot.MinW = &Screens->Shot.Settings.CrashUminAnP;//1000;//
 
   if(Screens->Shot.Settings.Event.WindowUstEC1 == true) {
     Offset = 0;
@@ -69,6 +55,6 @@ void screenShot(void)
 
     Screens->Shot.Settings.Event.WindowUstAB = false;
   }
-  Screens->Shot.MaxA = &Umax1 + Offset*2;
-  Screens->Shot.MinA = &Umin1 + Offset*2;
+  Screens->Shot.MaxA = &dMem->Gate->SHOT.AnP.Umax1 + Offset*2;
+  Screens->Shot.MinA = &dMem->Gate->SHOT.AnP.Umin1 + Offset*2;
  }

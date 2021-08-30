@@ -32,6 +32,7 @@ void taskLoop(void)
   init();
 
   addEvent(alPowerOn1 + getMyIP() - 41);
+  Panel->flags.enableEx = true;
 
   while(true)
   {
@@ -72,30 +73,29 @@ void taskLoop(void)
     else
       CloseWindow(10);
   
-    // readMaskMessages();
-    // fillCrash();
+    fillCrash();
 
     handlerLogic();
-    // controlLogic();
+    controlLogic();
 
     Panel->oldScreen = PSW[CURRENT_SCREEN];
     updatePFW();
-    time();
+    getTime();
     Delay(50);
   }
 }
 
 void controlLogic(void)
 {
-  if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[900] & (1<<0)) == 0)
+  if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
   {
     PSW[1000] = PSW[2508];
-    PSW[900] |= (1<<0);
+    PSW[1100] |= (1<<0);
   }
-  if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[900] & (1<<1)) == 0)
+  if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
   {
     PSW[1002] = PSW[2508];
-    PSW[900] |= (1<<1);
+    PSW[1100] |= (1<<1);
   }
 }
 

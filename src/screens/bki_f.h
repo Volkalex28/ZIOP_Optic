@@ -35,12 +35,7 @@ typedef struct ScreenBkif_s
       short SelectFider;		// 65
   );
 
-  short* _1;
-  short* _2;
-  short* _3;
-  short* _4;
-  short* _5;
-  short* _6;
+  short* values[6];
   short* Nfider;
   short* KalibrK;
   short* LevelR;

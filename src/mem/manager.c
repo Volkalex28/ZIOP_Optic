@@ -142,7 +142,7 @@ cell_t reads(cell_t cell, uint16_t count)
       cell.status = memStatusIncorrectData;
     break;
   }
-  // get_ptr(&cell);
+  get_ptr(&cell);
 
   return cell;
 }

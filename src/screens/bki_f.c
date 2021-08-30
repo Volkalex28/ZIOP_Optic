@@ -2,38 +2,17 @@
 #include "screen.h"
 
 #include "..\alarms.h"
-
+#include "..\devices\devices_mem.h"
 #include "..\mem\panel.h"
 
 void screenBkif(void)
 {
   size_t i;
 
-  static short Nfider, KalibrK, LevelR, En_Sekcion;
-  static short U1Osn, U1Dop, R1Plus, R1Minus, U1Plus, U1Minus;
-  static short Plus1, Minus1, Plus2, Minus2, Plus3, Minus3;
-  
-  Nfider = 14;
-  KalibrK = 12;
-  LevelR = 20;
-  En_Sekcion = 0;
-  U1Osn = 2400; 
-  U1Dop = 2300; 
-  R1Plus = 200; 
-  R1Minus = 200;
-  U1Plus = 2000;
-  U1Minus = 2000;
-  Plus1 = 100;
-  Minus1 = 200;
-  Plus2 = 300;
-  Minus2 = 400;
-  Plus3 = 500;
-  Minus3 = 600;
-
-  Screens->Bkif.Nfider     = &Nfider;
-  Screens->Bkif.KalibrK    = &KalibrK;
-  Screens->Bkif.LevelR     = &LevelR;
-  Screens->Bkif.En_Sekcion = &En_Sekcion;
+  Screens->Bkif.Nfider     = &dMem->Gate->SHOT.BKI.Nfider;
+  Screens->Bkif.KalibrK    = &dMem->Gate->SHOT.BKI.CalibrK;
+  Screens->Bkif.LevelR     = &dMem->Gate->SHOT.BKI.LevelR;
+  Screens->Bkif.En_Sekcion = &dMem->Gate->SHOT.BKI.En_Section;
 
   selectCircle(&Screens->Bkif.Settings.Select, *Screens->Bkif.Nfider >= 1, 0, \
     Screens->Bkif.Settings.Event.SelectUp, Screens->Bkif.Settings.Event.SelectDown);
@@ -60,12 +39,12 @@ void screenBkif(void)
     Screens->Bkif.Settings.title[2].Title[1] = 3;
     Screens->Bkif.Settings.title[2].dimention = 0;
 
-    Screens->Bkif._1 = &U1Osn; 
-    Screens->Bkif._2 = &U1Dop; 
-    Screens->Bkif._3 = &R1Plus; 
-    Screens->Bkif._4 = &R1Minus;
-    Screens->Bkif._5 = &U1Plus;
-    Screens->Bkif._6 = &U1Minus;
+    Screens->Bkif.values[0] = &dMem->Gate->SHOT.BKI.U1Osn; 
+    Screens->Bkif.values[1] = &dMem->Gate->SHOT.BKI.U1Dop; 
+    Screens->Bkif.values[2] = &dMem->Gate->SHOT.BKI.R1Plus; 
+    Screens->Bkif.values[3] = &dMem->Gate->SHOT.BKI.R1Minus;
+    Screens->Bkif.values[4] = &dMem->Gate->SHOT.BKI.U1Plus;
+    Screens->Bkif.values[5] = &dMem->Gate->SHOT.BKI.U1Minus;
 
     Screens->Bkif.Settings.Visible.SelectFider = 0;
 
@@ -79,14 +58,10 @@ void screenBkif(void)
       Screens->Bkif.Settings.title[i].Title[0] = 2;
       Screens->Bkif.Settings.title[i].Title[1] = 3;
       Screens->Bkif.Settings.title[i].dimention = 1;
-    }
 
-    Screens->Bkif._1 = &Plus1;
-    Screens->Bkif._2 = &Minus1;
-    Screens->Bkif._3 = &Plus2;
-    Screens->Bkif._4 = &Minus2;
-    Screens->Bkif._5 = &Plus3;
-    Screens->Bkif._6 = &Minus3;
+      Screens->Bkif.values[2*i+0] = &dMem->Gate->SHOT.BKI.Fider[Screens->Bkif.Settings.SelectFider+i].Plus;
+      Screens->Bkif.values[2*i+1] = &dMem->Gate->SHOT.BKI.Fider[Screens->Bkif.Settings.SelectFider+i].Minus;
+    }
 
     Screens->Bkif.Settings.Visible.SelectFider = (*Screens->Bkif.Nfider > 3);
 

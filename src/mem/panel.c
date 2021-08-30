@@ -17,7 +17,7 @@ uint8_t getMyIP(void) {
   return read(c).value; 
 }
 
-Time_t * time(void)
+Time_t * getTime(void)
 {
   PSW[TIME_SEC]    = (PSW[TIME_SEC_HEX]   / 16) * 10 + PSW[TIME_SEC_HEX]   % 16;
   PSW[TIME_MIN]    = (PSW[TIME_MIN_HEX]   / 16) * 10 + PSW[TIME_MIN_HEX]   % 16;

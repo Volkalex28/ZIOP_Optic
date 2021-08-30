@@ -28,6 +28,7 @@
  */
 
 #define FIRST_RR_ALARMS         700   ///< Первый регистр для буфера активных аварий
+#define FIRST_RR_ALARMS_GATE    1200  ///< Первый регистр буферов аварий для шкафов, которые читает шлюз
 #define COUNT_ALARMS            199   ///< Максимальное количество возможных активных аварий
 
 #define FIRST_RR_EVENT          5000  ///< Первый регистр энергонезависимой памяти журнала событий
@@ -47,8 +48,7 @@
 /**
  * @brief Расчет количества регистров на одно событие
  */
-// #define NUMBER_RR_FOR_ONE_EVENT (CALC_COUNT_RR(EventByte_t))
-#define NUMBER_RR_FOR_ONE_EVENT  4
+#define NUMBER_RR_FOR_ONE_EVENT (CALC_COUNT_RR(EventByte_t))
 /**
  * @brief Расчет количества регистров для одного типа маскировки событий
  */
@@ -72,7 +72,9 @@ enum EAlarms
 {
   alarmsActual,     ///< Буфер активных аварий, которые незамаскированные
   alarmsBacklog,    ///< Буфер всех активных аварий
-  alarmsTemp,       ///< Временны буфер активных аварий, который формируется из всех с применением маски
+  alarmsSHOT,       ///< Буфер активных аварий полученных из ШОТа (шлюз)
+  alarmsSHSN,       ///< Буфер активных аварий полученных из ШСНа (шлюз)
+  alarmsSHSND,      ///< Буфер активных аварий полученных из ШСН-Д (шлюз)
   alarmsCount       ///< Количество буферов активных аварий
 };
 
@@ -333,17 +335,6 @@ extern Alarms_t * Alarms[alarmsCount];
 
 // functions --------------------------------------------------------------------------------------
 /**
- * @defgroup Alarms_ExFunctions Функции доступные извне
- * @ingroup Alarms
- * @{
- */
-
-/**
- * @brief Функция чтения регистров для маскировки сообщений
- */
-void readMaskMessages(void);
-
-/**
  * @brief Функция добавления нового события
  * 
  * @param NumberCrash Номер сообщения
@@ -380,6 +371,7 @@ void fillCrash(void);
 /**
  * @brief Функция инициализации аварийных и системных сообщений
  * 
+ * @param alarmsBacklogPtr Указатель на теневой буфер аварий
  */
 void initAlarms(void);
 

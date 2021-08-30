@@ -12,6 +12,7 @@
 #include "titles.c"
 
 #include "devices/dDP.c"
+#include "devices/dGate.c"
 #include "devices/devices.c"
 
 #include "mem/manager.c"

@@ -47,7 +47,6 @@ void init(void)
     PFW->flags.firstTurnOn = false;
   }
   
-  // readMaskMessages();
   if(getMyIP() == 41)
   {
     Panel->flags.initMaster = true;
