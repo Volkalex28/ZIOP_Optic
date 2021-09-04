@@ -18,19 +18,6 @@
 // varibles ---------------------------------------------------------------------------------------
 Alarms_t * Alarms[alarmsCount];
 
-/**
- * @defgroup Alarms_Vars Локальные переменные
- * @ingroup Alarms
- * @{
- */
-
-/**
- * @brief Массив указателей на буферы в куче, которые синхронизированные с энергонезависимой памятью
- */
-// uint16_t * AlarmsMasks[alarmsMaskCount];
-
-///@}
-
 // local functions --------------------------------------------------------------------------------
 /**
  * @defgroup Alarms_Functions Локальные функции
@@ -56,7 +43,7 @@ void addEvent(Alarm_t number)
   Time_t * pTime;
   cell_t c;
 
-  // if(isMasked(alarmsMaskEvent, number)) return;
+  if(isMasked(alarmsMaskEvent, number)) return;
 
   if(PFW->N_Event >= COUNT_EVENTS) 
   {
@@ -158,12 +145,12 @@ void initAlarms(void)
 {
   size_t i;
   
-  Alarms[alarmsActual]  = (Alarms_t *)&PSW[FIRST_RR_ALARMS];
-  Alarms[alarmsBacklog] = &Alarms[alarmsActual][1];
+  Alarms[alarmsActual]  = (Alarms_t *)&PSW[FIRST_RR_ALARMS + 0];
+  Alarms[alarmsBacklog] = (Alarms_t *)&PSW[FIRST_RR_ALARMS + 200];
   
-  Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE];
-  Alarms[alarmsSHSN]    = &Alarms[alarmsSHOT][1];
-  Alarms[alarmsSHSND]   = &Alarms[alarmsSHOT][2];
+  Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 0];
+  Alarms[alarmsSHSN]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 200];
+  Alarms[alarmsSHSND]   = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 400];
 }
 
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm)

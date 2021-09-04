@@ -47,6 +47,7 @@ const Title_t arrTitles[] = {
   {alConFailDP6,            "Обрыв связи с К-Т4"},
   {alConFailGate,           "Обрыв связи со Шлюзом 485-RTU-LAN"},
 
+//---
   
   {alConRestoredPanel1,         "Связь с АРМ1 восстановлена"},
   {alConRestoredPanel2,         "Связь с АРМ2 восстановлена"},

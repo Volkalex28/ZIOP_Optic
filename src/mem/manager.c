@@ -12,6 +12,8 @@
  * управлением внутренними и внешними данными
  */
 
+#include <string.h>
+
 #include "manager.h"
 
 #include "pfw.h"
@@ -130,14 +132,23 @@ cell_t reads(cell_t cell, uint16_t count)
 
   default:
     if(com != EComMax)
-      cell.status = Reads(
-        com, 
-        cell.adress, 
-        com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
-        cell.number, 
-        count, 
-        cell.ptr
-      ) == 1 ? memStatusOK : memStatusFAIL;
+    {
+      cell.status = memStatusOK;
+      for(i = 0; i <= (count-1)/125 && cell.status == memStatusOK; i++)
+      {
+        cell.status = Reads(com, cell.adress, 
+          com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
+          cell.number + 125*i, 
+          count/125 - i > 0 ? 125 : count%125, 
+          cell.ptr + 125*i
+        ) == 1 ? memStatusOK : memStatusFAIL;
+      }
+
+      if(cell.status == memStatusFAIL && cell.ptr != NULL)
+      {
+        memset(cell.ptr, 0, count * 2);
+      }
+    }
     else
       cell.status = memStatusIncorrectData;
     break;
