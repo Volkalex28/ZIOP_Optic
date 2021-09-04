@@ -40,7 +40,7 @@ void screenShot(void)
     Screens->Shot.Settings.Visible.UmaxUst = true;
     Screens->Shot.Settings.Visible.UminUst = true;
 
-    OpenWindow(7, 100, 90);
+    OpenWindow(winSettAnP, 100, 90);
 
     Screens->Shot.Settings.Event.WindowUstEC1 = false;
   }
@@ -52,7 +52,7 @@ void screenShot(void)
     Screens->Shot.Settings.Visible.UmaxUst = false;
     Screens->Shot.Settings.Visible.UminUst = true;
 
-    OpenWindow(7, 100, 90);
+    OpenWindow(winSettAnP, 100, 90);
 
     Screens->Shot.Settings.Event.WindowUstAB = false;
   }

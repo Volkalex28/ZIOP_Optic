@@ -15,6 +15,8 @@
 
 #include "mem/panel.h"
 
+#include "screens/screen.h"
+
 #define GO_AGAIN_IF(_STATE_) if(_STATE_) goto tryAgain
 #define CONTINUE_IF(_STATE_) if(_STATE_) continue
 
@@ -193,6 +195,8 @@ void readAlarms(void)
       c.type = net5;
       reads(c, CALC_COUNT_RR(Alarms_t));
     }
+    if(PSW[CURRENT_SCREEN] != scrCrash) break;
+
     for(i = 0; i < CALC_COUNT_RR(Alarms_t); i++)
     {
       PSW[number + i] = temp[i];
@@ -205,7 +209,8 @@ void readDevice(void)
   size_t i, n;
   struct FlagsPanel_s flags;
   cell_t c;
-  uint16_t temp[25] = {0};
+  dDPmem_t tempDP[N_DP];
+  const uint16_t numberRR_DP = CALC_COUNT_RR(dMem->DP->DIO);
 
   c.adress = 1;
 
@@ -213,25 +218,21 @@ void readDevice(void)
   {
   case 41: 
   case 42: 
-
-    c.type = net3; c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); c.ptr = &CAST_TO_U16(flags);
+    c.type = net3; 
+    c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); 
+    c.ptr = &CAST_TO_U16(flags);
     Panel->flags.errConMaster = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
-    
-    c.type = net0; c.number = 2500; c.ptr = PSW + 2500;
-    Panel->flags.errConPanel1 = reads(c, 4).status != memStatusOK ? true : false;
-    if(Panel->flags.errConPanel1 == false)
-    {
-      c.number = 2508; c.ptr = PSW + 2508;
-      Panel->flags.errConPanel1 = reads(c, 8).status != memStatusOK ? true : false;
-    }
 
-    c.type = net1; c.number = 2504; c.ptr = PSW + 2504;
-    Panel->flags.errConPanel2 = reads(c, 4).status != memStatusOK ? true : false;
-    if(Panel->flags.errConPanel2 == false)
-    {
-      c.number = 2516; c.ptr = PSW + 2516;
-      Panel->flags.errConPanel2 = reads(c, 8).status != memStatusOK ? true : false;
-    }
+    for(n = 0; n < 2; n++) for(i = 0; i < 2; i++)
+      if(Panel->flags.errConPanel1 == false || i == 0)
+      {
+        c.type = (n == 0 ? net0 : net1); c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); c.number = c.ptr - PSW;
+        
+        if(reads(c, numberRR_DP).status != memStatusOK) 
+          CAST_TO_U16(Panel->flags) |= (1 << (n+7));
+        else 
+          CAST_TO_U16(Panel->flags) &= ~(1 << (n+7));
+      }
 
     if(Panel->flags.errConMaster && Panel->flags.errConPanel1 && Panel->flags.errConPanel2)
       Panel->flags.isMaster = false;
@@ -255,30 +256,17 @@ void readDevice(void)
     break;
 
   case 43:
-    c.type = net3; c.number = 2500; c.ptr = temp;
-    reads(c, 24);
-
-    for(i = 0; i < 4; i++) 
-      PSW[2504+i] = temp[4+i];
-    for(i = 0; i < 8; i++) 
-      PSW[2516+i] = temp[16+i];
-
-    readAlarms();
-    break;
-    
   case 44:
-    c.type = net3; c.number = 2500; c.ptr = temp;
-    if(reads(c, 24).status == memStatusOK)
-    {
-      for(i = 0; i < 4; i++) 
-        PSW[2500+i] = temp[0+i];
-      for(i = 0; i < 8; i++) 
-        PSW[2508+i] = temp[8+i];
-    }
+    c.type = net3; c.number = &CAST_TO_U16(*dMem->DP) - PSW; c.ptr = &CAST_TO_U16(*tempDP);
+    reads(c, numberRR_DP*N_DP);
 
-    readAlarms();
+    for(n = 0; n < 2; n++) for(i = 0; i < 4 * (n + 1); i++) 
+      dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
+        = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
+
+    if(PSW[CURRENT_SCREEN] == scrCrash) readAlarms();
     break;
-  
+      
   default:
     break;
   }

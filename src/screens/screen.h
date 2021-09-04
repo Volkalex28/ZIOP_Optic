@@ -20,8 +20,32 @@
 
 enum EScreen
 {
-  Controllers = 1,
-  Mnemotic
+  scrControllers = 1,
+  scrMnemotic,
+  scrStateDevices,
+  scrInputHandlers,
+  scrConfAlarms,
+  scrZVU,
+  scrBKI,
+  scrSHOT,
+  scrSHSN,
+  scrCrash,
+  scrEvent,
+  scrSystemSett
+};
+
+enum EWindow
+{
+  winMnemoQ1_7_10 = 1,
+  winMnemoQS_T1_T4,
+  winMnemoQS_1_4,
+  winMnemoQ1_3_6,
+  winLevelAccess,
+  winSettBKI,
+  winSettAnP,
+  winConfAlarms,
+  winMenuSyst,
+  winMenu
 };
 
 typedef union Screens_s
@@ -43,14 +67,30 @@ void selectDeviceInCrashAndEvent(void);
  * @brief 
  * 
  */
-void clearRRScreens();
+void clearRRScreens(void);
 
 /**
  * @brief 
  * 
  */
-void fillRRScreens();
+void fillRRScreens(void);
 
+/**
+ * @brief 
+ * 
+ */
+void updateScreen(void);
+
+/**
+ * @brief 
+ * 
+ */
+void controlMenu(void);
+
+/**
+ * @brief 
+ * 
+ */
 void initScreens(void);
 
 #endif // __SCREENS_SCREEN_H__
