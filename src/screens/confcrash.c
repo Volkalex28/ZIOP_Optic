@@ -11,6 +11,7 @@
 
 #include "..\mem\panel.h"
 #include "..\mem\manager.h"
+#include "..\devices\devices.h"
 
 void fillAndEditMaskMessage(void);
 void conversion(void);
@@ -139,21 +140,21 @@ void conversion(void)
 {
   switch(Panel->ChooseDevice.Select)
   {
-    case 0:   
+    case shieldARM:   
       Screens->ConfCrash.Settings.OffsetOfCrash = alNone + 1;
       Screens->ConfCrash.Settings.NumbersCrash = alEndArm - 1;
     break;
-    case 1:
+    case shieldShort:
       Screens->ConfCrash.Settings.OffsetOfCrash = alEndArm;
       Screens->ConfCrash.Settings.NumbersCrash = alEndShort - alEndArm;
     break;
-    case 2:
+    case shieldShsn:
       Screens->ConfCrash.Settings.OffsetOfCrash = alEndShort;
       Screens->ConfCrash.Settings.NumbersCrash = alEndShsn - alEndShort;
     break;
-    case 3:
+    case shieldShsnD:
       Screens->ConfCrash.Settings.OffsetOfCrash = alEndShsn;
-      Screens->ConfCrash.Settings.NumbersCrash = alAll - alEndShsn;
+      Screens->ConfCrash.Settings.NumbersCrash = alEndShsnD - alEndShsn;
     break;
     default:
       Screens->ConfCrash.Settings.OffsetOfCrash = 0;
