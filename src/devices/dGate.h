@@ -17,7 +17,8 @@
 #define N_Gate 1
 
 DEF_DEVICE(Gate, 1, 
-  struct SHOT_s {
+  struct SHOT_s 
+  {
     struct B118_s	
     {
       uint16_t Uout;
@@ -64,8 +65,8 @@ DEF_DEVICE(Gate, 1,
       uint16_t K12;
       uint16_t K13;
       uint16_t SetZero;
-      uint16_t _32;
-      uint16_t _33;
+      uint16_t TempPVT10;
+      uint16_t ErrConPVT10;
       uint16_t _34;
       int16_t Umin1;
       int16_t Umax1;
@@ -121,7 +122,38 @@ DEF_DEVICE(Gate, 1,
   {
     dDPmem_t  DP;
     Time_t    time;
-  } SHSN;
+  } SHSN[2];
+
+  struct GateSHOT_ConfPanel_s
+  {
+    uint16_t WriteProtect : 1;
+    uint16_t Autorisation : 1;
+    uint16_t TempComp     : 1;
+  } SHOT_ConfPanel;
+  struct GateSettEvent_s
+  {
+    uint16_t N_Event;
+    uint16_t CB;
+  } SettEvent[3];
+
+  uint16_t SHOT_CrashUminAnP;
+  uint16_t SHOT_CrashUmaxAnP;
+  uint16_t SHOT_ZVU_OldU;
+  uint16_t SHOT_Ubanok;
+  uint16_t SHOT_KTemperature;
+  uint16_t SHOT_ZVU_UoutTemperature;
+  uint16_t SHOT_ZVU_Nbanok;
+
+  uint16_t SHOT_ZVU_Uzad[2];
+  uint16_t SHOT_ZVU_Regime;
+  uint16_t SHOT_ZVU_State[2];
+
+  struct ErrConGateSlaves_s
+  {
+    uint16_t SHOT   : 1;
+    uint16_t SHSN   : 1;
+    uint16_t SHSND  : 1;
+  } errCon;
 )
 
 #endif // __DGATE_H__

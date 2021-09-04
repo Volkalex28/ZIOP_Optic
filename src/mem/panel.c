@@ -10,6 +10,8 @@
 #include "manager.h"
 #include "pfw.h"
 
+#include "../devices/devices_mem.h"
+
 Panel_t * Panel;
 
 uint8_t getMyIP(void) { 
@@ -25,6 +27,8 @@ Time_t * getTime(void)
   PSW[TIME_DAY]    = (PSW[TIME_DAY_HEX]   / 16) * 10 + PSW[TIME_DAY_HEX]   % 16;
   PSW[TIME_MONTH]  = (PSW[TIME_MONTH_HEX] / 16) * 10 + PSW[TIME_MONTH_HEX] % 16;
   PSW[TIME_YEAR]   = (LOBYTE(PSW[TIME_YEAR_HEX]) / 16) * 10 + LOBYTE(PSW[TIME_YEAR_HEX]) % 16; 
+
+  dMem->time = *(Time_t *)&PSW[TIME_HOUR];
 
   return (Time_t *)&PSW[TIME_HOUR];
 }
