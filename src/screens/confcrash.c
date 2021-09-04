@@ -106,7 +106,7 @@ void fillAndEditMaskMessage(void)
 
     if (Screens->ConfCrash.Settings.Event.OpenWind & (1 << i))
     {
-      OpenWindow(8, 100, 64);
+      OpenWindow(winConfAlarms, 100, 64);
       Screens->ConfCrash.Settings.OffsetConf = i;
       Screens->ConfCrash.Settings.Event.OpenWind = 0;
     }

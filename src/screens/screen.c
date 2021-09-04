@@ -38,7 +38,7 @@ void initScreens(void)
   Screens = (Screens_t *)&PSW[FIRST_RR_SCREEN];
 }
 
-void clearRRScreens()
+void clearRRScreens(void)
 {
   size_t i;
   
@@ -51,11 +51,11 @@ void clearRRScreens()
   }
 }
 
-void fillRRScreens()
+void fillRRScreens(void)
 {
   size_t i;
 
-  if(PSW[CURRENT_SCREEN] == 11)
+  if(PSW[CURRENT_SCREEN] == scrEvent)
     return;
 
   for(i = 0; i < 50; i++)
@@ -66,3 +66,36 @@ void fillRRScreens()
   }
 }
 
+void updateScreen(void)
+{
+  if(Panel->oldScreen != PSW[CURRENT_SCREEN]) 
+  {
+    Panel->flags.menuIsOpen = false;
+    if (PSW[CURRENT_SCREEN] == scrConfAlarms)
+      Panel->ChooseDevice.ResetCrashList = 1;
+  }
+
+  Panel->oldScreen = PSW[CURRENT_SCREEN];
+}
+
+void controlMenu(void)
+{
+  if(Panel->flags.menuIsOpen) 
+  {
+    if(GetAdminLevelAvtorisation == false)
+    {
+      CloseWindow(winMenuSyst);
+      OpenWindow(winMenu, 600, 68); 
+    }
+    else
+    {
+      OpenWindow(winMenu,  600, 68);
+      OpenWindow(winMenuSyst, 400, 68);
+    }
+  }
+  else 
+  {
+    CloseWindow(winMenu);
+    CloseWindow(winMenuSyst);
+  }
+}

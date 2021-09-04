@@ -22,95 +22,34 @@
 
 #include "screens/screen.h"
 
-void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit);
-void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit);
-void controlLogic(void);
-void handlerLogic(void);
-
-void taskLoop(void)
+void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
 {
-  init();
-
-  addEvent(alPowerOn1 + getMyIP() - 41);
-  Panel->flags.enableEx = true;
-
-  while(true)
+  if((PSW[inNum + fbit/16] & (1 << (fbit%16))) && !(PSW[inNum + sbit/16] & (1 << (sbit%16))))
   {
-
-    clearRRScreens();
-    switch (PSW[CURRENT_SCREEN])
-    {
-    case  5:
-      screenConfCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case  6: screenZvu();   break;
-    case  7: screenBkif();  break;
-    case  8: screenShot();  break;
-    case  9: screenShsn();  break;
-    case 10:
-      screenCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case 11:
-      screenEvent();
-      selectDeviceInCrashAndEvent();
-      break;
-
-    default:
-      break;
-    }
-    fillRRScreens();
-
-    if(Panel->oldScreen != PSW[CURRENT_SCREEN]) 
-    {
-      Panel->flags.menuIsOpen = false;
-      if (PSW[CURRENT_SCREEN] == 5)
-        Panel->ChooseDevice.ResetCrashList = 1;
-    }
-    if(Panel->flags.menuIsOpen) 
-    {
-      if(GetAdminLevelAvtorisation == false)
-      {
-        CloseWindow(9);
-        OpenWindow(10, 600, 68); 
-      }
-      else
-      {
-        OpenWindow(10,  600, 68);
-        OpenWindow(9, 400, 68);
-      }
-    }
-    else 
-    {
-      CloseWindow(9);
-      CloseWindow(10);
-    }
-
-    if(getMyIP() == 41 || getMyIP() == 42) 
-      fillCrash();
-
-    handlerLogic();
-    controlLogic();
-
-    Panel->oldScreen = PSW[CURRENT_SCREEN];
-    updatePFW();
-    getTime();
-    Delay(50);
+    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
+    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
+  }
+  else if(!(PSW[inNum + fbit/16] & (1 << (fbit%16))) && (PSW[inNum + sbit/16] & (1 << (sbit%16))))
+  {
+    PSW[outNum + ofbit/16] |= (1 << (ofbit%16));
+    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
+  }
+  else
+  {
+    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
+    PSW[outNum + osbit/16] |= (1 << (osbit%16));
   }
 }
 
-void controlLogic(void)
+void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit)
 {
-  if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
+  if((PSW[inNum + bit/16] & (1 << (bit%16))))
   {
-    PSW[1000] = PSW[2508];
-    PSW[1100] |= (1<<0);
+    PSW[outNum + obit/16] |= (1 << (obit%16));
   }
-  if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
+  else
   {
-    PSW[1002] = PSW[2508];
-    PSW[1100] |= (1<<1);
+    PSW[outNum + obit/16] &= ~(1 << (obit%16));
   }
 }
 
@@ -204,33 +143,66 @@ void handlerLogic(void)
   diffConrtol(2521, 2532, 1, 2, 12, 13);
 }
 
-void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
+void controlLogic(void)
 {
-  if((PSW[inNum + fbit/16] & (1 << (fbit%16))) && !(PSW[inNum + sbit/16] & (1 << (sbit%16))))
+  if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
   {
-    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
-    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
+    PSW[1000] = PSW[2508];
+    PSW[1100] |= (1<<0);
   }
-  else if(!(PSW[inNum + fbit/16] & (1 << (fbit%16))) && (PSW[inNum + sbit/16] & (1 << (sbit%16))))
+  if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
   {
-    PSW[outNum + ofbit/16] |= (1 << (ofbit%16));
-    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
-  }
-  else
-  {
-    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
-    PSW[outNum + osbit/16] |= (1 << (osbit%16));
+    PSW[1002] = PSW[2508];
+    PSW[1100] |= (1<<1);
   }
 }
 
-void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit)
+void taskLoop(void)
 {
-  if((PSW[inNum + bit/16] & (1 << (bit%16))))
+  init();
+
+  addEvent(alPowerOn1 + getMyIP() - 41);
+  Panel->flags.enableEx = true;
+
+  while(true)
   {
-    PSW[outNum + obit/16] |= (1 << (obit%16));
-  }
-  else
-  {
-    PSW[outNum + obit/16] &= ~(1 << (obit%16));
+
+    clearRRScreens();
+    switch (PSW[CURRENT_SCREEN])
+    {
+    case scrConfAlarms:
+      screenConfCrash();
+      selectDeviceInCrashAndEvent();
+      break;
+    case scrZVU:   screenZvu();   break;
+    case scrBKI:   screenBkif();  break;
+    case scrSHOT:  screenShot();  break;
+    case scrSHSN:  screenShsn();  break;
+    case scrCrash:
+      screenCrash();
+      selectDeviceInCrashAndEvent();
+      break;
+    case scrEvent:
+      screenEvent();
+      selectDeviceInCrashAndEvent();
+      break;
+
+    default:
+      break;
+    }
+    fillRRScreens();
+
+    if(getMyIP() == 41 || getMyIP() == 42) 
+      fillCrash();
+
+    updateScreen();
+    controlMenu();
+
+    handlerLogic();
+    controlLogic();
+
+    updatePFW();
+    getTime();
+    Delay(50);
   }
 }
