@@ -175,6 +175,89 @@ void setMask(AlarmsMask_t typeMask, Alarm_t numberAlarm, bool_t state)
   write(c);
 }
 
+
+Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
+{
+
+  switch (numberShield)
+  {
+    case shieldShort:
+      switch (numberAlarm)
+      {
+        // включение панели + доступы
+        case 1:  return alShotCon_1;   //  35
+        case 2:  return alShotCon_2;   //  36
+        case 3:  return alShotCon_3;   //  37
+        // обрыв связи
+        case 11: return alShotCon_4;   //  38
+        case 12: return alShotCon_5;   //  39
+        case 25: return alShotCon_6;   //  40
+        case 28: return alShotCon_7;   //  41
+        case 40: return alShotCon_8;   //  42
+        case 36: return alShotCon_9;   //  43
+        // связь восстановлена
+        case 53: return alShotCon_10;   //  44
+        case 54: return alShotCon_11;   //  45
+        case 67: return alShotCon_12;   //  46
+        case 70: return alShotCon_13;   //  47
+        case 82: return alShotCon_14;   //  48
+        case 78: return alShotCon_15;   //  49
+        case 200: return alShotB118_1;  //  50
+        case 201: return alShotB118_2;  //  51
+
+        default:
+          // AnP
+          if (numberAlarm >= 214 && numberAlarm <= 229)  // 52...67
+            return (numberAlarm - 162);
+          // DP
+          if (numberAlarm >= 262 && numberAlarm <= 301)  // 68...107
+            return (numberAlarm - 194);
+          // BKIf
+          if (numberAlarm >= 614 && numberAlarm <= 627)  // 108...121
+            return (numberAlarm - 506);
+        } 
+    break;
+    case shieldShsn:
+      switch (numberAlarm)
+      {
+        // включение панели + доступы
+        case 1:  return alShsnCon_1;   //  122
+        case 2:  return alShsnCon_2;   //  123
+        case 3:  return alShsnCon_3;   //  124
+        // обрыв связи
+        case 28: return alShsnCon_4;   //  125
+        // связь восстановлена
+        case 70: return alShsnCon_5;   //  126
+
+        default:
+          // DP
+          if (numberAlarm >= 262 && numberAlarm <= 281)   // 127...146
+            return (numberAlarm - 135);
+      } 
+    break;
+    case shieldShsnD:
+      switch (numberAlarm)
+      {
+        // включение панели + доступы
+        case 1:  return alShsnDCon_1;   //  147
+        case 2:  return alShsnDCon_2;   //  148
+        case 3:  return alShsnDCon_3;   //  149
+        // обрыв связи
+        case 28: return alShsnDCon_4;   //  150
+        // связь восстановлена
+        case 70: return alShsnDCon_5;   //  151
+
+        default:
+          // DP
+          if (numberAlarm >= 262 && numberAlarm <= 281)   //  152...171
+            return (numberAlarm - 110);
+      } 
+    break;
+  }
+  return alNone;
+}
+
+
 // local functions --------------------------------------------------------------------------------
 
 uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)
@@ -182,3 +265,4 @@ uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)
   cell_t c; c.type = memPFW; c.number = FIRST_RR_CONFCRASH + NumberOFCrashes*typeMask + numberAlarm/16;
   return read(c).value;
 }
+

@@ -9,20 +9,21 @@
 
 #include "screen.h"
 #include "../mem/panel.h"
+#include "..\devices\devices.h"
 
 Screens_t * Screens;
 
 void selectDeviceInCrashAndEvent(void)
 {
-  selectCircle(&Panel->ChooseDevice.Select, 3, 0, \
+  selectCircle(&Panel->ChooseDevice.Select, shieldShsnD, shieldARM, \
     Panel->ChooseDevice.EventBut.SelectUp, Panel->ChooseDevice.EventBut.SelectDown);
 
   switch (Panel->ChooseDevice.Select)
   {
-    case 0:  strcpy(Panel->ChooseDevice.TitleCh, "юпл");   break;
-    case 1:  strcpy(Panel->ChooseDevice.TitleCh, "ьнр");   break;
-    case 2:  strcpy(Panel->ChooseDevice.TitleCh, "ьям");   break;
-    case 3:  strcpy(Panel->ChooseDevice.TitleCh, "ьям-д"); break;
+    case shieldARM:    strcpy(Panel->ChooseDevice.TitleCh, "юпл");   break;
+    case shieldShort:  strcpy(Panel->ChooseDevice.TitleCh, "ьнр");   break;
+    case shieldShsn:   strcpy(Panel->ChooseDevice.TitleCh, "ьям");   break;
+    case shieldShsnD:  strcpy(Panel->ChooseDevice.TitleCh, "ьям-д"); break;
     default: strcpy(Panel->ChooseDevice.TitleCh, " "); break;
   }
 

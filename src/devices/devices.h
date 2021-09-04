@@ -22,6 +22,14 @@
   void finit##NAME(void);          \
   void init##NAME(void);
 
+typedef enum EShields
+{
+  shieldARM,
+  shieldShort,
+  shieldShsn,
+  shieldShsnD,
+} Shield_t;
+
 typedef struct dmain_s
 {
   MemTypes_t port;
