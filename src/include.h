@@ -5,6 +5,8 @@
  *
  */
 
+// #include <string.h>
+
 #include "alarms.c"
 #include "exchange.c"
 #include "init.c"

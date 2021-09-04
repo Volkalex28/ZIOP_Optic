@@ -9,14 +9,15 @@
 
 #include "..\alarms.h"
 #include "..\devices\dGate.h"
+#include "..\devices\devices_mem.h"
 #include "..\mem\panel.h"
 
 void screenShot(void)
 {
   static short Offset = 0;
 
-  Screens->Shot.Settings.CrashUmaxAnP = 2000;
-  Screens->Shot.Settings.CrashUminAnP = 1000;
+  Screens->Shot.Settings.CrashUmaxAnP = dMem->Gate->SHOT_CrashUmaxAnP;
+  Screens->Shot.Settings.CrashUminAnP = dMem->Gate->SHOT_CrashUminAnP;
 
   Screens->Shot.Ues1 = &dMem->Gate->SHOT.AnP.AI2;   // &AI2;  //2300;
   Screens->Shot.Ies1 = &dMem->Gate->SHOT.AnP.AI3;   //150;

@@ -36,7 +36,7 @@ void initDP(void)
       DP[i].instance.reqs = &DP[i].reqs[n];
     DP[i].mem             = (dDPmem_t *)&dMem->DP[i];
     
-    DP[i].reqs[0].buf     = (uint16_t *)DP[i].mem->regs;
+    DP[i].reqs[0].buf     = (uint16_t *)DP[i].mem->DIO.regs;
     DP[i].reqs[0].first   = 0;
     DP[i].reqs[0].count   = 4;
 

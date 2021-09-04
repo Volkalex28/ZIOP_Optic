@@ -69,11 +69,26 @@ void taskLoop(void)
         Panel->ChooseDevice.ResetCrashList = 1;
     }
     if(Panel->flags.menuIsOpen) 
-      OpenWindow(10, 600, 68); 
-    else
+    {
+      if(GetAdminLevelAvtorisation == false)
+      {
+        CloseWindow(9);
+        OpenWindow(10, 600, 68); 
+      }
+      else
+      {
+        OpenWindow(10,  600, 68);
+        OpenWindow(9, 400, 68);
+      }
+    }
+    else 
+    {
+      CloseWindow(9);
       CloseWindow(10);
-  
-    fillCrash();
+    }
+
+    if(getMyIP() == 41 || getMyIP() == 42) 
+      fillCrash();
 
     handlerLogic();
     controlLogic();
@@ -105,22 +120,22 @@ void handlerLogic(void)
   normConrtol(2500, 2533, 9, 0);
   normConrtol(2501, 2533, 3, 1);
 
-  diffConrtol(2500, 2525, 1, 0, 0, 1);
+  diffConrtol(2500, 2525, 0, 1, 0, 1);
   diffConrtol(2500, 2525, 2, 3, 3, 4);
   diffConrtol(2500, 2525, 4, 5, 5, 6);
   
-  diffConrtol(2500, 2529, 11, 10, 0, 1);
+  diffConrtol(2500, 2529, 10, 11, 0, 1);
   diffConrtol(2500, 2529, 12, 13, 3, 4);
   diffConrtol(2500, 2529, 14, 15, 5, 6);
   //- 52
   normConrtol(2504, 2533, 9, 2);
   normConrtol(2505, 2533, 3, 3);
 
-  diffConrtol(2504, 2527, 1, 0, 0, 1);
+  diffConrtol(2504, 2527, 0, 1, 0, 1);
   diffConrtol(2504, 2527, 2, 3, 3, 4);
   diffConrtol(2504, 2527, 4, 5, 5, 6);
   
-  diffConrtol(2504, 2531, 11, 10, 0, 1);
+  diffConrtol(2504, 2531, 10, 11, 0, 1);
   diffConrtol(2504, 2531, 12, 13, 3, 4);
   diffConrtol(2504, 2531, 14, 15, 5, 6);
   //- 53
@@ -193,12 +208,12 @@ void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, ui
 {
   if((PSW[inNum + fbit/16] & (1 << (fbit%16))) && !(PSW[inNum + sbit/16] & (1 << (sbit%16))))
   {
-    PSW[outNum + ofbit/16] |= (1 << (ofbit%16));
+    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
     PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
   }
   else if(!(PSW[inNum + fbit/16] & (1 << (fbit%16))) && (PSW[inNum + sbit/16] & (1 << (sbit%16))))
   {
-    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
+    PSW[outNum + ofbit/16] |= (1 << (ofbit%16));
     PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
   }
   else
