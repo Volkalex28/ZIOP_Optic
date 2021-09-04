@@ -144,7 +144,7 @@ void conversion(void)
       Screens->ConfCrash.Settings.OffsetOfCrash = alNone + 1;
       Screens->ConfCrash.Settings.NumbersCrash = alEndArm - 1;
     break;
-    case shieldShort:
+    case shieldShot:
       Screens->ConfCrash.Settings.OffsetOfCrash = alEndArm;
       Screens->ConfCrash.Settings.NumbersCrash = alEndShort - alEndArm;
     break;

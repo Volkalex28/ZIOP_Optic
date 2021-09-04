@@ -40,7 +40,6 @@
 void writeDevice(void);
 void readDevice(void);
 
-
 void taskExchangeRead(void)
 {
   while(true)
@@ -57,7 +56,7 @@ void taskExchangeReadGate(void)
   while(true)
   {
     cell_t c, c_alarm;
-    size_t i;
+    size_t i, n;
 
   tryAgain:
 
@@ -85,12 +84,22 @@ void taskExchangeReadGate(void)
       {
         GO_AGAIN_READS(net2, 120, &CAST_TO_U16(dMem->Gate), c, CALC_COUNT_RR(dGatemem_t)-1);
       }
-      else memset(&CAST_TO_U16(dMem->Gate), 0, CALC_COUNT_RR(dGatemem_t)-1);
+      
+      if(dMem->Gate->errCon.SHOT == true)
+      {
+        memset(&CAST_TO_U16(dMem->Gate->SHOT), 0, sizeof(dMem->Gate->SHOT));
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[2]), 0, 
+          sizeof(dMem->Gate) - sizeof(dMem->Gate->SHOT) - sizeof(dMem->Gate->SHSN) - 2);
+      }
+      if(dMem->Gate->errCon.SHSN == true)
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[0]), 0, sizeof(dMem->Gate->SHSN[0]));
+      if(dMem->Gate->errCon.SHSND == true)
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[1]), 0, sizeof(dMem->Gate->SHSN[1]));
 
       for(i = 0; i < 3; i++)
       {
         size_t n;
-        PSW[3005]++;
+        Alarms_t alTemp;
 
         if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))
         {
@@ -109,11 +118,11 @@ void taskExchangeReadGate(void)
         }
         CONTINUE_IF(CAST_TO_U16(dMem->Gate->errCon) & (1 << i));
 
-        PSW[3006]++;
+        CONTINUE_READS(net2, 300, &CAST_TO_U16(alTemp), c, CALC_COUNT_RR(Alarms_t));
 
-        CONTINUE_READS(net2, 300, PSW + FIRST_RR_ALARMS_GATE + CALC_COUNT_RR(Alarms_t)*i,
-          c, CALC_COUNT_RR(Alarms_t)
-        );
+        Alarms[alarmsSHOT+i]->count = alTemp.count;
+        for(n = 0; n < COUNT_ALARMS; n++)
+          Alarms[alarmsSHOT+i]->buf[n] = convertionNumberAlarm(shieldShot+i, alTemp.buf[n]);
       }
     }
   }
@@ -195,7 +204,7 @@ void readAlarms(void)
       c.type = net5;
       reads(c, CALC_COUNT_RR(Alarms_t));
     }
-    if(PSW[CURRENT_SCREEN] != scrCrash) break;
+    // if(PSW[CURRENT_SCREEN] != scrCrash) break;
 
     for(i = 0; i < CALC_COUNT_RR(Alarms_t); i++)
     {
@@ -224,11 +233,13 @@ void readDevice(void)
     Panel->flags.errConMaster = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
 
     for(n = 0; n < 2; n++) for(i = 0; i < 2; i++)
-      if(Panel->flags.errConPanel1 == false || i == 0)
+      if((CAST_TO_U16(Panel->flags) & (1 << (n+7))) == false || i == 0)
       {
-        c.type = (n == 0 ? net0 : net1); c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); c.number = c.ptr - PSW;
+        c.type = (n == 0 ? net0 : net1); 
+        c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); 
+        c.number = c.ptr - PSW;
         
-        if(reads(c, numberRR_DP).status != memStatusOK) 
+        if(reads(c, numberRR_DP*(1+i)).status != memStatusOK) 
           CAST_TO_U16(Panel->flags) |= (1 << (n+7));
         else 
           CAST_TO_U16(Panel->flags) &= ~(1 << (n+7));
@@ -264,7 +275,7 @@ void readDevice(void)
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
 
-    if(PSW[CURRENT_SCREEN] == scrCrash) readAlarms();
+    readAlarms();
     break;
       
   default:

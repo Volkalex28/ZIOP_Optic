@@ -25,7 +25,7 @@
 typedef enum EShields
 {
   shieldARM,
-  shieldShort,
+  shieldShot,
   shieldShsn,
   shieldShsnD,
 } Shield_t;

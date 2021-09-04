@@ -21,7 +21,7 @@ void selectDeviceInCrashAndEvent(void)
   switch (Panel->ChooseDevice.Select)
   {
     case shieldARM:    strcpy(Panel->ChooseDevice.TitleCh, "юпл");   break;
-    case shieldShort:  strcpy(Panel->ChooseDevice.TitleCh, "ьнр");   break;
+    case shieldShot:  strcpy(Panel->ChooseDevice.TitleCh, "ьнр");   break;
     case shieldShsn:   strcpy(Panel->ChooseDevice.TitleCh, "ьям");   break;
     case shieldShsnD:  strcpy(Panel->ChooseDevice.TitleCh, "ьям-д"); break;
     default: strcpy(Panel->ChooseDevice.TitleCh, " "); break;

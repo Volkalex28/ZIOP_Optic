@@ -181,7 +181,7 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
 
   switch (numberShield)
   {
-    case shieldShort:
+    case shieldShot:
       switch (numberAlarm)
       {
         // включение панели + доступы
