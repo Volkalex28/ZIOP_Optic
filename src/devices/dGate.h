@@ -16,6 +16,12 @@
 
 #define N_Gate 1
 
+typedef struct GateSettEvent_s
+{
+  uint16_t N_Event;
+  uint16_t CB;
+} GateSettEvent_t;
+
 DEF_DEVICE(Gate, 1, 
   struct SHOT_s 
   {
@@ -130,11 +136,7 @@ DEF_DEVICE(Gate, 1,
     uint16_t Autorisation : 1;
     uint16_t TempComp     : 1;
   } SHOT_ConfPanel;
-  struct GateSettEvent_s
-  {
-    uint16_t N_Event;
-    uint16_t CB;
-  } SettEvent[3];
+  GateSettEvent_t SettEvent[3];
 
   uint16_t SHOT_CrashUminAnP;
   uint16_t SHOT_CrashUmaxAnP;

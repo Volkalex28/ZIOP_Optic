@@ -24,7 +24,7 @@ void finit(void)
   c.value = 2000;
   write(c);
 
-  clearEvents();
+  clearEvents(true);
   finitDevices();
   finitTitle();
   

@@ -18,6 +18,8 @@
 // includes ---------------------------------------------------------------------------------------
 #include "lib.h"
 
+#include "devices/devices.h"
+
 #include "mem/manager.h"
 
 // defines ----------------------------------------------------------------------------------------
@@ -32,6 +34,7 @@
 #define COUNT_ALARMS            199   ///< Максимальное количество возможных активных аварий
 
 #define FIRST_RR_EVENT          5000  ///< Первый регистр энергонезависимой памяти журнала событий
+#define FIRST_RR_EVENT_GATE     40000 ///< 
 #define COUNT_EVENTS            1000  ///< Максимальное количество событий
 
 #define FIRST_RR_CONFCRASH      1000  ///< Первый регистр энергонезависимой памяти маски событий
@@ -279,7 +282,15 @@ typedef enum EAlarm
   alShsnD_20,
   alEndShsnD,                         // Количество событий секции ШСНД
 
-  alAll = alEndShsnD                        ///< Количество всех событий
+  alShortEn = alEndShsnD,
+  alShsnEn,
+  alShSnDEn,                       
+
+  alTransTemperProtectT1 = 200,
+  alTransTemperProtectT2,
+  alTransTemperProtectT3,
+  alTransTemperProtectT4,
+  alAll                ///< Количество всех событий
 } Alarm_t;
 
 /**
@@ -352,7 +363,7 @@ void addEvent(Alarm_t NumberCrash);
  * @brief Функция очистки событий
  * 
  */
-void clearEvents(void);
+void clearEvents(bool_t gate);
 
 /**
  * @brief Функция добавления новых аварийных или системных сообщений
@@ -392,6 +403,18 @@ void initAlarms(void);
  * @retval false Маскировки нет 
  */
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm);
+
+
+/**
+ * @brief Функция для ковертирования полученных аварий по шкафам из шлюза
+ * 
+ * @param numberShield Выбор типа маскировки на который необходимо проверить
+ * @param numberAlarm Номер сообщения
+ * @return Возвращает приведенный номер аварии из шкафов 
+ * @retval Alarm_t Приведенный номер
+ * @retval alNone Аварии не поддерживаются
+ */
+Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm);
 
 /**
  * @brief Функция установки маски для сообщения

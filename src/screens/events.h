@@ -28,16 +28,19 @@ typedef struct ScreenEvent_s
   int16_t CntMin;         //61
   struct EventConfig 
   {
-    unsigned short JumpScreen       : 1;  // 0
-    unsigned short Auto             : 1;  // 1
-    unsigned short VisibleButtMode  : 1;  // 2
-    unsigned short Zero             : 1;  // 3
+    uint16_t JumpScreen       : 1;  // 0
+    uint16_t Auto             : 1;  // 1
+    uint16_t VisibleButtMode  : 1;  // 2
+    uint16_t Zero             : 1;  // 3
+    uint16_t visibleLoad      : 1;  // 4
   } Config;               //62
   uint16_t Mode;          //63
   int16_t Cnt;            //64
   int16_t OffsetLine;     //65
   uint16_t N_Event;       //66
   uint16_t MaxEvent;      //67
+  uint16_t CounterLoad;   //68
+  uint16_t Text;          //69
 } ScreenEvent_t;
 
 void screenEvent(void);

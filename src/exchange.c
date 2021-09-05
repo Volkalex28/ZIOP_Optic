@@ -14,6 +14,9 @@
 #include "devices/devices_mem.h"
 
 #include "mem/panel.h"
+#include "mem/pfw.h"
+
+#include "screens/screen.h"
 
 #define GO_AGAIN_IF(_STATE_) if(_STATE_) goto tryAgain
 #define CONTINUE_IF(_STATE_) if(_STATE_) continue
@@ -34,10 +37,26 @@
   _CELL_##.type = _NET_; _CELL_##.number = _NUM_; _CELL_##.value = _VALUE_;     \
   if(write(_CELL_).status != memStatusOK) continue
 
+#define CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_)                       \
+  (((_COUNTER_) < (_COUNT_VAL_))                                                \
+  && (CAST_TO_U16(dMem->Gate->errCon) & (1 << (_NUM_DEV_))) == false)
+
+#define CONTINUE_WAIT(_NET_, _NUM_, _CELL_, _TAG_, _NUM_DEV_, _COUNTER_, _COUNT_VAL_) \
+  CONTINUE_WRITE(_NET_, _NUM_, _CELL_, _TAG_ + 2*(_NUM_DEV_));                        \
+  _CELL_##.value = 0; _COUNTER_ = 0;                                                  \
+  while((_CELL_##.value & 0x8000) == false                                            \
+    && CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_)                              \
+  ) {                                                                                 \
+    _COUNTER_##++;                                                                    \
+    _CELL_ = read(_CELL_);                                                            \
+    if(_CELL_##.status != memStatusOK) break;                                         \
+    Delay(500);                                                                       \
+  }                                                                                   \
+  CONTINUE_IF(CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_) == false)
+
 //-------------------------
 void writeDevice(void);
 void readDevice(void);
-
 
 void taskExchangeRead(void)
 {
@@ -76,6 +95,20 @@ void taskExchangeReadGate(void)
     }
     else
     {
+      for(i = 0; i < 3; i++)
+      {
+        c.type = net2; c.number = 49;
+        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i) || read(c).status != memStatusOK)
+        {
+          Panel->gateEventsState[i].isError = true;
+          Panel->gateEventsState[i].percent = 0;
+          Panel->gateEventsState[i].isWait = false;
+        }
+        else
+        {
+          Panel->gateEventsState[i].isError = false;
+        }
+      }
       GO_AGAIN_READS(net2, 299, &CAST_TO_U16(dMem->Gate->errCon), c, 1);
       GO_AGAIN_READS(net2, 71, PSW + 3000, c, 3);
 
@@ -83,35 +116,96 @@ void taskExchangeReadGate(void)
       {
         GO_AGAIN_READS(net2, 120, &CAST_TO_U16(dMem->Gate), c, CALC_COUNT_RR(dGatemem_t)-1);
       }
-      else memset(&CAST_TO_U16(dMem->Gate), 0, CALC_COUNT_RR(dGatemem_t)-1);
+      
+      if(dMem->Gate->errCon.SHOT == true)
+      {
+        memset(&CAST_TO_U16(dMem->Gate->SHOT), 0, sizeof(dMem->Gate->SHOT));
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[2]), 0, 
+          sizeof(dMem->Gate) - sizeof(dMem->Gate->SHOT) - sizeof(dMem->Gate->SHSN) - 2);
+      }
+      if(dMem->Gate->errCon.SHSN == true)
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[0]), 0, sizeof(dMem->Gate->SHSN[0]));
+      if(dMem->Gate->errCon.SHSND == true)
+        memset(&CAST_TO_U16(dMem->Gate->SHSN[1]), 0, sizeof(dMem->Gate->SHSN[1]));
 
       for(i = 0; i < 3; i++)
       {
-        size_t n;
-        PSW[3005]++;
+        size_t n, k;
+        Alarms_t alTemp;
+        uint16_t temp;
 
-        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))
+        c.type = net2; c.number = 49;
+        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i) || read(c).status != memStatusOK)
         {
           memset(PSW + FIRST_RR_ALARMS_GATE + CALC_COUNT_RR(Alarms_t)*i, 0, sizeof(Alarms_t));
+          Panel->gateEventsState[i].isError = true;
+          Panel->gateEventsState[i].percent = 0;
+          Panel->gateEventsState[i].isWait = false;
           continue;
         }
-
-        CONTINUE_WRITE(net2, 49, c, 0x11 + i*2);
-
-        c.value = 0;
-        while(!(c.value & 0x8000) && n++ < 3 && !(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))) 
+        else
         {
-          c = read(c);
-          if(c.status != memStatusOK) break;
-          Delay(500);
+          Panel->gateEventsState[i].isError = false;
         }
-        CONTINUE_IF(CAST_TO_U16(dMem->Gate->errCon) & (1 << i));
 
-        PSW[3006]++;
+        CONTINUE_WAIT(net2, 49, c, 0x11, i, n, 10);
 
-        CONTINUE_READS(net2, 300, PSW + FIRST_RR_ALARMS_GATE + CALC_COUNT_RR(Alarms_t)*i,
-          c, CALC_COUNT_RR(Alarms_t)
-        );
+        CONTINUE_READS(net2, 300, &CAST_TO_U16(alTemp), c, CALC_COUNT_RR(Alarms_t));
+
+        Alarms[alarmsSHOT+i]->count = alTemp.count;
+        for(k = 0; k < COUNT_ALARMS; k++)
+        {
+          Alarms[alarmsSHOT+i]->buf[k] = convertionNumberAlarm(shieldShot+i, alTemp.buf[k]);
+          alTemp.buf[k] = 0;
+        }
+        alTemp.count = 0;
+        
+        // c.type = net2; c.number = 49; c.ptr = ;
+        // c = reads(c, 1);
+        CONTINUE_READS(net2, 299, &temp, c, 1);
+
+        if((CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false 
+          && CAST_TO_U16(dMem->Gate->errCon) == temp
+          && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
+        ) {
+          const uint16_t number = dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS : dMem->Gate->SettEvent[i].N_Event;
+          const uint8_t max_k = (number%125 == 0 ? number/125 : number/125 + 1)*NUMBER_RR_FOR_ONE_EVENT;
+          uint16_t temp[125] = {0};
+
+          Panel->gateEventsState[i].isWait = true;
+          CONTINUE_WAIT(net2, 49, c, 0x10, i, n, 30);
+          Panel->gateEventsState[i].isWait = false;
+
+          for(k = 0; k < max_k; k++)
+          {
+            Panel->gateEventsState[i].percent = (float)k/max_k*100;
+            
+            c.type = net2; c.number = 299;
+            CONTINUE_IF(read(c).value & (1 << i));
+            CONTINUE_READS(net2, 300 + 125*k, temp, c, 125);
+            
+            c.type = memPFW; c.number = FIRST_RR_EVENT_GATE + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + 125*k;
+            writes(c, 125);
+          }
+          Panel->gateEventsState[i].percent = 100;
+          PFW->gateSettEvent[i].CB = dMem->Gate->SettEvent[i].CB;
+          PFW->gateSettEvent[i].N_Event = dMem->Gate->SettEvent[i].N_Event;
+        }
+
+        if((dMem->Gate->SettEvent[i].CB != 0 || dMem->Gate->SettEvent[i].N_Event != 0)
+          && PFW->gateSettEvent[i].N_Event == dMem->Gate->SettEvent[i].N_Event
+          && PFW->gateSettEvent[i].CB == dMem->Gate->SettEvent[i].CB
+        ) {
+          Panel->gateEventsState[i].percent = 100;
+          Panel->gateEventsState[i].isWait = false;
+          Panel->gateEventsState[i].isError = false;
+        }
+        
+        // c.type = net2; c.number = 49; c.ptr = &CAST_TO_U16(dMem->Gate->errCon);
+        // c = reads(c, 1);
+        // if(c.status == memStatusOK && (CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false)
+        // {
+        // }
       }
     }
   }
@@ -193,6 +287,8 @@ void readAlarms(void)
       c.type = net5;
       reads(c, CALC_COUNT_RR(Alarms_t));
     }
+    // if(PSW[CURRENT_SCREEN] != scrCrash) break;
+
     for(i = 0; i < CALC_COUNT_RR(Alarms_t); i++)
     {
       PSW[number + i] = temp[i];
@@ -205,7 +301,8 @@ void readDevice(void)
   size_t i, n;
   struct FlagsPanel_s flags;
   cell_t c;
-  uint16_t temp[25] = {0};
+  dDPmem_t tempDP[N_DP];
+  const uint16_t numberRR_DP = CALC_COUNT_RR(dMem->DP->DIO);
 
   c.adress = 1;
 
@@ -213,25 +310,23 @@ void readDevice(void)
   {
   case 41: 
   case 42: 
-
-    c.type = net3; c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); c.ptr = &CAST_TO_U16(flags);
+    c.type = net3; 
+    c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); 
+    c.ptr = &CAST_TO_U16(flags);
     Panel->flags.errConMaster = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
-    
-    c.type = net0; c.number = 2500; c.ptr = PSW + 2500;
-    Panel->flags.errConPanel1 = reads(c, 4).status != memStatusOK ? true : false;
-    if(Panel->flags.errConPanel1 == false)
-    {
-      c.number = 2508; c.ptr = PSW + 2508;
-      Panel->flags.errConPanel1 = reads(c, 8).status != memStatusOK ? true : false;
-    }
 
-    c.type = net1; c.number = 2504; c.ptr = PSW + 2504;
-    Panel->flags.errConPanel2 = reads(c, 4).status != memStatusOK ? true : false;
-    if(Panel->flags.errConPanel2 == false)
-    {
-      c.number = 2516; c.ptr = PSW + 2516;
-      Panel->flags.errConPanel2 = reads(c, 8).status != memStatusOK ? true : false;
-    }
+    for(n = 0; n < 2; n++) for(i = 0; i < 2; i++)
+      if((CAST_TO_U16(Panel->flags) & (1 << (n+7))) == false || i == 0)
+      {
+        c.type = (n == 0 ? net0 : net1); 
+        c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); 
+        c.number = c.ptr - PSW;
+        
+        if(reads(c, numberRR_DP*(1+i)).status != memStatusOK) 
+          CAST_TO_U16(Panel->flags) |= (1 << (n+7));
+        else 
+          CAST_TO_U16(Panel->flags) &= ~(1 << (n+7));
+      }
 
     if(Panel->flags.errConMaster && Panel->flags.errConPanel1 && Panel->flags.errConPanel2)
       Panel->flags.isMaster = false;
@@ -255,30 +350,17 @@ void readDevice(void)
     break;
 
   case 43:
-    c.type = net3; c.number = 2500; c.ptr = temp;
-    reads(c, 24);
-
-    for(i = 0; i < 4; i++) 
-      PSW[2504+i] = temp[4+i];
-    for(i = 0; i < 8; i++) 
-      PSW[2516+i] = temp[16+i];
-
-    readAlarms();
-    break;
-    
   case 44:
-    c.type = net3; c.number = 2500; c.ptr = temp;
-    if(reads(c, 24).status == memStatusOK)
-    {
-      for(i = 0; i < 4; i++) 
-        PSW[2500+i] = temp[0+i];
-      for(i = 0; i < 8; i++) 
-        PSW[2508+i] = temp[8+i];
-    }
+    c.type = net3; c.number = &CAST_TO_U16(*dMem->DP) - PSW; c.ptr = &CAST_TO_U16(*tempDP);
+    reads(c, numberRR_DP*N_DP);
+
+    for(n = 0; n < 2; n++) for(i = 0; i < 4 * (n + 1); i++) 
+      dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
+        = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
 
     readAlarms();
     break;
-  
+      
   default:
     break;
   }

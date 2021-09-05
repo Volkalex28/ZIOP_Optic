@@ -24,6 +24,7 @@ typedef struct PFW_s
   } flags;
   uint16_t N_Event;       // 257
   uint16_t CB;            // 258
+  GateSettEvent_t gateSettEvent[3]; // 259-264
   // Место для других переменных для сохраниения в энергонезависимую память
   devices_pfw_t dMemPFW;  // 
 } PFW_t;

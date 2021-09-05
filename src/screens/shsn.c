@@ -78,9 +78,9 @@ void screenShsn(void)
       strcpy(Screens->Shsn.Settings.TitleVv2_36, "â ðàáîòå");
     else strcpy(Screens->Shsn.Settings.TitleVv2_36, "        ");
   }
-  switch (Screens->Shsn.Settings.Event.Choose)
+  switch (Screens->Shsn.Settings.Event.Choose == 0 ? shieldShsn : shieldShsnD) 
   {
-    case 0: strcpy(Screens->Shsn.Settings.TitleChoose, "ØÑÍ");    break;
-    case 1: strcpy(Screens->Shsn.Settings.TitleChoose, "ØÑÍ-Ä");  break;
+    case shieldShsn:  strcpy(Screens->Shsn.Settings.TitleChoose, "ØÑÍ");    break;
+    case shieldShsnD: strcpy(Screens->Shsn.Settings.TitleChoose, "ØÑÍ-Ä");  break;
   }
 }
