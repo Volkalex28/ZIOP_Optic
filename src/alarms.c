@@ -69,9 +69,9 @@ void addEvent(Alarm_t number)
 
 }
 
-void clearEvents(void)
+void clearEvents(bool_t gate)
 {
-  int i;
+  int i, n;
   uint16_t zero_buf[NUMBER_RR_FOR_ONE_EVENT] = {0};
 
   PFW->CB = PFW->N_Event = 0;
@@ -79,6 +79,16 @@ void clearEvents(void)
   {
     cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT + i*NUMBER_RR_FOR_ONE_EVENT; c.ptr = zero_buf;
     writes(c, NUMBER_RR_FOR_ONE_EVENT);
+  }
+
+  if(gate) for(n = 0; n < 3; n++)
+  {
+    PFW->gateSettEvent[n].CB = PFW->gateSettEvent[n].N_Event = 0;
+    for(i = 0; i < COUNT_EVENTS; i++)
+    {
+      cell_t c; c.type = memPFW; c.number = FIRST_RR_EVENT_GATE + i*NUMBER_RR_FOR_ONE_EVENT; c.ptr = zero_buf;
+      writes(c, NUMBER_RR_FOR_ONE_EVENT);
+    }
   }
 }
 

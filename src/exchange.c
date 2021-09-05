@@ -14,6 +14,7 @@
 #include "devices/devices_mem.h"
 
 #include "mem/panel.h"
+#include "mem/pfw.h"
 
 #include "screens/screen.h"
 
@@ -36,6 +37,23 @@
   _CELL_##.type = _NET_; _CELL_##.number = _NUM_; _CELL_##.value = _VALUE_;     \
   if(write(_CELL_).status != memStatusOK) continue
 
+#define CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_)                       \
+  (((_COUNTER_) < (_COUNT_VAL_))                                                \
+  && (CAST_TO_U16(dMem->Gate->errCon) & (1 << (_NUM_DEV_))) == false)
+
+#define CONTINUE_WAIT(_NET_, _NUM_, _CELL_, _TAG_, _NUM_DEV_, _COUNTER_, _COUNT_VAL_) \
+  CONTINUE_WRITE(_NET_, _NUM_, _CELL_, _TAG_ + 2*(_NUM_DEV_));                        \
+  _CELL_##.value = 0; _COUNTER_ = 0;                                                  \
+  while((_CELL_##.value & 0x8000) == false                                            \
+    && CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_)                              \
+  ) {                                                                                 \
+    _COUNTER_##++;                                                                    \
+    _CELL_ = read(_CELL_);                                                            \
+    if(_CELL_##.status != memStatusOK) break;                                         \
+    Delay(500);                                                                       \
+  }                                                                                   \
+  CONTINUE_IF(CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_) == false)
+
 //-------------------------
 void writeDevice(void);
 void readDevice(void);
@@ -56,7 +74,7 @@ void taskExchangeReadGate(void)
   while(true)
   {
     cell_t c, c_alarm;
-    size_t i, n;
+    size_t i;
 
   tryAgain:
 
@@ -77,6 +95,20 @@ void taskExchangeReadGate(void)
     }
     else
     {
+      for(i = 0; i < 3; i++)
+      {
+        c.type = net2; c.number = 49;
+        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i) || read(c).status != memStatusOK)
+        {
+          Panel->gateEventsState[i].isError = true;
+          Panel->gateEventsState[i].percent = 0;
+          Panel->gateEventsState[i].isWait = false;
+        }
+        else
+        {
+          Panel->gateEventsState[i].isError = false;
+        }
+      }
       GO_AGAIN_READS(net2, 299, &CAST_TO_U16(dMem->Gate->errCon), c, 1);
       GO_AGAIN_READS(net2, 71, PSW + 3000, c, 3);
 
@@ -98,31 +130,82 @@ void taskExchangeReadGate(void)
 
       for(i = 0; i < 3; i++)
       {
-        size_t n;
+        size_t n, k;
         Alarms_t alTemp;
+        uint16_t temp;
 
-        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))
+        c.type = net2; c.number = 49;
+        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i) || read(c).status != memStatusOK)
         {
           memset(PSW + FIRST_RR_ALARMS_GATE + CALC_COUNT_RR(Alarms_t)*i, 0, sizeof(Alarms_t));
+          Panel->gateEventsState[i].isError = true;
+          Panel->gateEventsState[i].percent = 0;
+          Panel->gateEventsState[i].isWait = false;
           continue;
         }
-
-        CONTINUE_WRITE(net2, 49, c, 0x11 + i*2);
-
-        c.value = 0;
-        while(!(c.value & 0x8000) && n++ < 3 && !(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))) 
+        else
         {
-          c = read(c);
-          if(c.status != memStatusOK) break;
-          Delay(500);
+          Panel->gateEventsState[i].isError = false;
         }
-        CONTINUE_IF(CAST_TO_U16(dMem->Gate->errCon) & (1 << i));
+
+        CONTINUE_WAIT(net2, 49, c, 0x11, i, n, 10);
 
         CONTINUE_READS(net2, 300, &CAST_TO_U16(alTemp), c, CALC_COUNT_RR(Alarms_t));
 
         Alarms[alarmsSHOT+i]->count = alTemp.count;
-        for(n = 0; n < COUNT_ALARMS; n++)
-          Alarms[alarmsSHOT+i]->buf[n] = convertionNumberAlarm(shieldShot+i, alTemp.buf[n]);
+        for(k = 0; k < COUNT_ALARMS; k++)
+        {
+          Alarms[alarmsSHOT+i]->buf[k] = convertionNumberAlarm(shieldShot+i, alTemp.buf[k]);
+          alTemp.buf[k] = 0;
+        }
+        alTemp.count = 0;
+        
+        // c.type = net2; c.number = 49; c.ptr = ;
+        // c = reads(c, 1);
+        CONTINUE_READS(net2, 299, &temp, c, 1);
+
+        if((CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false 
+          && CAST_TO_U16(dMem->Gate->errCon) == temp
+          && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
+        ) {
+          const uint16_t number = dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS : dMem->Gate->SettEvent[i].N_Event;
+          const uint8_t max_k = (number%125 == 0 ? number/125 : number/125 + 1)*NUMBER_RR_FOR_ONE_EVENT;
+          uint16_t temp[125] = {0};
+
+          Panel->gateEventsState[i].isWait = true;
+          CONTINUE_WAIT(net2, 49, c, 0x10, i, n, 30);
+          Panel->gateEventsState[i].isWait = false;
+
+          for(k = 0; k < max_k; k++)
+          {
+            Panel->gateEventsState[i].percent = (float)k/max_k*100;
+            
+            c.type = net2; c.number = 299;
+            CONTINUE_IF(read(c).value & (1 << i));
+            CONTINUE_READS(net2, 300 + 125*k, temp, c, 125);
+            
+            c.type = memPFW; c.number = FIRST_RR_EVENT_GATE + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + 125*k;
+            writes(c, 125);
+          }
+          Panel->gateEventsState[i].percent = 100;
+          PFW->gateSettEvent[i].CB = dMem->Gate->SettEvent[i].CB;
+          PFW->gateSettEvent[i].N_Event = dMem->Gate->SettEvent[i].N_Event;
+        }
+
+        if((dMem->Gate->SettEvent[i].CB != 0 || dMem->Gate->SettEvent[i].N_Event != 0)
+          && PFW->gateSettEvent[i].N_Event == dMem->Gate->SettEvent[i].N_Event
+          && PFW->gateSettEvent[i].CB == dMem->Gate->SettEvent[i].CB
+        ) {
+          Panel->gateEventsState[i].percent = 100;
+          Panel->gateEventsState[i].isWait = false;
+          Panel->gateEventsState[i].isError = false;
+        }
+        
+        // c.type = net2; c.number = 49; c.ptr = &CAST_TO_U16(dMem->Gate->errCon);
+        // c = reads(c, 1);
+        // if(c.status == memStatusOK && (CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false)
+        // {
+        // }
       }
     }
   }

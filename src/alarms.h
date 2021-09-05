@@ -34,6 +34,7 @@
 #define COUNT_ALARMS            199   ///< Максимальное количество возможных активных аварий
 
 #define FIRST_RR_EVENT          5000  ///< Первый регистр энергонезависимой памяти журнала событий
+#define FIRST_RR_EVENT_GATE     40000 ///< 
 #define COUNT_EVENTS            1000  ///< Максимальное количество событий
 
 #define FIRST_RR_CONFCRASH      1000  ///< Первый регистр энергонезависимой памяти маски событий
@@ -362,7 +363,7 @@ void addEvent(Alarm_t NumberCrash);
  * @brief Функция очистки событий
  * 
  */
-void clearEvents(void);
+void clearEvents(bool_t gate);
 
 /**
  * @brief Функция добавления новых аварийных или системных сообщений

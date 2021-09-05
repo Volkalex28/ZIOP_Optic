@@ -25,6 +25,14 @@
 #define ResetUserLevelAvtorisation 	ResetPSB(B_ACCES_2LEVEL)
 #define ResetAdminLevelAvtorisation	ResetPSB(B_ACCES_9LEVEL)
 
+typedef struct StateEventsGate_s
+{
+  uint8_t percent;          // 0..7
+  uint8_t isWait    : 1;    // 8
+  uint8_t isError   : 1;    // 9
+} StateEventsGate_t;
+
+
 typedef struct Panel_s
 {
   struct FlagsPanel_s
@@ -43,19 +51,20 @@ typedef struct Panel_s
     uint32_t errConMasterOld  : 1;    // 11
     uint32_t errConPanel1Old  : 1;    // 12
     uint32_t errConPanel2Old  : 1;    // 13
-  } flags;                            // 256-257
-  struct ChooseDevicePanel_s 
+  } flags;                              // 256-257
+  struct ChooseDevicePanel_s  
   {
     struct EventButChooseDevicePanel_s 
     {
-      uint16_t SelectUp   : 1;        // 0
-      uint16_t SelectDown : 1;        // 1
-    } EventBut;                       // 258
-    int16_t Select;                   // 259
-    char TitleCh[6];                  // 260..262
-    uint16_t ResetCrashList;          // 263
-  } ChooseDevice;                     // 258-263
-  uint16_t oldScreen;                 // 264
+      uint16_t SelectUp   : 1;          // 0
+      uint16_t SelectDown : 1;          // 1
+    } EventBut;                         // 258
+    int16_t Select;                     // 259
+    char TitleCh[6];                    // 260..262
+    uint16_t ResetCrashList;            // 263
+  } ChooseDevice;                       // 258..263
+  uint16_t oldScreen;                   // 264
+  StateEventsGate_t gateEventsState[3]; // 265..267
 } Panel_t;
 
 typedef struct Time_s {
