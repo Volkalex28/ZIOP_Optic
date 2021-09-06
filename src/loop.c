@@ -170,25 +170,26 @@ void taskLoop(void)
     clearRRScreens();
     switch (PSW[CURRENT_SCREEN])
     {
-    case scrConfAlarms:
-      screenConfCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case scrZVU:   screenZvu();   break;
-    case scrBKI:   screenBkif();  break;
-    case scrSHOT:  screenShot();  break;
-    case scrSHSN:  screenShsn();  break;
-    case scrCrash:
-      screenCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case scrEvent:
-      screenEvent();
-      selectDeviceInCrashAndEvent();
-      break;
+      case scrMnemotic: screenMnemotic(); break;
+      case scrConfAlarms:
+        screenConfCrash();
+        selectDeviceInCrashAndEvent();
+        break;
+      case scrZVU:   screenZvu();   break;
+      case scrBKI:   screenBkif();  break;
+      case scrSHOT:  screenShot();  break;
+      case scrSHSN:  screenShsn();  break;
+      case scrCrash:
+        screenCrash();
+        selectDeviceInCrashAndEvent();
+        break;
+      case scrEvent:
+        screenEvent();
+        selectDeviceInCrashAndEvent();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
     fillRRScreens();
 

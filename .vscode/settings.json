@@ -9,7 +9,10 @@
   ],
   "files.associations": {
     "panel.h": "c",
-    "screen.h": "c"
+    "screen.h": "c",
+    "shsn.h": "c",
+    "confcrash.h": "c",
+    "mnemotic.h": "c"
   },
   "files.encoding": "windows1251",
 }

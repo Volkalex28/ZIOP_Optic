@@ -15,6 +15,7 @@
 #include "zvu.h"
 #include "bki_f.h"
 #include "shsn.h"
+#include "mnemotic.h"
 
 #define FIRST_RR_SCREEN 500
 
@@ -57,6 +58,7 @@ typedef union Screens_s
   ScreenShsn_t      Shsn;  
   ScreenConfCrash_t ConfCrash;
   ScreenEvent_t     Event;
+  ScreenMnemotic_t  Mnemotic;
 } Screens_t;
 
 extern Screens_t * Screens;
