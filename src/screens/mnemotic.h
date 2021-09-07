@@ -30,6 +30,21 @@ typedef struct ScreenMnemotic_s
   );
 } ScreenMnemotic_t;
 
+//                                    0     1     2     3     4     5     6     7     8
+const uint16_t MaskaTrans[2][9]  = {{0x1B, 0x13, 0x1B, 0x1B, 0x13, 0x12, 0x1A, 0x1B, 0x1A},
+                                     0x0F, 0x0B, 0x0F, 0x0F, 0x0B, 0x0A, 0x0E, 0x0F, 0x0E};
+//                                    0     1     2     3     4     5     6     7     8
+const uint16_t ValueTrans[2][9]  = {{0x08, 0x10, 0x00, 0x01, 0x11, 0x12, 0x0A, 0x09, 0x02},
+                                    {0x01, 0x09, 0x05, 0x04, 0x08, 0x0A, 0x02, 0x00, 0x06}};
+typedef enum KnifesType
+{
+  Red,
+  Green,
+  Yellow
+};
+
 void screenMnemotic(void);
+// uint16_t GroundingKnife (uint16_t reg, uint16_t offset);
+// uint16_t WithdrawableCircuitBreaker (uint16_t reg, uint16_t regime, uint16_t offset); 
 
 #endif // __SCREENS_MNEMOTIC_H__
