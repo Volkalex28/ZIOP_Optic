@@ -19,8 +19,8 @@
     request_t reqs[NREQ];           \
     d##NAME##mem_t * mem;           \
   } d##NAME##_t;                    \
-  void finit##NAME(void);          \
-  void init##NAME(void);
+  void finit##NAME##(void);          \
+  void init##NAME##(void);
 
 typedef enum EShields
 {
@@ -63,5 +63,8 @@ void finitDevices();
 void initDevices();
 
 void addDevice(device_t * ptr);
+
+bool_t getEnable(uint8_t number);
+void setEnable(uint8_t number, bool_t state);
 
 #endif // __DEVICES_DEVICES_H__

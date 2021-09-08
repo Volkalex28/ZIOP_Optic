@@ -98,4 +98,6 @@ void controlMenu(void)
     CloseWindow(winMenu);
     CloseWindow(winMenuSyst);
   }
+
+  Panel->StateExWindow = Panel->StateEx[Panel->NumberDeviceEx];
 }

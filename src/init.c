@@ -34,6 +34,9 @@ void finit(void)
 
 void init(void)
 {
+  uint16_t temp[200] = {0};
+  cell_t c; c.type = memPFW; c.number = 2000; c.ptr = temp;
+
   initMem();
   initPanel();
   initPFW();
@@ -51,5 +54,7 @@ void init(void)
   {
     Panel->flags.initMaster = true;
   }
+
+  writes(c, 200);
 }
 

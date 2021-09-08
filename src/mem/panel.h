@@ -32,6 +32,19 @@ typedef struct StateEventsGate_s
   uint8_t isError   : 1;    // 9
 } StateEventsGate_t;
 
+typedef struct StateEx_s
+{
+  uint16_t CounterCorrect;     
+  uint16_t CounterNotCorrect;  
+  uint16_t CounterErrorTimeout;
+  uint16_t CounterError;       
+} StateEx_t;
+
+typedef struct StateExOld_s
+{
+  uint16_t CounterCorrect;   
+  uint16_t CounterNotCorrect;
+} StateExOld_t;
 
 typedef struct Panel_s
 {
@@ -62,9 +75,13 @@ typedef struct Panel_s
     int16_t Select;                     // 259
     char TitleCh[6];                    // 260..262
     uint16_t ResetCrashList;            // 263
-  } ChooseDevice;                       // 258..263
+  } ChooseDevice;                       // 258..263 
   uint16_t oldScreen;                   // 264
   StateEventsGate_t gateEventsState[3]; // 265..267
+  StateEx_t StateExWindow;              // 268..271
+  uint16_t NumberDeviceEx;              // 272
+  StateEx_t StateEx[6];                 // 273..295
+  StateExOld_t StateExOld[6];           // 296..307
 } Panel_t;
 
 typedef struct Time_s {

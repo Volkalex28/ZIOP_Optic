@@ -22,6 +22,8 @@
 
 #include "screens/screen.h"
 
+#define getBit(_RR_, _BIT_) ((PSW[_RR_] & (1 << (_BIT_))) ? true : false)
+
 void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
 {
   if((PSW[inNum + fbit/16] & (1 << (fbit%16))) && !(PSW[inNum + sbit/16] & (1 << (sbit%16))))
@@ -176,15 +178,73 @@ void handlerLogic(void)
 
 void controlLogic(void)
 {
-  if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
-  {
-    PSW[1000] = PSW[2508];
-    PSW[1100] |= (1<<0);
+  // if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
+  // {
+  //   PSW[1000] = PSW[2508];
+  //   PSW[1100] |= (1<<0);
+  // }
+  // if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
+  // {
+  //   PSW[1002] = PSW[2508];
+  //   PSW[1100] |= (1<<1);
+  // }
+  if(getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 3) == true && getBit(2525, 4) == false
+    && getBit(2526, 0) == true && getBit(2526, 1) == false && getBit(2526, 4) == true && getBit(2526, 5) == false
+    && getBit(2526, 6) == false && getBit(2526, 7) == false && getBit(2526, 10) == true && getBit(2526, 11) == false
+    && getBit(2526, 12) == false && getBit(2526, 13) == false
+  ) {
+    if(getBit(2502, 1) == false)
+    {
+      PSW[1000] |= 0x2;
+      PSW[1100] |= (1<<0);
+    }
+    if(getBit(2510, 1) == false)
+    {
+      PSW[1004] |= 0x2;
+      PSW[1100] |= (1<<2);
+    }
   }
-  if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
+  else
   {
-    PSW[1002] = PSW[2508];
-    PSW[1100] |= (1<<1);
+    if(getBit(2502, 0) == true)
+    {
+      PSW[1000] &= ~0x2;
+      PSW[1100] |= (1<<0);
+    }
+    if(getBit(2510, 0) == true)
+    {
+      PSW[1004] &= ~0x2;
+      PSW[1100] |= (1<<2);
+    }
+  }
+
+  if(getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 5) == false && getBit(2525, 6) == false
+    && getBit(2526, 2) == false && getBit(2526, 3) == false && getBit(2526, 4) == true && getBit(2526, 5) == false
+    && getBit(2526, 8) == false && getBit(2526, 9) == false && getBit(2526, 10) == true && getBit(2526, 11) == false
+  ) {
+    if(getBit(2502, 0) == false)
+    {
+      PSW[1000] |= 0x1;
+      PSW[1100] |= (1<<0);
+    }
+    if(getBit(2510, 0) == false)
+    {
+      PSW[1004] |= 0x1;
+      PSW[1100] |= (1<<2);
+    }
+  }
+  else
+  {
+    if(getBit(2502, 0) == true)
+    {
+      PSW[1000] &= ~0x1;
+      PSW[1100] |= (1<<0);
+    }
+    if(getBit(2510, 0) == true)
+    {
+      PSW[1004] &= ~0x1;
+      PSW[1100] |= (1<<2);
+    }
   }
 }
 
@@ -197,6 +257,8 @@ void taskLoop(void)
 
   while(true)
   {
+    int i = 0;
+    cell_t c;
 
     clearRRScreens();
     switch (PSW[CURRENT_SCREEN])
@@ -224,11 +286,13 @@ void taskLoop(void)
     }
     fillRRScreens();
 
-    if(getMyIP() == 41 || getMyIP() == 42) 
+    if((getMyIP() == 41 || getMyIP() == 42) && Panel->flags.isMaster == true) 
       fillCrash();
 
     updateScreen();
     controlMenu();
+
+    for(i = 0; i < 6; i++) connectionFaultHandler(i);
 
     handlerLogic();
     controlLogic();
