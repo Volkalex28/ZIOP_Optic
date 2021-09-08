@@ -46,15 +46,12 @@ void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, ui
 void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit, bool_t inversion)
 {
   if((PSW[inNum + bit/16] & (1 << (bit%16))))
-  {
-    if (inversion)  PSW[outNum + obit/16] &= ~(1 << (obit%16));
-    else            PSW[outNum + obit/16] |= (1 << (obit%16));
-  }
+    PSW[outNum + obit/16] |= (1 << (obit%16));
   else
-  {
-    if (inversion)  PSW[outNum + obit/16] |= (1 << (obit%16));
-    else            PSW[outNum + obit/16] &= ~(1 << (obit%16));
-  }
+    PSW[outNum + obit/16] &= ~(1 << (obit%16));
+  
+  if(inversion)
+    PSW[outNum + obit/16] ^= (1 << (obit%16));
 }
 
 void handlerLogic(void)
