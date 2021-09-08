@@ -255,6 +255,10 @@ void selectNormalBlock(int16_t * Select, uint16_t Offset, int16_t Max, int16_t M
 
 com_t get_com(MemTypes_t type)
 {
+  if(type >= net0 && type <= net5)
+    if(getEnable(type - net0) == false)
+      return EComMax;
+
   switch (type)
   {
   case portDownload:  return DOWNLOAD;

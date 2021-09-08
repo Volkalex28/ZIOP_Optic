@@ -89,8 +89,8 @@ void taskExchangeReadGate(void)
         c, CALC_COUNT_RR(dGatemem_t)
       );
 
-      GO_AGAIN_READS(net3, FIRST_RR_ALARMS_GATE, (uint16_t *)Alarms[alarmsSHOT], 
-        c, CALC_COUNT_RR(Alarms_t)*3
+      GO_AGAIN_READS(net3, FIRST_RR_ALARMS_GATE, (uint16_t *)Alarms[alarmsActual], 
+        c, CALC_COUNT_RR(Alarms_t)*4
       );
     }
     else
@@ -168,8 +168,13 @@ void taskExchangeReadGate(void)
           && CAST_TO_U16(dMem->Gate->errCon) == temp
           && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
         ) {
-          const uint16_t number = dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS : dMem->Gate->SettEvent[i].N_Event;
-          const uint8_t max_k = (number%125 == 0 ? number/125 : number/125 + 1)*NUMBER_RR_FOR_ONE_EVENT;
+          const uint16_t number = (dMem->Gate->SettEvent[i].CB 
+            ? COUNT_EVENTS 
+            : dMem->Gate->SettEvent[i].N_Event
+          ) * NUMBER_RR_FOR_ONE_EVENT;
+          const uint8_t max_k = number%125 == 0 
+            ? number/125 
+            : number/125 + 1;
           uint16_t temp[125] = {0};
 
           Panel->gateEventsState[i].isWait = true;
@@ -313,7 +318,8 @@ void readDevice(void)
     c.type = net3; 
     c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); 
     c.ptr = &CAST_TO_U16(flags);
-    Panel->flags.errConMaster = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
+    Panel->flags.errConMaster 
+      = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
 
     for(n = 0; n < 2; n++) for(i = 0; i < 2; i++)
       if((CAST_TO_U16(Panel->flags) & (1 << (n+7))) == false || i == 0)
@@ -322,7 +328,7 @@ void readDevice(void)
         c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); 
         c.number = c.ptr - PSW;
         
-        if(reads(c, numberRR_DP*(1+i)).status != memStatusOK) 
+        if(reads(c, numberRR_DP*(1+i)).status != memStatusOK || getEnable(n) == false) 
           CAST_TO_U16(Panel->flags) |= (1 << (n+7));
         else 
           CAST_TO_U16(Panel->flags) &= ~(1 << (n+7));
@@ -358,10 +364,40 @@ void readDevice(void)
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
 
-    readAlarms();
+    if(PSW[CURRENT_SCREEN] == scrCrash)
+      readAlarms();
     break;
       
   default:
     break;
   }
+}
+
+
+void connectionFaultHandler(uint8_t number)
+{
+  if(Panel->StateEx[number].CounterCorrect > Panel->StateExOld[number].CounterCorrect
+    && Panel->StateEx[number].CounterNotCorrect == Panel->StateExOld[number].CounterNotCorrect
+  ) {
+    Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
+    ResetPSB(700 + number);
+  }
+  else if(Panel->StateEx[number].CounterNotCorrect > Panel->StateExOld[number].CounterNotCorrect
+    && Panel->StateEx[number].CounterCorrect == Panel->StateExOld[number].CounterCorrect
+  ) {
+    Panel->StateExOld[number].CounterCorrect = Panel->StateEx[number].CounterCorrect;
+    SetPSB(700 + number);
+
+    if((getMyIP() == 43 || getMyIP() == 44) && getEnable(number) == true && number < 3)
+      setEnable(number, false);
+  }
+
+  Panel->StateExOld[number].CounterCorrect = Panel->StateEx[number].CounterCorrect;
+  Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
+
+  PSW[2960 + number] = Panel->StateExOld[number].CounterCorrect;
+  PSW[2970 + number] = Panel->StateExOld[number].CounterNotCorrect;
+
+  PSW[2980 + number] = Panel->StateEx[number].CounterCorrect;
+  PSW[2990 + number] = Panel->StateEx[number].CounterNotCorrect;
 }

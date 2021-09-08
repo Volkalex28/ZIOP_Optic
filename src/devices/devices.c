@@ -38,3 +38,27 @@ void addDevice(device_t * ptr)
 {
   devices[countDevice++] = ptr;
 }
+
+bool_t getEnable(uint8_t number)
+{
+  cell_t c;
+
+  c.type = memPFW; c.number = 2064 + 16*number;
+  return read(c).value & 0x2 ? false : true;
+}
+
+void setEnable(uint8_t number, bool_t state)
+{
+  cell_t c;
+  bool_t mState;
+
+  mState = getEnable(number);
+  
+  if(mState == state) return;
+
+  if(!state) c.value = 0x2;
+  else c.value = 0;
+  
+  c.type = memPFW; c.number = 2064 + 16*number;
+  write(c);
+}
