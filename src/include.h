@@ -29,3 +29,5 @@
 #include "screens/shot.c"
 #include "screens/shsn.c"
 #include "screens/zvu.c"
+#include "screens/mnemotic.c"
+

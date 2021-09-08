@@ -41,23 +41,25 @@ void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, ui
   }
 }
 
-void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit)
+void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit, bool_t inversion)
 {
   if((PSW[inNum + bit/16] & (1 << (bit%16))))
   {
-    PSW[outNum + obit/16] |= (1 << (obit%16));
+    if (inversion)  PSW[outNum + obit/16] &= ~(1 << (obit%16));
+    else            PSW[outNum + obit/16] |= (1 << (obit%16));
   }
   else
   {
-    PSW[outNum + obit/16] &= ~(1 << (obit%16));
+    if (inversion)  PSW[outNum + obit/16] |= (1 << (obit%16));
+    else            PSW[outNum + obit/16] &= ~(1 << (obit%16));
   }
 }
 
 void handlerLogic(void)
 {
   //- 51
-  normConrtol(2500, 2533, 9, 0);
-  normConrtol(2501, 2533, 3, 1);
+  normConrtol(2500, 2533, 9, 0, false);
+  normConrtol(2501, 2533, 3, 1, false);
 
   diffConrtol(2500, 2525, 0, 1, 0, 1);
   diffConrtol(2500, 2525, 2, 3, 3, 4);
@@ -66,9 +68,18 @@ void handlerLogic(void)
   diffConrtol(2500, 2529, 10, 11, 0, 1);
   diffConrtol(2500, 2529, 12, 13, 3, 4);
   diffConrtol(2500, 2529, 14, 15, 5, 6);
+  
+  normConrtol(2502, 2534, 0, 0, true); // 2534.0 = Блокировка ВЭ выключателя Q1-9 = K1.DO1
+  normConrtol(2502, 2534, 1, 1, true); // 2534.1 = Блокировка ЗЭ Q1-9 = K1.DO2
+  normConrtol(2502, 2534, 2, 2, false); // 2534.2 = Отключение выключателя Q1-9 = K1.DO3
+
+  normConrtol(2502, 2534, 4, 4, true); // 2534.4 = Блокировка ВЭ выключателя Q1-7 = K1.DO5
+  normConrtol(2502, 2534, 5, 5, true); // 2534.5 = Блокировка ЗЭ Q1-7 = K1.DO6
+  normConrtol(2502, 2534, 6, 6, false); // 2534.6 = Отключение выключателя Q1-7 = K1.DO7
+
   //- 52
-  normConrtol(2504, 2533, 9, 2);
-  normConrtol(2505, 2533, 3, 3);
+  normConrtol(2504, 2533, 9, 2, false);
+  normConrtol(2505, 2533, 3, 3, false);
 
   diffConrtol(2504, 2527, 0, 1, 0, 1);
   diffConrtol(2504, 2527, 2, 3, 3, 4);
@@ -77,14 +88,22 @@ void handlerLogic(void)
   diffConrtol(2504, 2531, 10, 11, 0, 1);
   diffConrtol(2504, 2531, 12, 13, 3, 4);
   diffConrtol(2504, 2531, 14, 15, 5, 6);
+
+  normConrtol(2506, 2535, 0, 0, true); // 2534.0 = Блокировка ВЭ выключателя Q1-8 = K2.DO1
+  normConrtol(2506, 2535, 1, 1, true); // 2534.1 = Блокировка ЗЭ Q1-8 = K2.DO2
+  normConrtol(2506, 2535, 2, 2, false); // 2534.2 = Отключение выключателя Q1-8 = K2.DO3
+
+  normConrtol(2506, 2535, 4, 4, true); // 2535.4 = Блокировка ВЭ выключателя Q1-10 = K2.DO5
+  normConrtol(2506, 2535, 5, 5, true); // 2535.5 = Блокировка ЗЭ Q1-10 = K2.DO6
+  normConrtol(2506, 2535, 6, 6, false); // 2535.6 = Отключение выключателя Q1-10 = K2.DO7
   //- 53
   diffConrtol(2508, 2530, 0, 1, 0, 1);
   diffConrtol(2508, 2530, 2, 3, 2, 3);
   
-  normConrtol(2508, 2529, 4, 7);
-  normConrtol(2508, 2529, 5, 8);
-  normConrtol(2508, 2529, 6, 9);
-  normConrtol(2508, 2529, 7, 10);
+  normConrtol(2508, 2529, 4, 7, false);
+  normConrtol(2508, 2529, 5, 8, false);
+  normConrtol(2508, 2529, 6, 9, false);
+  normConrtol(2508, 2529, 7, 10, false);
 
   diffConrtol(2508, 2530, 8, 9, 4, 5);
   diffConrtol(2508, 2530, 10, 11, 6, 7);
@@ -92,14 +111,17 @@ void handlerLogic(void)
   
   diffConrtol(2508, 2530, 15, 16, 10, 11);
   diffConrtol(2509, 2530, 1, 2, 12, 13);
+
+  normConrtol(2510, 2536, 0, 0, true); // 2536.0 = Блокировка ВЭ разъединителя QS-T1 = K-T1.DO1
+  normConrtol(2510, 2536, 1, 1, true); // 2536.1 = Блокировка ЗЭ разъединителя QSG-T1 = K-T1.DO2
   //- 54
   diffConrtol(2512, 2526, 0, 1, 0, 1);
   diffConrtol(2512, 2526, 2, 3, 2, 3);
   
-  normConrtol(2512, 2525, 4, 7);
-  normConrtol(2512, 2525, 5, 8);
-  normConrtol(2512, 2525, 6, 9);
-  normConrtol(2512, 2525, 7, 10);
+  normConrtol(2512, 2525, 4, 7, false);
+  normConrtol(2512, 2525, 5, 8, false);
+  normConrtol(2512, 2525, 6, 9, false);
+  normConrtol(2512, 2525, 7, 10, false);
 
   diffConrtol(2512, 2526, 8, 9, 4, 5);
   diffConrtol(2512, 2526, 10, 11, 6, 7);
@@ -108,15 +130,18 @@ void handlerLogic(void)
   diffConrtol(2512, 2526, 15, 16, 10, 11);
   diffConrtol(2513, 2526, 1, 2, 12, 13);
   
-  normConrtol(2513, 2533, 3, 4);
+  normConrtol(2513, 2533, 3, 4, false);
+
+  normConrtol(2514, 2537, 0, 0, true); // 2537.0 = Блокировка ВЭ разъединителя QS-T3 = K-T3.DO1
+  normConrtol(2514, 2537, 1, 1, true); // 2537.1 = Блокировка ЗЭ разъединителя QSG-T3 = K-T3.DO2
   //- 55
   diffConrtol(2516, 2528, 0, 1, 0, 1);
   diffConrtol(2516, 2528, 2, 3, 2, 3);
   
-  normConrtol(2516, 2527, 4, 7);
-  normConrtol(2516, 2527, 5, 8);
-  normConrtol(2516, 2527, 6, 9);
-  normConrtol(2516, 2527, 7, 10);
+  normConrtol(2516, 2527, 4, 7, false);
+  normConrtol(2516, 2527, 5, 8, false);
+  normConrtol(2516, 2527, 6, 9, false);
+  normConrtol(2516, 2527, 7, 10, false);
 
   diffConrtol(2516, 2528, 8, 9, 4, 5);
   diffConrtol(2516, 2528, 10, 11, 6, 7);
@@ -125,15 +150,18 @@ void handlerLogic(void)
   diffConrtol(2516, 2528, 15, 16, 10, 11);
   diffConrtol(2517, 2528, 1, 2, 12, 13);
   
-  normConrtol(2517, 2533, 3, 5);
+  normConrtol(2517, 2533, 3, 5, false);
+
+  normConrtol(2518, 2538, 0, 0, true); // 2538.0 = Блокировка ВЭ разъединителя QS-T2 = K-T2.DO1
+  normConrtol(2518, 2538, 1, 1, true); // 2538.1 = Блокировка ЗЭ разъединителя QSG-T2 = K-T2.DO2
   //- 56
   diffConrtol(2520, 2532, 0, 1, 0, 1);
   diffConrtol(2520, 2532, 2, 3, 2, 3);
   
-  normConrtol(2520, 2531, 4, 7);
-  normConrtol(2520, 2531, 5, 8);
-  normConrtol(2520, 2531, 6, 9);
-  normConrtol(2520, 2531, 7, 10);
+  normConrtol(2520, 2531, 4, 7, false);
+  normConrtol(2520, 2531, 5, 8, false);
+  normConrtol(2520, 2531, 6, 9, false);
+  normConrtol(2520, 2531, 7, 10, false);
 
   diffConrtol(2520, 2532, 8, 9, 4, 5);
   diffConrtol(2520, 2532, 10, 11, 6, 7);
@@ -141,6 +169,9 @@ void handlerLogic(void)
   
   diffConrtol(2520, 2532, 15, 16, 10, 11);
   diffConrtol(2521, 2532, 1, 2, 12, 13);
+
+  normConrtol(2522, 2539, 0, 0, true); // 2539.0 = Блокировка ВЭ разъединителя QS-T4 = K-T4.DO1
+  normConrtol(2522, 2539, 1, 1, true); // 2539.1 = Блокировка ЗЭ разъединителя QSG-T4 = K-T4.DO2
 }
 
 void controlLogic(void)
@@ -170,25 +201,26 @@ void taskLoop(void)
     clearRRScreens();
     switch (PSW[CURRENT_SCREEN])
     {
-    case scrConfAlarms:
-      screenConfCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case scrZVU:   screenZvu();   break;
-    case scrBKI:   screenBkif();  break;
-    case scrSHOT:  screenShot();  break;
-    case scrSHSN:  screenShsn();  break;
-    case scrCrash:
-      screenCrash();
-      selectDeviceInCrashAndEvent();
-      break;
-    case scrEvent:
-      screenEvent();
-      selectDeviceInCrashAndEvent();
-      break;
+      case scrMnemotic: screenMnemotic(); break;
+      case scrConfAlarms:
+        screenConfCrash();
+        selectDeviceInCrashAndEvent();
+        break;
+      case scrZVU:   screenZvu();   break;
+      case scrBKI:   screenBkif();  break;
+      case scrSHOT:  screenShot();  break;
+      case scrSHSN:  screenShsn();  break;
+      case scrCrash:
+        screenCrash();
+        selectDeviceInCrashAndEvent();
+        break;
+      case scrEvent:
+        screenEvent();
+        selectDeviceInCrashAndEvent();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
     fillRRScreens();
 
