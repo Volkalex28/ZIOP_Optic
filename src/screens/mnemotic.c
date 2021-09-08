@@ -53,10 +53,55 @@ void screenMnemotic(void)
         Screens->Mnemotic.Settings.RegimeWindow2 = 
         Screens->Mnemotic.Settings.RegimeScreen[Screens->Mnemotic.Settings.TitleWindowNumber*2+1];
       }
-
-    Screens->Mnemotic.Settings.Flags.Led1 = true;
-    Screens->Mnemotic.Settings.Flags.Led2 = false;
-    Screens->Mnemotic.Settings.Flags.Led3 = true;
+    // светики  
+    switch (Screens->Mnemotic.Settings.TitleWindowNumber)
+    {
+    case 0: //Q1-9 T1
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2534] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2534] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 1: //Q1-8 T2
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2535] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2535] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 2: //Q1-7 T3
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2534] & (1<<4)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2534] & (1<<5)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 3: //Q1-10 T4
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2535] & (1<<4)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2535] & (1<<5)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 4: //QS-T1 T1
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2536] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2536] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 5: //QS-T2 T2
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2537] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2537] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 6: //QS-T3 T3
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2538] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2538] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    case 7: //QS-T4 T4
+      Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2539] & 1) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2539] & (1<<1)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      break;
+    default:
+      Screens->Mnemotic.Settings.Flags.Led1 = false;
+      Screens->Mnemotic.Settings.Flags.Led2 = false;
+      Screens->Mnemotic.Settings.Flags.Led3 = false;
+      break;
+    }
   }
   else
   {
