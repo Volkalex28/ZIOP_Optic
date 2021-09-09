@@ -115,11 +115,12 @@ void fillCrash(void)
 
   Alarms[alarmsActual]->count = 0;
 
-  for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
-  {
-    if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false)
-      Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
-  }
+  if(Panel->flags.isMaster == true) 
+    for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
+    {
+      if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false)
+        Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
+    }
 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
   {
