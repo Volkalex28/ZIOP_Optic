@@ -23,6 +23,7 @@
 #include "screens/screen.h"
 
 #define getBit(_RR_, _BIT_) ((PSW[_RR_] & (1 << (_BIT_))) ? true : false)
+#define alExContr(_NC_, _COND_) if (_COND_) addCrash(_NC_); else deleteCrash(_NC_) 
 
 void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
 {
@@ -245,6 +246,45 @@ void controlLogic(void)
   }
 }
 
+void alarmLogic(void)
+{
+  short i;
+
+  switch (getMyIP())
+  {
+    case 41:  // Panel 43, Panel 44, Gate, Panel 42
+    
+      alExContr(alConFailPanel3, (getEnable(0) == false) || GetPSBStatus(700));
+      alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
+      alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
+      alExContr(alConFailPanel2, (getEnable(3) == false) || GetPSBStatus(703));
+      break;
+    case 42:  // Panel 43, Panel 44, Gate, Panel 41
+      alExContr(alConFailPanel3, (getEnable(0) == false) || GetPSBStatus(700));
+      alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
+      alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
+      alExContr(alConFailPanel1, (getEnable(3) == false) || GetPSBStatus(703));
+      break;
+    case 43:  // K-1, KT-1, KT-3, Panel 44, Panel 42, Panel 41
+      alExContr(alConFailDP1,    (getEnable(0) == false) || GetPSBStatus(700));
+      alExContr(alConFailDP3,    (getEnable(1) == false) || GetPSBStatus(701));
+      alExContr(alConFailDP4,    (getEnable(2) == false) || GetPSBStatus(702));
+      alExContr(alConFailPanel4, (getEnable(3) == false) || GetPSBStatus(703));
+      alExContr(alConFailPanel2, (getEnable(4) == false) || GetPSBStatus(704));
+      alExContr(alConFailPanel1, (getEnable(5) == false) || GetPSBStatus(705));
+      break;
+    case 44:  // K-2, KT-2, KT-4, Panel 43, Panel 41, Panel 42
+      alExContr(alConFailDP2,    (getEnable(0) == false) || GetPSBStatus(700));
+      alExContr(alConFailDP5,    (getEnable(1) == false) || GetPSBStatus(701));
+      alExContr(alConFailDP6,    (getEnable(2) == false) || GetPSBStatus(702));
+      alExContr(alConFailPanel4, (getEnable(3) == false) || GetPSBStatus(703));
+      alExContr(alConFailPanel1, (getEnable(4) == false) || GetPSBStatus(704));
+      alExContr(alConFailPanel2, (getEnable(5) == false) || GetPSBStatus(705));
+      break;
+  }
+
+}
+
 void taskLoop(void)
 {
   init();
@@ -293,6 +333,7 @@ void taskLoop(void)
 
     handlerLogic();
     controlLogic();
+    alarmLogic();
 
     updatePFW();
     getTime();

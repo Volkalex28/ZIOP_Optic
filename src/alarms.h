@@ -111,7 +111,8 @@ typedef enum EAlarm
   alOpenAdminAccess3,                       ///< Открытие доступа администратора в панели 3
   alOpenAdminAccess4,                       ///< Открытие доступа администратора в панели 4
 
-  alConFailPanel1,                          ///< Ошибка соединения с панелью 1
+  startAlarmsCon,
+  alConFailPanel1 = startAlarmsCon,          ///< Ошибка соединения с панелью 1
   alConFailPanel2,                          ///< Ошибка соединения с панелью 2
   alConFailPanel3,                          ///< Ошибка соединения с панелью 3
   alConFailPanel4,                          ///< Ошибка соединения с панелью 4
@@ -122,8 +123,9 @@ typedef enum EAlarm
   alConFailDP5,                             ///< Ошибка соединения с платой дискретных сигналов 5
   alConFailDP6,                             ///< Ошибка соединения с платой дискретных сигналов 6
   alConFailGate,                            ///< Ошибка соединения со шлюзом
+  endAlarmsCon,
 
-  alConRestoredPanel1,                      ///< Соединение с панелью 1 ввостановлено
+  alConRestoredPanel1 = endAlarmsCon,       ///< Соединение с панелью 1 ввостановлено
   alConRestoredPanel2,                      ///< Соединение с панелью 2 ввостановлено
   alConRestoredPanel3,                      ///< Соединение с панелью 3 ввостановлено
   alConRestoredPanel4,                      ///< Соединение с панелью 4 ввостановлено
