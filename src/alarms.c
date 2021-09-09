@@ -106,19 +106,29 @@ void addCrash(Alarm_t NumberCrash)
 	addEvent(NumberCrash);
   
   if (isMasked(alarmsMaskIndicator, NumberCrash)) 
-    Panel->flags.cvitCrash = 0;
+    Panel->flags.cvitCrash = false;
 }
 
 void fillCrash(void) 
 {
 	size_t i, n;
 
-  Alarms[alarmsActual]->count = 0;
 
+  if(Panel->flags.isMaster == true) 
+    Alarms[alarmsActual]->count = 0;
+
+  // if(Panel->flags.isMaster == true) 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
   {
-    if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false)
+    if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false
+      && (Panel->flags.isMaster == true || Alarms[alarmsBacklog]->buf[i] == alConFailAtAllPanel)
+    ) {
+      if(Alarms[alarmsBacklog]->buf[i] == alConFailAtAllPanel)
+      {
+        Alarms[alarmsActual]->count = 0;
+      }
       Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
+    }
   }
 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
@@ -130,6 +140,7 @@ void fillCrash(void)
     }
   }
   Panel->flags.noneCrash = true;
+  Panel->flags.cvitCrash = false;
 }
 
 void deleteCrash(Alarm_t NumberCrash) 
@@ -150,6 +161,12 @@ void deleteCrash(Alarm_t NumberCrash)
 
       if (NumberCrash >= startAlarmsCon && NumberCrash < endAlarmsCon)
         addEvent(NumberCrash + (endAlarmsCon - startAlarmsCon));
+
+      if ((GetPSBStatus(702) == false) 
+        && (NumberCrash >= startAlarmsConGate && NumberCrash < endAlarmsConGate)
+      ) {
+        addEvent(NumberCrash + (endAlarmsConGate - startAlarmsConGate));
+      }
 		}
 	}
 }

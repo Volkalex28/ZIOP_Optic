@@ -286,13 +286,25 @@ typedef enum EAlarm
 
   alShortEn = alEndShsnD,
   alShsnEn,
-  alShSnDEn,                       
+  alShSnDEn,  
+
+  alConFailAtAllPanel,               //< Панель не в сети
+  
+  startAlarmsConGate,
+  alConFailShot = startAlarmsConGate,   //Обрыв связи с ШОТ"
+  alConFailShsn,                        //Обрыв связи с ШСН"
+  alConFailShsnD,                       //Обрыв связи с ШСН-Д"
+  alConRestoredShot,                    //Связь со ШОТ восстановлена"
+  endAlarmsConGate,
+
+  alConRestoredShsn = endAlarmsConGate, //Связь со ШСН восстановлена"
+  alConRestoredShsnD,                   //Связь со ШСН-Д восстановлена"
 
   alTransTemperProtectT1 = 200,
   alTransTemperProtectT2,
   alTransTemperProtectT3,
   alTransTemperProtectT4,
-  alAll                ///< Количество всех событий
+  alAll                             ///< Количество всех событий
 } Alarm_t;
 
 /**

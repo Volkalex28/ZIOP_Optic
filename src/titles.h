@@ -218,6 +218,15 @@ const Title_t arrTitles[] = {
   {alShsnD_19,                   "Аварийное отключение выключателя секции ~220В"},
   {alShsnD_20,                   "Аварийное отключение выключателя секции ~36В"},
 
+  {alConFailAtAllPanel,          "Панель не в сети"},
+  {alConFailShot,                "Обрыв связи с ШОТ"},
+  {alConFailShsn,                "Обрыв связи с ШСН"},
+  {alConFailShsnD,               "Обрыв связи с ШСН-Д"},
+  {alConRestoredShot,            "Связь со ШОТ восстановлена"},
+  {alConRestoredShsn,            "Связь со ШСН восстановлена"},
+  {alConRestoredShsnD,           "Связь со ШСН-Д восстановлена"},
+
+
   {alNone}
 };
 

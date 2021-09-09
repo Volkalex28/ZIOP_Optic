@@ -20,6 +20,8 @@
 #include "mem/panel.h"
 #include "mem/pfw.h"
 
+#include "devices/dGate.h"
+
 #include "screens/screen.h"
 
 #define getBit(_RR_, _BIT_) ((PSW[_RR_] & (1 << (_BIT_))) ? true : false)
@@ -250,20 +252,44 @@ void alarmLogic(void)
 {
   short i;
 
+  
+  
   switch (getMyIP())
   {
     case 41:  // Panel 43, Panel 44, Gate, Panel 42
-    
       alExContr(alConFailPanel3, (getEnable(0) == false) || GetPSBStatus(700));
       alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
       alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
       alExContr(alConFailPanel2, (getEnable(3) == false) || GetPSBStatus(703));
+      alExContr(alConFailAtAllPanel,
+        ((getEnable(0) == false) || GetPSBStatus(700) &&
+         (getEnable(1) == false) || GetPSBStatus(701) &&
+         (getEnable(2) == false) || GetPSBStatus(702) &&
+         (getEnable(3) == false) || GetPSBStatus(703)));
+      alExContr(alConFailShot, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHOT)); 
+      alExContr(alConFailShsn, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHSN)); 
+      alExContr(alConFailShsnD, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHSND)); 
+
       break;
     case 42:  // Panel 43, Panel 44, Gate, Panel 41
       alExContr(alConFailPanel3, (getEnable(0) == false) || GetPSBStatus(700));
       alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
       alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
       alExContr(alConFailPanel1, (getEnable(3) == false) || GetPSBStatus(703));
+      alExContr(alConFailAtAllPanel,
+        ((getEnable(0) == false) || GetPSBStatus(700) &&
+         (getEnable(1) == false) || GetPSBStatus(701) &&
+         (getEnable(2) == false) || GetPSBStatus(702) &&
+         (getEnable(3) == false) || GetPSBStatus(703)));
+      alExContr(alConFailShot, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHOT)); 
+      alExContr(alConFailShsn, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHSN)); 
+      alExContr(alConFailShsnD, (((getEnable(2) == false) || GetPSBStatus(702)) 
+        && dMem->Gate->errCon.SHSND)); 
       break;
     case 43:  // K-1, KT-1, KT-3, Panel 44, Panel 42, Panel 41
       alExContr(alConFailDP1,    (getEnable(0) == false) || GetPSBStatus(700));
@@ -272,6 +298,13 @@ void alarmLogic(void)
       alExContr(alConFailPanel4, (getEnable(3) == false) || GetPSBStatus(703));
       alExContr(alConFailPanel2, (getEnable(4) == false) || GetPSBStatus(704));
       alExContr(alConFailPanel1, (getEnable(5) == false) || GetPSBStatus(705));
+      alExContr(alConFailAtAllPanel,
+        ((getEnable(0) == false) || GetPSBStatus(700) &&
+         (getEnable(1) == false) || GetPSBStatus(701) &&
+         (getEnable(2) == false) || GetPSBStatus(702) &&
+         (getEnable(3) == false) || GetPSBStatus(703) &&
+         (getEnable(4) == false) || GetPSBStatus(704) &&
+         (getEnable(5) == false) || GetPSBStatus(705)));
       break;
     case 44:  // K-2, KT-2, KT-4, Panel 43, Panel 41, Panel 42
       alExContr(alConFailDP2,    (getEnable(0) == false) || GetPSBStatus(700));
@@ -280,6 +313,14 @@ void alarmLogic(void)
       alExContr(alConFailPanel4, (getEnable(3) == false) || GetPSBStatus(703));
       alExContr(alConFailPanel1, (getEnable(4) == false) || GetPSBStatus(704));
       alExContr(alConFailPanel2, (getEnable(5) == false) || GetPSBStatus(705));
+      alExContr(alConFailAtAllPanel,
+        ((getEnable(0) == false) || GetPSBStatus(700) &&
+         (getEnable(1) == false) || GetPSBStatus(701) &&
+         (getEnable(2) == false) || GetPSBStatus(702) &&
+         (getEnable(3) == false) || GetPSBStatus(703) &&
+         (getEnable(4) == false) || GetPSBStatus(704) &&
+         (getEnable(5) == false) || GetPSBStatus(705)));
+      break;
       break;
   }
 
@@ -323,8 +364,7 @@ void taskLoop(void)
     }
     fillRRScreens();
 
-    if((getMyIP() == 41 || getMyIP() == 42) && Panel->flags.isMaster == true) 
-      fillCrash();
+    fillCrash();
 
     updateScreen();
     controlMenu();

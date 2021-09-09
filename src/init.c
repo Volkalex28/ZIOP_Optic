@@ -44,6 +44,8 @@ void init(void)
   initAlarms();
   initScreens();
   
+  Panel->flags.noneCrash = true;
+  
   if(PFW->flags.firstTurnOn == true)
   {
     finit();
