@@ -323,8 +323,7 @@ void taskLoop(void)
     }
     fillRRScreens();
 
-    if((getMyIP() == 41 || getMyIP() == 42) && Panel->flags.isMaster == true) 
-      fillCrash();
+    fillCrash();
 
     updateScreen();
     controlMenu();
