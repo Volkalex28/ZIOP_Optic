@@ -54,6 +54,8 @@
   }                                                                                   \
   CONTINUE_IF(CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_) == false)
 
+#define N_RR_FOR_EVENT 125
+
 //-------------------------
 void writeDevice(void);
 void readDevice(void);
@@ -83,15 +85,119 @@ void taskExchangeReadGate(void)
 
     if(Panel->flags.isMaster == false)
     {
+      size_t n, k;
+      uint16_t temp;
+      GateSettEvent_t tempSettEvent[3];
+
       GO_AGAIN_IF(Panel->flags.errConMaster == true);
 
       GO_AGAIN_READS(net3, &CAST_TO_U16(dMem->Gate) - PSW, &CAST_TO_U16(dMem->Gate), 
         c, CALC_COUNT_RR(dGatemem_t)
       );
 
-      GO_AGAIN_READS(net3, FIRST_RR_ALARMS_GATE, (uint16_t *)Alarms[alarmsActual], 
-        c, CALC_COUNT_RR(Alarms_t)*4
+      GO_AGAIN_READS(net3, FIRST_RR_ALARMS, (uint16_t *)Alarms[alarmsActual], 
+        c, CALC_COUNT_RR(Alarms_t)
       );
+
+      GO_AGAIN_READS(net3, FIRST_RR_ALARMS_GATE, (uint16_t *)Alarms[alarmsSHOT], 
+        c, CALC_COUNT_RR(Alarms_t)*3
+      );
+
+      GO_AGAIN_READS(net3, &CAST_TO_U16(PFW->N_Event) - PSW, &CAST_TO_U16(tempSettEvent), 
+        c, CALC_COUNT_RR(GateSettEvent_t)
+      );
+      if(PFW->N_Event != tempSettEvent[0].N_Event
+      ) {
+        const uint16_t number = (tempSettEvent[0].CB ? COUNT_EVENTS 
+          : tempSettEvent[0].N_Event) * NUMBER_RR_FOR_ONE_EVENT;
+        const uint8_t max_k = number%N_RR_FOR_EVENT == 0 ? number/N_RR_FOR_EVENT : number/N_RR_FOR_EVENT + 1;
+
+        for(k = 0; k < max_k; k++)
+        {
+          uint16_t temp[N_RR_FOR_EVENT] = {0};
+
+          GO_AGAIN_IF(GetPSBStatus(703) == true);
+          
+          CONTINUE_READS(net3, 
+            FIRST_RR_EVENT + 10000 + N_RR_FOR_EVENT*k, 
+            temp, 
+            c, 
+            N_RR_FOR_EVENT
+          );
+          
+          c.type = memPFW; c.number = FIRST_RR_EVENT + N_RR_FOR_EVENT*k;
+          writes(c, N_RR_FOR_EVENT);
+        }
+        PFW->CB = tempSettEvent[0].CB;
+        PFW->N_Event = tempSettEvent[0].N_Event;
+      }
+
+      GO_AGAIN_READS(net3, &CAST_TO_U16(PFW->gateSettEvent) - PSW, &CAST_TO_U16(tempSettEvent), 
+        c, CALC_COUNT_RR(dMem->Gate->SettEvent)
+      );
+      for(i = 0; i < 3; i++)
+      {
+        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))
+        {
+          Panel->gateEventsState[i].isError = true;
+          Panel->gateEventsState[i].percent = 0;
+          Panel->gateEventsState[i].isWait = false;
+        }
+        else
+        {
+          Panel->gateEventsState[i].isError = false;
+        }
+
+        if(tempSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event)
+        {
+          Panel->gateEventsState[i].isWait = true;
+          continue;
+        }
+        else
+        {
+          Panel->gateEventsState[i].isWait = false;
+        }
+
+        if((CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false 
+          && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
+        ) {
+          const uint16_t number = (dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS 
+            : dMem->Gate->SettEvent[i].N_Event) * NUMBER_RR_FOR_ONE_EVENT;
+          const uint8_t max_k = number%N_RR_FOR_EVENT == 0 ? number/N_RR_FOR_EVENT : number/N_RR_FOR_EVENT + 1;
+
+          for(k = 0; k < max_k; k++)
+          {
+            uint16_t temp[N_RR_FOR_EVENT] = {0};
+
+            GO_AGAIN_IF(GetPSBStatus(703) == true);
+
+            Panel->gateEventsState[i].percent = (float)k/max_k*100;
+            
+            CONTINUE_READS(net3, 
+              FIRST_RR_EVENT_GATE + 10000 + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + N_RR_FOR_EVENT*k, 
+              temp, 
+              c, 
+              N_RR_FOR_EVENT
+            );
+            
+            c.type = memPFW; c.number = FIRST_RR_EVENT_GATE + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + N_RR_FOR_EVENT*k;
+            writes(c, N_RR_FOR_EVENT);
+          }
+          Panel->gateEventsState[i].percent = 100;
+          PFW->gateSettEvent[i].CB = dMem->Gate->SettEvent[i].CB;
+          PFW->gateSettEvent[i].N_Event = dMem->Gate->SettEvent[i].N_Event;
+        }
+
+        if((dMem->Gate->SettEvent[i].CB != 0 || dMem->Gate->SettEvent[i].N_Event != 0)
+          && PFW->gateSettEvent[i].N_Event == dMem->Gate->SettEvent[i].N_Event
+          && PFW->gateSettEvent[i].CB == dMem->Gate->SettEvent[i].CB
+        ) {
+          Panel->gateEventsState[i].percent = 100;
+          Panel->gateEventsState[i].isWait = false;
+          Panel->gateEventsState[i].isError = false;
+        }
+        
+      }
     }
     else
     {
@@ -155,7 +261,7 @@ void taskExchangeReadGate(void)
         Alarms[alarmsSHOT+i]->count = alTemp.count;
         for(k = 0; k < COUNT_ALARMS; k++)
         {
-          Alarms[alarmsSHOT+i]->buf[k] = convertionNumberAlarm(shieldShot+i, alTemp.buf[k]);
+          Alarms[alarmsSHOT+i]->buf[k] = alTemp.buf[k];
           alTemp.buf[k] = 0;
         }
         alTemp.count = 0;
@@ -183,6 +289,8 @@ void taskExchangeReadGate(void)
 
           for(k = 0; k < max_k; k++)
           {
+            GO_AGAIN_IF(GetPSBStatus(702) == true);
+
             Panel->gateEventsState[i].percent = (float)k/max_k*100;
             
             c.type = net2; c.number = 299;
@@ -364,7 +472,7 @@ void readDevice(void)
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
 
-    if(PSW[CURRENT_SCREEN] == scrCrash)
+    // if(PSW[CURRENT_SCREEN] == scrCrash)
       readAlarms();
     break;
       
