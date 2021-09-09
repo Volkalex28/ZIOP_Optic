@@ -25,10 +25,10 @@ void screenCrash(void)
     return;
   }
 
-  for (i = 1; i <= 20; i++)
-  {
-    addCrash(12+i);
-  }
+  // for (i = 1; i <= 20; i++)
+  // {
+  //   addCrash(12+i);
+  // }
   
   selectCircle(&Screens->Crash.Settings.Count, 
     (currentAlarms->count < NUMBER_LINES_ON_SCREEN_CRASH) 

@@ -53,6 +53,9 @@ void init(void)
   if(getMyIP() == 41)
   {
     Panel->flags.initMaster = true;
+    Panel->flags.errConMasterOld = true;
+    Panel->flags.errConPanel1Old = true;
+    Panel->flags.errConPanel2Old = true;
   }
 
   writes(c, 200);
