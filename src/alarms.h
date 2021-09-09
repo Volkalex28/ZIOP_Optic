@@ -136,6 +136,17 @@ typedef enum EAlarm
   alConRestoredDP5,                         ///< Соединение с платой дискретных сигналов 5 ввостановлено
   alConRestoredDP6,                         ///< Соединение с платой дискретных сигналов 6 ввостановлено
   alConRestoredGate,                        ///< Соединение со шлюзом ввостановлено
+
+  startAlarmsConGate,
+  alConFailShot = startAlarmsConGate,   //Обрыв связи с ШОТ"
+  alConFailShsn,                        //Обрыв связи с ШСН"
+  alConFailShsnD,                       //Обрыв связи с ШСН-Д"
+  endAlarmsConGate,
+ 
+  alConRestoredShot = endAlarmsConGate, //Связь со ШОТ восстановлена"
+  alConRestoredShsn,                    //Связь со ШСН восстановлена"
+  alConRestoredShsnD,                   //Связь со ШСН-Д восстановлена"
+
   alEndArm,                           // Количество событий секции АРМ
 
 //------  SHOT  ------
@@ -284,22 +295,12 @@ typedef enum EAlarm
   alShsnD_20,
   alEndShsnD,                         // Количество событий секции ШСНД
 
-  alShortEn = alEndShsnD,
-  alShsnEn,
-  alShSnDEn,  
+  alShortEn,                          // Суммарная авария по ШОТ
+  alShsnEn,                           // Суммарная авария по ШСН
+  alShSnDEn,                          // Суммарная авария по ШСН-Д
 
   alConFailAtAllPanel,               //< Панель не в сети
   
-  startAlarmsConGate,
-  alConFailShot = startAlarmsConGate,   //Обрыв связи с ШОТ"
-  alConFailShsn,                        //Обрыв связи с ШСН"
-  alConFailShsnD,                       //Обрыв связи с ШСН-Д"
-  alConRestoredShot,                    //Связь со ШОТ восстановлена"
-  endAlarmsConGate,
-
-  alConRestoredShsn = endAlarmsConGate, //Связь со ШСН восстановлена"
-  alConRestoredShsnD,                   //Связь со ШСН-Д восстановлена"
-
   alTransTemperProtectT1 = 200,
   alTransTemperProtectT2,
   alTransTemperProtectT3,
