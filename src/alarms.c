@@ -43,7 +43,7 @@ void addEvent(Alarm_t number)
   Time_t * pTime;
   cell_t c;
 
-  if(isMasked(alarmsMaskEvent, number)) return;
+  if(isMasked(alarmsMaskEvent, number) || (Panel->flags.isMaster == false)) return;
 
   if(PFW->N_Event >= COUNT_EVENTS) 
   {
@@ -147,6 +147,9 @@ void deleteCrash(Alarm_t NumberCrash)
 			for(; i < Alarms[alarmsBacklog]->count; i++)
 				Alarms[alarmsBacklog]->buf[i] = Alarms[alarmsBacklog]->buf[i+1];
 			Alarms[alarmsBacklog]->buf[i] = 0;
+
+      if (NumberCrash >= startAlarmsCon && NumberCrash < endAlarmsCon)
+        addEvent(NumberCrash + (endAlarmsCon - startAlarmsCon));
 		}
 	}
 }

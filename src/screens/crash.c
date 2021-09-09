@@ -25,10 +25,10 @@ void screenCrash(void)
     return;
   }
 
-  for (i = 1; i <= 20; i++)
-  {
-    addCrash(12+i);
-  }
+  // if(Panel->flags.isMaster) for (i = 1; i <= 20; i++)
+  // {
+  //   addCrash(12+i);
+  // }
   
   selectCircle(&Screens->Crash.Settings.Count, 
     (currentAlarms->count < NUMBER_LINES_ON_SCREEN_CRASH) 
@@ -57,8 +57,11 @@ void screenCrash(void)
     ) {
       Screens->Crash.Settings.NumberCrash[i] = 
         currentAlarms->count - Screens->Crash.Settings.Count - i;
-      Screens->Crash.Settings.Offset[i] = 
-        currentAlarms->buf[Screens->Crash.Settings.NumberCrash[i] - 1];
+      Screens->Crash.Settings.Offset[i] = (currentAlarms == Alarms[alarmsActual]) 
+        ? currentAlarms->buf[Screens->Crash.Settings.NumberCrash[i] - 1] 
+        : convertionNumberAlarm(Panel->ChooseDevice.Select, 
+            currentAlarms->buf[Screens->Crash.Settings.NumberCrash[i] - 1]
+          );
       Screens->Crash.Settings.Visible.EnOffset |= (1<<i);
     }
     for(; i < NUMBER_LINES_ON_SCREEN_CRASH; i++) 
