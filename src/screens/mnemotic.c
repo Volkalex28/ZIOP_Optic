@@ -60,46 +60,113 @@ void screenMnemotic(void)
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2534] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2534] & (1<<1)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2534] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
       break;
     case 1: //Q1-8 T2
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2535] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2535] & (1<<1)) ? true : false;
-      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2535] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
       break;
     case 2: //Q1-7 T3
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2534] & (1<<4)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2534] & (1<<5)) ? true : false;
-      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2534] & (1<<6)) ? true : false;;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
       break;
     case 3: //Q1-10 T4
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2535] & (1<<4)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2535] & (1<<5)) ? true : false;
-      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2535] & (1<<6)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
       break;
     case 4: //QS-T1 T1
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2536] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2536] & (1<<1)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = false;
       break;
     case 5: //QS-T2 T2
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2537] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2537] & (1<<1)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = false;
       break;
     case 6: //QS-T3 T3
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2538] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2538] & (1<<1)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = false;
       break;
     case 7: //QS-T4 T4
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2539] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2539] & (1<<1)) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = true;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = false;
       break;
-    default:
-      Screens->Mnemotic.Settings.Flags.Led1 = false;
-      Screens->Mnemotic.Settings.Flags.Led2 = false;
-      Screens->Mnemotic.Settings.Flags.Led3 = false;
+    case 8: //Q1 T1
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2536] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 9: //Q2 T2
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2537] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 10: //Q3 T3
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2538] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 11: //Q4 T4
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2539] & (1<<2)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 12: //Q1-3 T1
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2536] & (1<<3)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 13: //Q1-4 T2
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2537] & (1<<3)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 14: //Q1-5 T3
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2538] & (1<<3)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
+      break;
+    case 15: //Q1-6 T4
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2539] & (1<<3)) ? true : false;
+      Screens->Mnemotic.Settings.Flags.Led1Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led2Visible = false;
+      Screens->Mnemotic.Settings.Flags.Led3Visible = true;
       break;
     }
   }
