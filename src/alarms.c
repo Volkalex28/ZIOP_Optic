@@ -131,9 +131,9 @@ void fillCrash(void)
     }
   }
 
-  for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
+  for(i = 0; i < Alarms[Panel->flags.isMaster == true ? alarmsBacklog : alarmsActual]->count; i++) 
   {
-    if(isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i]) == false) 
+    if(Panel->flags.isMaster == true ? isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i]) == false : true) 
     {
       Panel->flags.noneCrash = false;
       return;
@@ -181,6 +181,12 @@ void initAlarms(void)
   Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 0];
   Alarms[alarmsSHSN]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 200];
   Alarms[alarmsSHSND]   = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 400];
+}
+
+void finitAlarms(void)
+{
+  setMask(alarmsMaskMessage, alConFailAtAllPanel, false);
+  setMask(alarmsMaskIndicator, alConFailAtAllPanel, false);
 }
 
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm)

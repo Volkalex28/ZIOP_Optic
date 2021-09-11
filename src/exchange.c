@@ -594,6 +594,8 @@ tryAgain:
 
 void connectionFaultHandler(uint8_t number)
 {
+  size_t i;
+
   if(Panel->StateEx[number].CounterCorrect > Panel->StateExOld[number].CounterCorrect
     && Panel->StateEx[number].CounterNotCorrect == Panel->StateExOld[number].CounterNotCorrect
   ) {
@@ -618,4 +620,6 @@ void connectionFaultHandler(uint8_t number)
 
   PSW[2980 + number] = Panel->StateEx[number].CounterCorrect;
   PSW[2990 + number] = Panel->StateEx[number].CounterNotCorrect;
+
+
 }

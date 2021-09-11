@@ -27,6 +27,7 @@ void finit(void)
   clearEvents(true);
   finitDevices();
   finitTitle();
+  finitAlarms();
   
   SetUserLevelAvtorisation;
   SetAdminLevelAvtorisation;

@@ -26,6 +26,18 @@
 
 #define getBit(_RR_, _BIT_) ((PSW[_RR_] & (1 << (_BIT_))) ? true : false)
 #define alExContr(_NC_, _COND_) if (_COND_) addCrash(_NC_); else deleteCrash(_NC_) 
+#define controlBit(_N_, _BIT_, _EN_, _DIS_, _COND_)                   \
+  if(_COND_) {                                                        \
+    if(getBit(2502 + 4*(_N_), _BIT_) == false && (_EN_)) {            \
+      PSW[1000 + 2*(_N_)] |= (1 << (_BIT_));                          \
+      PSW[1100] |= (1 << (_N_ + 8*((_BIT_) / 16)));                   \
+    }                                                                 \
+  } else {                                                            \
+    if(getBit(2502 + 4*(_N_), _BIT_) == true && (_DIS_)) {            \
+      PSW[1000 + 2*(_N_)] &= ~(1 << (_BIT_));                         \
+      PSW[1100] |= (1 << (_N_ + 8*((_BIT_) / 16)));                   \
+    }                                                                 \
+  }
 
 void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
 {
@@ -73,7 +85,7 @@ void handlerLogic(void)
   
   normConrtol(2502, 2534, 0, 0, true); // 2534.0 = Блокировка ВЭ выключателя Q1-9 = K1.DO1
   normConrtol(2502, 2534, 1, 1, true); // 2534.1 = Блокировка ЗЭ Q1-9 = K1.DO2
-  normConrtol(2502, 2534, 2, 2, false); // 2534.2 = Отключение выключателя Q1-9 = K1.DO3
+  normConrtol(2502, 2534, 2, 2, true); // 2534.2 = Отключение выключателя Q1-9 = K1.DO3
 
   normConrtol(2502, 2534, 4, 4, true); // 2534.4 = Блокировка ВЭ выключателя Q1-7 = K1.DO5
   normConrtol(2502, 2534, 5, 5, true); // 2534.5 = Блокировка ЗЭ Q1-7 = K1.DO6
@@ -116,6 +128,8 @@ void handlerLogic(void)
 
   normConrtol(2510, 2536, 0, 0, true); // 2536.0 = Блокировка ВЭ разъединителя QS-T1 = K-T1.DO1
   normConrtol(2510, 2536, 1, 1, true); // 2536.1 = Блокировка ЗЭ разъединителя QSG-T1 = K-T1.DO2
+  normConrtol(2510, 2536, 2, 2, true); 
+  normConrtol(2510, 2536, 3, 3, true); 
   //- 54
   diffConrtol(2512, 2526, 0, 1, 0, 1);
   diffConrtol(2512, 2526, 2, 3, 2, 3);
@@ -124,6 +138,7 @@ void handlerLogic(void)
   normConrtol(2512, 2525, 5, 8, false);
   normConrtol(2512, 2525, 6, 9, false);
   normConrtol(2512, 2525, 7, 10, false);
+  normConrtol(2512, 2525, 14, 11, false);
 
   diffConrtol(2512, 2526, 8, 9, 4, 5);
   diffConrtol(2512, 2526, 10, 11, 6, 7);
@@ -178,74 +193,34 @@ void handlerLogic(void)
 
 void controlLogic(void)
 {
-  // if(PSW[2502] != PSW[2508] && getMyIP() == 43 && (PSW[1100] & (1<<0)) == 0)
-  // {
-  //   PSW[1000] = PSW[2508];
-  //   PSW[1100] |= (1<<0);
-  // }
-  // if(PSW[2506] != PSW[2508] && getMyIP() == 44 && (PSW[1100] & (1<<1)) == 0)
-  // {
-  //   PSW[1002] = PSW[2508];
-  //   PSW[1100] |= (1<<1);
-  // }
-  if(getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 3) == true && getBit(2525, 4) == false
-    && getBit(2526, 0) == true && getBit(2526, 1) == false && getBit(2526, 4) == true && getBit(2526, 5) == false
-    && getBit(2526, 6) == false && getBit(2526, 7) == false && getBit(2526, 10) == true && getBit(2526, 11) == false
-    && getBit(2526, 12) == false && getBit(2526, 13) == false
-  ) {
-    if(getBit(2502, 1) == false)
-    {
-      PSW[1000] |= 0x2;
-      PSW[1100] |= (1<<0);
-    }
-    if(getBit(2510, 1) == false)
-    {
-      PSW[1004] |= 0x2;
-      PSW[1100] |= (1<<2);
-    }
-  }
-  else
-  {
-    if(getBit(2502, 0) == true)
-    {
-      PSW[1000] &= ~0x2;
-      PSW[1100] |= (1<<0);
-    }
-    if(getBit(2510, 0) == true)
-    {
-      PSW[1004] &= ~0x2;
-      PSW[1100] |= (1<<2);
-    }
-  }
+  controlBit(0, 0, true, true, getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 5) == false 
+    && getBit(2525, 6) == false && getBit(2526, 2) == false && getBit(2526, 3) == false && getBit(2526, 4) == true 
+    && getBit(2526, 5) == false && getBit(2526, 8) == false && getBit(2526, 9) == false && getBit(2526, 10) == true 
+    && getBit(2526, 11) == false)
+  controlBit(2, 0, true, true, getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 5) == false 
+    && getBit(2525, 6) == false && getBit(2526, 2) == false && getBit(2526, 3) == false && getBit(2526, 4) == true 
+    && getBit(2526, 5) == false && getBit(2526, 8) == false && getBit(2526, 9) == false && getBit(2526, 10) == true 
+    && getBit(2526, 11) == false)
 
-  if(getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 5) == false && getBit(2525, 6) == false
-    && getBit(2526, 2) == false && getBit(2526, 3) == false && getBit(2526, 4) == true && getBit(2526, 5) == false
-    && getBit(2526, 8) == false && getBit(2526, 9) == false && getBit(2526, 10) == true && getBit(2526, 11) == false
-  ) {
-    if(getBit(2502, 0) == false)
-    {
-      PSW[1000] |= 0x1;
-      PSW[1100] |= (1<<0);
-    }
-    if(getBit(2510, 0) == false)
-    {
-      PSW[1004] |= 0x1;
-      PSW[1100] |= (1<<2);
-    }
-  }
-  else
-  {
-    if(getBit(2502, 0) == true)
-    {
-      PSW[1000] &= ~0x1;
-      PSW[1100] |= (1<<0);
-    }
-    if(getBit(2510, 0) == true)
-    {
-      PSW[1004] &= ~0x1;
-      PSW[1100] |= (1<<2);
-    }
-  }
+  controlBit(0, 1, true, true, getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 3) == true 
+    && getBit(2525, 4) == false && getBit(2526, 0) == true && getBit(2526, 1) == false && getBit(2526, 4) == true 
+    && getBit(2526, 5) == false && getBit(2526, 6) == false && getBit(2526, 7) == false && getBit(2526, 10) == true 
+    && getBit(2526, 11) == false && getBit(2526, 12) == false && getBit(2526, 13) == false)
+  controlBit(2, 1, true, true, getBit(2525, 0) == false && getBit(2525, 1) == false && getBit(2525, 3) == true 
+    && getBit(2525, 4) == false && getBit(2526, 0) == true && getBit(2526, 1) == false && getBit(2526, 4) == true 
+    && getBit(2526, 5) == false && getBit(2526, 6) == false && getBit(2526, 7) == false && getBit(2526, 10) == true 
+    && getBit(2526, 11) == false && getBit(2526, 12) == false && getBit(2526, 13) == false)
+    
+  controlBit(0, 2, true, true, getBit(2525, 5) == false && getBit(2525, 6) == false && getBit(2526, 8) == false 
+    && getBit(2526, 9) == false && getBit(2526, 2) == false && getBit(2526, 3) == false && getBit(2526, 0) == false 
+    && getBit(2526, 1) == false && !(getBit(2525, 7) == true || getBit(2525, 11) == true) && getBit(2525, 10) == false
+    && getBit(2525, 8) == false)
+
+  controlBit(2, 2, true, true, (getBit(2525, 0) == true && getBit(2525, 1) == false && getBit(2526, 0) == false 
+    && getBit(2526, 1) == false) && !(getBit(2525, 0) == false && getBit(2525, 1) == false) && getBit(2525, 9) == false)
+
+  controlBit(2, 3, true, true, (getBit(2526, 4) == false && getBit(2526, 5) == false) && !(getBit(2525, 0) == false 
+    && getBit(2525, 1) == false) && getBit(2525, 9) == false && !(getBit(2526, 4) == true && getBit(2526, 5) == false))
 }
 
 void alarmLogic(void)
@@ -266,11 +241,11 @@ void alarmLogic(void)
         ((getEnable(3) == false) || GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHOT)); 
+        && dMem->Gate->errCon.SHOT && Panel->flags.isMaster)); 
       alExContr(alConFailShsn, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHSN)); 
+        && dMem->Gate->errCon.SHSN && Panel->flags.isMaster)); 
       alExContr(alConFailShsnD, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHSND)); 
+        && dMem->Gate->errCon.SHSND && Panel->flags.isMaster)); 
 
       break;
     case 42:  // Panel 43, Panel 44, Gate, Panel 41
@@ -285,11 +260,11 @@ void alarmLogic(void)
         ((getEnable(3) == false) || GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHOT)); 
+        && dMem->Gate->errCon.SHOT && Panel->flags.isMaster)); 
       alExContr(alConFailShsn, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHSN)); 
+        && dMem->Gate->errCon.SHSN && Panel->flags.isMaster)); 
       alExContr(alConFailShsnD, (!((getEnable(2) == false) || GetPSBStatus(702)) 
-        && dMem->Gate->errCon.SHSND)); 
+        && dMem->Gate->errCon.SHSND && Panel->flags.isMaster)); 
       break;
     case 43:  // K-1, KT-1, KT-3, Panel 44, Panel 42, Panel 41
       alExContr(alConFailDP1,    (getEnable(0) == false) || GetPSBStatus(700));
@@ -326,7 +301,7 @@ void alarmLogic(void)
   }
 
 }
-
+ 
 void taskLoop(void)
 {
   init();

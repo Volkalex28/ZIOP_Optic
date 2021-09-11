@@ -59,7 +59,7 @@ void screenMnemotic(void)
     case 0: //Q1-9 T1
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2534] & 1) ? true : false;
       Screens->Mnemotic.Settings.Flags.Led2 = (PSW[2534] & (1<<1)) ? true : false;
-      Screens->Mnemotic.Settings.Flags.Led3 = true;
+      Screens->Mnemotic.Settings.Flags.Led3 = (PSW[2534] & (1<<2)) ? true : false;
       break;
     case 1: //Q1-8 T2
       Screens->Mnemotic.Settings.Flags.Led1 = (PSW[2535] & 1) ? true : false;

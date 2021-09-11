@@ -64,6 +64,12 @@ typedef struct Panel_s
     uint32_t errConMasterOld  : 1;    // 11
     uint32_t errConPanel1Old  : 1;    // 12
     uint32_t errConPanel2Old  : 1;    // 13
+    uint32_t errConC1         : 1;    // 14
+    uint32_t errConC2         : 1;    // 15
+    uint32_t errConC3         : 1;    // 16
+    uint32_t errConC4         : 1;    // 17
+    uint32_t errConC5         : 1;    // 18
+    uint32_t errConC6         : 1;    // 19
   } flags;                              // 256-257
   struct ChooseDevicePanel_s  
   {
