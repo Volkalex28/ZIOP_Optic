@@ -138,6 +138,11 @@ void fillCrash(void)
       }
       Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
     }
+    if(Alarms[alarmsBacklog]->buf[i] == alConFailHighLevel)
+    {
+      Alarms[alarmsActual]->count = 0;
+      Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
+    }
   }
 
   for(i = 0; i < Alarms[Panel->flags.isMaster == true ? alarmsBacklog : alarmsActual]->count; i++) 
@@ -205,6 +210,8 @@ void finitAlarms(void)
 {
   setMask(alarmsMaskMessage, alConFailAtAllPanel, false);
   setMask(alarmsMaskIndicator, alConFailAtAllPanel, false);
+  setMask(alarmsMaskMessage, alConFailHighLevel, false);
+  setMask(alarmsMaskIndicator, alConFailHighLevel, false);
 }
 
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm)

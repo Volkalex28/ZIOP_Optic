@@ -46,6 +46,9 @@ const Title_t arrTitles[] = {
   {alConFailDP5,            "Обрыв связи с контроллером К-Т2"},
   {alConFailDP6,            "Обрыв связи с контроллером К-Т4"},
   {alConFailGate,           "Обрыв связи со Шлюзом 485-RTU-LAN"},
+  {alConFailShot,                "Обрыв связи с ШОТ"},
+  {alConFailShsn,                "Обрыв связи с ШСН"},
+  {alConFailShsnD,               "Обрыв связи с ШСН-Д"},
 
 //---
   
@@ -60,6 +63,9 @@ const Title_t arrTitles[] = {
   {alConRestoredDP5,            "Связь с контроллером К-Т2 восстановлена"},
   {alConRestoredDP6,            "Связь с контроллером К-Т4 восстановлена"},
   {alConRestoredGate,           "Связь со Шлюзом 485-RTU-LAN восстановлена"},
+  {alConRestoredShot,            "Связь со ШОТ восстановлена"},
+  {alConRestoredShsn,            "Связь со ШСН восстановлена"},
+  {alConRestoredShsnD,           "Связь со ШСН-Д восстановлена"},
 
 //-------------------------------------------------------------------------------------
 //--------------------------  SHOT  ---------------------------------------------------
@@ -219,12 +225,7 @@ const Title_t arrTitles[] = {
   {alShsnD_20,                   "Аварийное отключение выключателя секции ~36В"},
 
   {alConFailAtAllPanel,          "Панель не в сети"},
-  {alConFailShot,                "Обрыв связи с ШОТ"},
-  {alConFailShsn,                "Обрыв связи с ШСН"},
-  {alConFailShsnD,               "Обрыв связи с ШСН-Д"},
-  {alConRestoredShot,            "Связь со ШОТ восстановлена"},
-  {alConRestoredShsn,            "Связь со ШСН восстановлена"},
-  {alConRestoredShsnD,           "Связь со ШСН-Д восстановлена"},
+  {alConFailHighLevel,           "Нет связи с верхнем уровнем"},
 
   {alTransTemperProtectT1,       "Тепловая защита трансформатора Т1"}, 
   {alTransTemperProtectT2,       "Тепловая защита трансформатора Т2"}, 

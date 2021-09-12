@@ -319,6 +319,10 @@ void alarmLogic(void)
         ((getEnable(4) == false) || GetPSBStatus(704)) &&
         ((getEnable(5) == false) || GetPSBStatus(705))
       );
+      alExContr(alConFailHighLevel, 
+        ((getEnable(4) == false) || GetPSBStatus(704)) &&
+        ((getEnable(5) == false) || GetPSBStatus(705))
+      );
       break;
     case 44:  // K-2, KT-2, KT-4, Panel 43, Panel 41, Panel 42
       alExContr(alConFailDP2,    (getEnable(0) == false) || GetPSBStatus(700));
@@ -332,6 +336,10 @@ void alarmLogic(void)
         ((getEnable(1) == false) || GetPSBStatus(701)) &&
         ((getEnable(2) == false) || GetPSBStatus(702)) &&
         ((getEnable(3) == false) || GetPSBStatus(703)) &&
+        ((getEnable(4) == false) || GetPSBStatus(704)) &&
+        ((getEnable(5) == false) || GetPSBStatus(705))
+      );
+      alExContr(alConFailHighLevel, 
         ((getEnable(4) == false) || GetPSBStatus(704)) &&
         ((getEnable(5) == false) || GetPSBStatus(705))
       );
