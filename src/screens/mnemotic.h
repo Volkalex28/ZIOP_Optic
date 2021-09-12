@@ -21,6 +21,9 @@ typedef struct ScreenMnemotic_s
       uint16_t Led2	: 1;            // 2
       uint16_t Led3	: 1;            // 3
       uint16_t EventOpenWindow : 1; // 4
+      uint16_t Led1Visible	: 1;    // 5
+      uint16_t Led2Visible	: 1;    // 6
+      uint16_t Led3Visible	: 1;    // 7
     } Flags;                      // 551
     uint16_t RegimeWindow1;       // 552
     uint16_t RegimeWindow2;       // 553

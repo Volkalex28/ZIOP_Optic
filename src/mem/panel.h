@@ -64,28 +64,29 @@ typedef struct Panel_s
 {
   struct FlagsPanel_s
   {
-    uint32_t initEx           : 1;    // 0
-    uint32_t enableEx         : 1;    // 1
-    uint32_t menuIsOpen       : 1;    // 2
-    uint32_t noneCrash        : 1;    // 3
-    uint32_t isMaster         : 1;    // 4
-    uint32_t initMaster       : 1;    // 5
-    uint32_t errConMaster     : 1;    // 6
-    uint32_t errConPanel1     : 1;    // 7
-    uint32_t errConPanel2     : 1;    // 8
-    uint32_t cvitCrash        : 1;    // 9
-    uint32_t isMasterOld      : 1;    // 10
-    uint32_t errConMasterOld  : 1;    // 11
-    uint32_t errConPanel1Old  : 1;    // 12
-    uint32_t errConPanel2Old  : 1;    // 13
-    uint32_t errConC1         : 1;    // 14
-    uint32_t errConC2         : 1;    // 15
-    uint32_t errConC3         : 1;    // 16
-    uint32_t errConC4         : 1;    // 17
-    uint32_t errConC5         : 1;    // 18
-    uint32_t errConC6         : 1;    // 19
-    uint32_t StateUserAccessOld  : 1; // 20
-    uint32_t StateAdminAccessOld : 1; // 21
+    uint32_t initEx               : 1;  // 0
+    uint32_t enableEx             : 1;  // 1
+    uint32_t menuIsOpen           : 1;  // 2
+    uint32_t noneCrash            : 1;  // 3
+    uint32_t isMaster             : 1;  // 4
+    uint32_t initMaster           : 1;  // 5
+    uint32_t errConMaster         : 1;  // 6
+    uint32_t errConPanel1         : 1;  // 7
+    uint32_t errConPanel2         : 1;  // 8
+    uint32_t cvitCrash            : 1;  // 9
+    uint32_t isMasterOld          : 1;  // 10
+    uint32_t errConMasterOld      : 1;  // 11
+    uint32_t errConPanel1Old      : 1;  // 12
+    uint32_t errConPanel2Old      : 1;  // 13
+    uint32_t errConC1             : 1;  // 14
+    uint32_t errConC2             : 1;  // 15
+    uint32_t errConC3             : 1;  // 16
+    uint32_t errConC4             : 1;  // 17
+    uint32_t errConC5             : 1;  // 18
+    uint32_t errConC6             : 1;  // 19
+    uint32_t StateUserAccessOld   : 1;  // 20
+    uint32_t StateAdminAccessOld  : 1;  // 21
+    uint32_t chooseTestMode       : 1;  // 22
   } flags;                              // 256-257
   struct ChooseDevicePanel_s  
   {

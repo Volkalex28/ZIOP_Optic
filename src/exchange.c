@@ -359,7 +359,19 @@ void taskExchangeWrite(void)
 
 void writeDeviceMaster(MemTypes_t port, uint8_t number)
 {
-  
+  size_t i;
+  for(i = 0; i < 2; i++)
+  {
+    if(PSW[1100] & (1 << (number + 8*i)))
+    {
+      cell_t c;
+      c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
+      if(write(c).status == memStatusOK)
+      c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
+      if(write(c).status == memStatusOK)
+        PSW[1100] &= ~(1 << (number + 8*i));
+    }
+  }
 }
 
 void writeDeviceSlave(MemTypes_t port, uint8_t number)

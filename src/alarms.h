@@ -295,7 +295,7 @@ typedef enum EAlarm
   alShsnD_20,
   alEndShsnD,                         // Количество событий секции ШСНД
 
-  alShortEn,                          // Суммарная авария по ШОТ
+  alShortEn = alEndShsnD,             // Суммарная авария по ШОТ
   alShsnEn,                           // Суммарная авария по ШСН
   alShSnDEn,                          // Суммарная авария по ШСН-Д
 
@@ -305,6 +305,11 @@ typedef enum EAlarm
   alTransTemperProtectT2,
   alTransTemperProtectT3,
   alTransTemperProtectT4,
+  alFailOpticalSwitchKO14,
+  alFailOpticalSwitchKO15,
+  alFailOpticalSwitchKO2,
+  alFailOpticalSwitchKO1,
+  
   alAll                             ///< Количество всех событий
 } Alarm_t;
 
