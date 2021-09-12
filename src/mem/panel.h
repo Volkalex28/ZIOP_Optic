@@ -25,6 +25,11 @@
 #define ResetUserLevelAvtorisation 	ResetPSB(B_ACCES_2LEVEL)
 #define ResetAdminLevelAvtorisation	ResetPSB(B_ACCES_9LEVEL)
 
+typedef struct controlFlags_s
+{
+  uint16_t clearEvents      : 1;      // 1
+} controlFlags_t;
+
 typedef struct StateEventsGate_s
 {
   uint8_t percent;          // 0..7
@@ -45,6 +50,15 @@ typedef struct StateExOld_s
   uint16_t CounterCorrect;   
   uint16_t CounterNotCorrect;
 } StateExOld_t;
+
+typedef struct Time_s {
+  uint16_t Hour;
+  uint16_t Min;
+  uint16_t Sec;
+  uint16_t Day;
+  uint16_t Month;
+  uint16_t Year;
+} Time_t;
 
 typedef struct Panel_s
 {
@@ -70,6 +84,8 @@ typedef struct Panel_s
     uint32_t errConC4         : 1;    // 17
     uint32_t errConC5         : 1;    // 18
     uint32_t errConC6         : 1;    // 19
+    uint32_t StateUserAccessOld  : 1; // 20
+    uint32_t StateAdminAccessOld : 1; // 21
   } flags;                              // 256-257
   struct ChooseDevicePanel_s  
   {
@@ -87,17 +103,9 @@ typedef struct Panel_s
   StateEx_t StateExWindow;              // 268..271
   uint16_t NumberDeviceEx;              // 272
   StateEx_t StateEx[6];                 // 273..295
-  StateExOld_t StateExOld[6];           // 296..307
+  StateExOld_t StateExOld[6];           // 296..308
+  controlFlags_t controlFlags;          // 309
 } Panel_t;
-
-typedef struct Time_s {
-  uint16_t Hour;
-  uint16_t Min;
-  uint16_t Sec;
-  uint16_t Day;
-  uint16_t Month;
-  uint16_t Year;
-} Time_t;
 
 extern Panel_t * Panel;
 

@@ -29,8 +29,10 @@ void finit(void)
   finitTitle();
   finitAlarms();
   
+  Panel->flags.isMaster = true;
   SetUserLevelAvtorisation;
   SetAdminLevelAvtorisation;
+  Panel->flags.isMaster = false;
 }
 
 void init(void)

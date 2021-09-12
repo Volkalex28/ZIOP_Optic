@@ -54,11 +54,31 @@
   }                                                                                   \
   CONTINUE_IF(CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_) == false)
 
+#define ABS(_VAL) (_VAL > 0 ? _VAL : -1 * _VAL)
+
+#define CALC_MINUTES(_TIME_)                             \
+  ( _TIME_##.Day*1440 + _TIME_##.Hour*60 + _TIME_##.Min  \
+  + _TIME_##.Month*44640)
+
+#define CHECK_EQUALS_TIME(_TIME1_, _TIME2_)              \
+  ((ABS(CALC_MINUTES(_TIME1_) - CALC_MINUTES(_TIME2_)) <= 1) ? true : false) 
+
+#define CHECK_ZERO_TIME(_TIME_) \
+  (( _TIME_##.Day    != 0       \
+  || _TIME_##.Hour   != 0       \
+  || _TIME_##.Min    != 0       \
+  || _TIME_##.Month  != 0       \
+  || _TIME_##.Sec    != 0       \
+  || _TIME_##.Year   != 0) ? false : true)
+
 #define N_RR_FOR_EVENT 125
 
 //-------------------------
 void writeDevice(void);
 void readDevice(void);
+void connectionAlarmsHandler(MemTypes_t port, Alarm_t number, bool_t isDelete);
+void connectionEventsHandler(MemTypes_t port, Alarm_t number);
+Time_t correctingTime(Time_t * otherT, Time_t T);
 
 void taskExchangeRead(void)
 {
@@ -393,7 +413,7 @@ void readAlarms(void)
 
   for(n = 0; n < 4; n++)
   {
-    uint16_t number = (uint16_t *)Alarms[alarmsActual + n] - PSW;
+    uint16_t number = &CAST_TO_U16(*Alarms[alarmsActual + n]) - PSW;
 
     c.type = net4; c.number = number; c.ptr = temp;
     if(reads(c, CALC_COUNT_RR(Alarms_t)).status != memStatusOK)
@@ -464,21 +484,78 @@ void readDevice(void)
     Panel->flags.errConMasterOld = Panel->flags.errConMaster;
     Panel->flags.errConPanel1Old = Panel->flags.errConPanel1;
     Panel->flags.errConPanel2Old = Panel->flags.errConPanel2;
-  } break;
+
+    connectionAlarmsHandler(net0, alConFailDP1, true);
+    connectionAlarmsHandler(net1, alConFailDP2, true);
+    connectionAlarmsHandler(net0, alConFailDP3, true);
+    connectionAlarmsHandler(net0, alConFailDP4, true);
+    connectionAlarmsHandler(net1, alConFailDP5, true);
+    connectionAlarmsHandler(net1, alConFailDP6, true);
+
+    connectionEventsHandler(net3, alPowerOn1);
+    connectionEventsHandler(net3, alPowerOn2);
+    connectionEventsHandler(net0, alPowerOn3);
+    connectionEventsHandler(net1, alPowerOn4);
+
+    connectionEventsHandler(net3, alOpenUserAccess1);
+    connectionEventsHandler(net3, alOpenUserAccess2);
+    connectionEventsHandler(net0, alOpenUserAccess3);
+    connectionEventsHandler(net1, alOpenUserAccess4);
+
+    connectionEventsHandler(net3, alOpenAdminAccess1);
+    connectionEventsHandler(net3, alOpenAdminAccess2);
+    connectionEventsHandler(net0, alOpenAdminAccess3);
+    connectionEventsHandler(net1, alOpenAdminAccess4);
+
+    if(Panel->controlFlags.clearEvents == true)
+    {
+      if(Panel->flags.isMaster == true)
+        clearEvents(false);
+      else if(Panel->flags.errConMaster == false)
+      {
+        controlFlags_t f;
+        cell_t c; c.type = net3; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+
+        f.clearEvents = true;
+        c.value = CAST_TO_U16(Panel->controlFlags);
+        write(c);
+      }
+
+      Panel->controlFlags.clearEvents = false;
+    }
+  } 
+  break;
 
   case 43:
   case 44:
+  {
     c.type = net3; c.number = &CAST_TO_U16(*dMem->DP) - PSW; c.ptr = &CAST_TO_U16(*tempDP);
     reads(c, numberRR_DP*N_DP);
 
     for(n = 0; n < 2; n++) for(i = 0; i < 4 * (n + 1); i++) 
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
-
+    
     readAlarms();
 
-    if(PSW[CURRENT_SCREEN] != scrEvent)
-      break;
+    if(Panel->controlFlags.clearEvents == true)
+    {
+      size_t i;
+      controlFlags_t f;
+      f.clearEvents = true;
+
+      for(i = 0; i < 2; i++)
+      {
+        cell_t c; c.type = net4 + i; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+
+        c.value = CAST_TO_U16(f);
+        c = write(c);
+
+        if(c.status == memStatusOK) break;
+      }
+
+      Panel->controlFlags.clearEvents = false;
+    }
 tryAgain:
     for(n = 0; n < 2; n++)
     {
@@ -487,6 +564,8 @@ tryAgain:
       CONTINUE_READS(net4 + n, &CAST_TO_U16(dMem->Gate) - PSW, &CAST_TO_U16(dMem->Gate), 
         c, CALC_COUNT_RR(dGatemem_t)
       );
+
+      if(PSW[CURRENT_SCREEN] != scrEvent) break;
 
       CONTINUE_READS(net4 + n, &CAST_TO_U16(PFW->N_Event) - PSW, &CAST_TO_U16(tempSettEvent), 
         c, CALC_COUNT_RR(GateSettEvent_t)
@@ -584,7 +663,8 @@ tryAgain:
       }
       break;
     }
-    break;
+  }
+  break;
       
   default:
     break;
@@ -621,5 +701,102 @@ void connectionFaultHandler(uint8_t number)
   PSW[2980 + number] = Panel->StateEx[number].CounterCorrect;
   PSW[2990 + number] = Panel->StateEx[number].CounterNotCorrect;
 
+  // if(getMyIP() == 43)
+  // {
+  //   Panel->flags.errConC1 = GetPSBStatus(700);
+  //   Panel->flags.errConC3 = GetPSBStatus(701);
+  //   Panel->flags.errConC4 = GetPSBStatus(702);
+  // }
+  // else if(getMyIP() == 44)
+  // {
+  //   Panel->flags.errConC2 = GetPSBStatus(700);
+  //   Panel->flags.errConC5 = GetPSBStatus(701);
+  //   Panel->flags.errConC6 = GetPSBStatus(702);
+  // }
+}
 
+void connectionAlarmsHandler(MemTypes_t port, Alarm_t number, bool_t isDelete)
+{
+  Alarms_t Alarms_temp;
+
+  if(port == net0 || port == net1)
+  {
+    cell_t c;
+    bool_t stateCon = (port == net0 ? Panel->flags.errConPanel1 : Panel->flags.errConPanel2);
+
+    if(stateCon == false)
+    {
+      c.type = port; c.number = &CAST_TO_U16(*Alarms[alarmsBacklog]) - PSW; c.ptr = &CAST_TO_U16(Alarms_temp);
+      c = reads(c, CALC_COUNT_RR(Alarms_t));
+    }
+    if(stateCon == false && c.status == memStatusOK && findAlarms(&Alarms_temp, number)) 
+      addCrash(number);
+    else if(isDelete) deleteCrash(number);
+  }
+}
+
+void connectionEventsHandler(MemTypes_t port, Alarm_t number)
+{
+  Time_t Times_temp[4];
+  Time_t otherTime;
+  cell_t c;
+  bool_t stateCon;
+  Alarm_t firstAl = alNone;
+  uint8_t num = 0;
+
+  if(alPowerOn1 <= number && number <= alPowerOn4) { firstAl = alPowerOn1; num = 0; }
+  else if(alOpenUserAccess1 <= number && number <= alOpenUserAccess4) { firstAl = alOpenUserAccess1; num = 1; }
+  else if(alOpenAdminAccess1 <= number && number <= alOpenAdminAccess4) { firstAl = alOpenAdminAccess1; num = 2; }
+  else return;
+
+  if(port == net0 || port == net1)
+    stateCon = (port == net0 ? Panel->flags.errConPanel1 : Panel->flags.errConPanel2);
+  else if(port == net3 && (number - firstAl) != (getMyIP() - 41))
+    stateCon = Panel->flags.errConMaster;
+  else return;
+
+  if(stateCon == false)
+  {
+    c.type = port; c.number = &CAST_TO_U16(PFW->statePanelsEvents[num][0]) - PSW; c.ptr = &CAST_TO_U16(Times_temp);
+    c = reads(c, CALC_COUNT_RR(Times_temp));
+  }
+
+  if(c.status == memStatusOK && stateCon == false)
+  {
+    c.number = &CAST_TO_U16(*getTime()) - PSW; c.ptr = &CAST_TO_U16(otherTime);
+    c = reads(c, CALC_COUNT_RR(otherTime));
+    Times_temp[number - firstAl] = correctingTime(&otherTime, Times_temp[number - firstAl]);
+    
+    if(c.status == memStatusOK 
+      && CHECK_EQUALS_TIME(Times_temp[number - firstAl], PFW->statePanelsEvents[num][number - firstAl]) == false
+      && CHECK_ZERO_TIME(Times_temp[number - firstAl]) == false
+    ) {
+
+      if(c.status == memStatusOK)
+        addEventTime(number, Times_temp[number - firstAl]);
+    }
+  }
+}
+
+Time_t correctingTime(Time_t * otherT, Time_t T)
+{
+  Time_t retT;
+  Time_t * mainT = getTime();
+  const uint8_t days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  
+  int deltaDay    = mainT->Day    - otherT->Day;
+  int deltaHour   = mainT->Hour   - otherT->Hour;
+  int deltaMin    = mainT->Min    - otherT->Min;
+  int deltaMonth  = mainT->Month  - otherT->Month;
+  int deltaSec    = mainT->Sec    - otherT->Sec;
+  int deltaYear   = mainT->Year   - otherT->Year;
+
+  retT.Hour   = (T.Hour    + deltaHour)   % 24;
+  retT.Min    = (T.Min     + deltaMin)    % 60;
+  retT.Month  = (T.Month   + deltaMonth)  % 12;
+  retT.Sec    = (T.Sec     + deltaSec)    % 60;
+  retT.Year   = (T.Year    + deltaYear)   % 1000;
+  retT.Day    = (T.Day     + deltaDay)    % days[retT.Month] + ((retT.Month == 2 && retT.Year % 4 == 0) ? 1 : 0);
+
+  return retT;
 }

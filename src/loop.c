@@ -28,8 +28,8 @@
 #define alExContr(_NC_, _COND_) if (_COND_) addCrash(_NC_); else deleteCrash(_NC_) 
 #define controlBit(_N_, _BIT_, _EN_, _DIS_, _COND_)                   \
   if(_COND_) {                                                        \
-    if(getBit(2502 + 4*(_N_), _BIT_) == false && (_EN_)) {            \
-      PSW[1000 + 2*(_N_)] |= (1 << (_BIT_));                          \
+    if(getBit(2502 + ((_BIT_) / 16) + 4*(_N_), _BIT_) == false && (_EN_)) {            \
+      PSW[1000 + ((_BIT_) / 16) + 2*(_N_)] |= (1 << (_BIT_));                          \
       PSW[1100] |= (1 << (_N_ + 8*((_BIT_) / 16)));                   \
     }                                                                 \
   } else {                                                            \
@@ -306,7 +306,9 @@ void taskLoop(void)
 {
   init();
 
+  Panel->flags.isMaster = true;
   addEvent(alPowerOn1 + getMyIP() - 41);
+  Panel->flags.isMaster = false;
   Panel->flags.enableEx = true;
 
   while(true)
@@ -353,6 +355,22 @@ void taskLoop(void)
 
     updatePFW();
     getTime();
-    Delay(50);
+
+    if(GetAdminLevelAvtorisation != Panel->flags.StateAdminAccessOld)
+    {
+      Panel->flags.StateAdminAccessOld = !Panel->flags.StateAdminAccessOld;
+      if(GetAdminLevelAvtorisation) 
+      {
+        addEvent(alOpenAdminAccess1 + getMyIP() - 41);
+        SetUserLevelAvtorisation;
+      }
+    }
+    if(GetUserLevelAvtorisation != Panel->flags.StateUserAccessOld)
+    {
+      Panel->flags.StateUserAccessOld = !Panel->flags.StateUserAccessOld;
+      if(GetUserLevelAvtorisation) addEvent(alOpenUserAccess1 + getMyIP() - 41);
+    }
+
+    Delay(20);
   }
 }

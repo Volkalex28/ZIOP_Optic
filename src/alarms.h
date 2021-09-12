@@ -346,6 +346,8 @@ typedef enum EAlarmsMasks
 
 ///@}
 
+typedef struct Time_s Time_t;
+
 // variables --------------------------------------------------------------------------------------
 /**
  * @defgroup Alarms_ExVars Переменные доступные извне
@@ -373,6 +375,14 @@ extern Alarms_t * Alarms[alarmsCount];
  * @param NumberCrash Номер сообщения
  */
 void addEvent(Alarm_t NumberCrash);
+
+/**
+ * @brief 
+ * 
+ * @param number 
+ * @param time 
+ */
+void addEventTime(Alarm_t number, Time_t time);
 
 /**
  * @brief Функция очистки событий
@@ -442,6 +452,15 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm);
  * @param state Состояние маски которое необходимо установить
  */
 void setMask(AlarmsMask_t typeMask, Alarm_t numberAlarm, bool_t state);
+
+/**
+ * @brief 
+ * 
+ * @param pAlarms 
+ * @param number 
+ * @return bool_t 
+ */
+bool_t findAlarms(Alarms_t * pAlarms, Alarm_t number);
 
 ///@}
 

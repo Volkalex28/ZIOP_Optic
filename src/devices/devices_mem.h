@@ -20,7 +20,7 @@ typedef struct devices_mem_s
   dDPmem_t    DP[N_DP]; 
   uint16_t    handledDP[16];
   Time_t      time;
-  uint16_t    reserve[5];
+  uint16_t    reserve[49];
   dGatemem_t  Gate[N_Gate];
 } devices_mem_t;
 

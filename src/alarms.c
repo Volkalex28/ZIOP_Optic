@@ -38,10 +38,21 @@ uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm);
 
 void addEvent(Alarm_t number)
 {
+  addEventTime(number, *getTime());
+}
+
+void addEventTime(Alarm_t number, Time_t time)
+{
   size_t i;
   EventByte_t	EventS;
-  Time_t * pTime;
   cell_t c;
+
+  if(alPowerOn1 <= number && number <= alPowerOn4)
+    PFW->statePanelsEvents[0][number - alPowerOn1] = time;
+  if(alOpenUserAccess1 <= number && number <= alOpenUserAccess4)
+    PFW->statePanelsEvents[1][number - alOpenUserAccess1] = time;
+  if(alOpenAdminAccess1 <= number && number <= alOpenAdminAccess4)
+    PFW->statePanelsEvents[2][number - alOpenAdminAccess1] = time;
 
   if(isMasked(alarmsMaskEvent, number) || (Panel->flags.isMaster == false)) return;
 
@@ -51,13 +62,12 @@ void addEvent(Alarm_t number)
     PFW->CB++;
   }
     
-  pTime = getTime();		
-  EventS.Sec    = pTime->Sec;
-  EventS.Min    = pTime->Min;
-  EventS.Hour   = pTime->Hour;
-  EventS.Day    = pTime->Day;
-  EventS.Month  = pTime->Month;
-  EventS.Year   = pTime->Year;
+  EventS.Sec    = time.Sec;
+  EventS.Min    = time.Min;
+  EventS.Hour   = time.Hour;
+  EventS.Day    = time.Day;
+  EventS.Month  = time.Month;
+  EventS.Year   = time.Year;
   EventS.Event  = number;
 
   c.type    = memPFW; 
@@ -66,7 +76,6 @@ void addEvent(Alarm_t number)
   writes(c, NUMBER_RR_FOR_ONE_EVENT);
 
   PFW->N_Event++;
-
 }
 
 void clearEvents(bool_t gate)
@@ -105,7 +114,7 @@ void addCrash(Alarm_t NumberCrash)
 	Alarms[alarmsBacklog]->buf[Alarms[alarmsBacklog]->count++] = NumberCrash;
 	addEvent(NumberCrash);
   
-  if (isMasked(alarmsMaskIndicator, NumberCrash)) 
+  if (isMasked(alarmsMaskIndicator, NumberCrash) == false) 
     Panel->flags.cvitCrash = false;
 }
 
@@ -181,6 +190,15 @@ void initAlarms(void)
   Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 0];
   Alarms[alarmsSHSN]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 200];
   Alarms[alarmsSHSND]   = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 400];
+
+  setMask(alarmsMaskMessage, alPowerOn1, true);
+  setMask(alarmsMaskMessage, alPowerOn2, true);
+  setMask(alarmsMaskMessage, alPowerOn3, true);
+  setMask(alarmsMaskMessage, alPowerOn4, true);
+  setMask(alarmsMaskIndicator, alPowerOn1, true);
+  setMask(alarmsMaskIndicator, alPowerOn2, true);
+  setMask(alarmsMaskIndicator, alPowerOn3, true);
+  setMask(alarmsMaskIndicator, alPowerOn4, true);
 }
 
 void finitAlarms(void)
@@ -294,6 +312,15 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
 }
 
 
+bool_t findAlarms(Alarms_t * pAlarms, Alarm_t number)
+{
+  size_t i;
+  for(i = 0; i < COUNT_ALARMS && i < pAlarms->count; i++)
+    if(pAlarms->buf[i] == number)
+      return true;
+  
+  return false;
+}
 // local functions --------------------------------------------------------------------------------
 
 uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)
