@@ -410,6 +410,7 @@ void taskExchangeWrite(void)
 void writeDeviceMaster(MemTypes_t port, uint8_t number)
 {
   size_t i;
+  if(Panel->flags.chooseTestMode == false) return;
   if((PSW[1100] & (1 << number)) || (PSW[1100] & (1 << (number + 8))))
   {
     cell_t c;

@@ -225,7 +225,7 @@ const Title_t arrTitles[] = {
   {alShsnD_20,                   "Аварийное отключение выключателя секции ~36В"},
 
   {alConFailAtAllPanel,          "Панель не в сети"},
-  {alConFailHighLevel,           "Нет связи с верхнем уровнем"},
+  {alConFailHighLevel,           "Нет связи с верхним уровнем"},
 
   {alTransTemperProtectT1,       "Тепловая защита трансформатора Т1"}, 
   {alTransTemperProtectT2,       "Тепловая защита трансформатора Т2"}, 
@@ -236,6 +236,9 @@ const Title_t arrTitles[] = {
   {alFailOpticalSwitchKO2,       "Неисправность коммутатора оптического КО2"}, 
   {alFailOpticalSwitchKO1,       "Неисправность коммутатора оптического КО1"}, 
 
+  {alShortEn,                    "Авария ШОТ"},
+  {alShsnEn,                     "Авария ШСН"},
+  {alShSnDEn,                    "Авария ШСН-Д"},
 
   {alNone}
 };

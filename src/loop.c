@@ -30,14 +30,16 @@
   if(_COND_) {                                                                      \
     if(getBit((2502 + (_BIT_) / 16) + 4*(_N_), (_BIT_) % 16) == false && (_EN_)) {  \
       PSW[(1000 + (_BIT_) / 16) + 2*(_N_)] |= (1 << ((_BIT_) % 16));                \
-      PSW[1100] |= (1 << (_N_ + 8*((_BIT_) / 16)));                                 \
+      PSW[1100] |= (1 << (_N_ + 8*((int)(_BIT_) / 16)));                            \
     }                                                                               \
   } else {                                                                          \
     if(getBit((2502 + (_BIT_) / 16) + 4*(_N_), (_BIT_) % 16) == true && (_DIS_)) {  \
       PSW[(1000 + (_BIT_) / 16) + 2*(_N_)] &= ~(1 << ((_BIT_) % 16));               \
-      PSW[1100] |= (1 << (_N_ + 8*((_BIT_) / 16)));                                 \
+      PSW[1100] |= (1 << (_N_ + 8*((int)(_BIT_) / 16)));                            \
     }                                                                               \
   }
+
+bool_t alarmIsActive(Alarm_t number);
 
 void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
 {
@@ -91,7 +93,7 @@ void handlerLogic(void)
 
   normConrtol(2502, 2534, 4, 4, true);  // 2534.4 = Блокировка ВЭ выключателя Q1-7 = K1.DO5
   normConrtol(2502, 2534, 5, 5, true);  // 2534.5 = Блокировка ЗЭ Q1-7 = K1.DO6
-  normConrtol(2502, 2534, 6, 6, false); // 2534.6 = Отключение выключателя Q1-7 = K1.DO7
+  normConrtol(2502, 2534, 6, 6, true); // 2534.6 = Отключение выключателя Q1-7 = K1.DO7
 
   //- 52 -----------------------------------------------------------------------------------------
  // inputs
@@ -109,11 +111,11 @@ void handlerLogic(void)
   // outputs
   normConrtol(2506, 2535, 0, 0, true);  // 2535.0 = Блокировка ВЭ выключателя Q1-8 = K2.DO1
   normConrtol(2506, 2535, 1, 1, true);  // 2535.1 = Блокировка ЗЭ Q1-8 = K2.DO2
-  normConrtol(2506, 2535, 2, 2, false); // 2535.2 = Отключение выключателя Q1-8 = K2.DO3
+  normConrtol(2506, 2535, 2, 2, true); // 2535.2 = Отключение выключателя Q1-8 = K2.DO3
 
   normConrtol(2506, 2535, 4, 4, true);  // 2535.4 = Блокировка ВЭ выключателя Q1-10 = K2.DO5
   normConrtol(2506, 2535, 5, 5, true);  // 2535.5 = Блокировка ЗЭ Q1-10 = K2.DO6
-  normConrtol(2506, 2535, 6, 6, false); // 2535.6 = Отключение выключателя Q1-10 = K2.DO7
+  normConrtol(2506, 2535, 6, 6, true); // 2535.6 = Отключение выключателя Q1-10 = K2.DO7
   
   //- 53 -----------------------------------------------------------------------------------------
   // inputs
@@ -159,10 +161,10 @@ void handlerLogic(void)
   normConrtol(2513, 2533, 3, 4, false); // 2533.4 = Неисправность коммутатора оптического КО2 = KT1.DI20
 
   // outputs
-  normConrtol(2514, 2537, 0, 0, true); // 2538.0 = Блокировка ВЭ разъединителя QS-T3 = K-T3.DO1
-  normConrtol(2514, 2537, 1, 1, true); // 2538.1 = Блокировка ЗЭ разъединителя QSG-T3 = K-T3.DO2
-  normConrtol(2514, 2537, 2, 2, true); // 2538.2 = Отключение выключателя Q3 = K-T1.DO3 
-  normConrtol(2514, 2537, 3, 3, true); // 2538.3 = Отключение выключателя Q1-5 = K-T1.DO4 
+  normConrtol(2514, 2538, 0, 0, true); // 2538.0 = Блокировка ВЭ разъединителя QS-T3 = K-T3.DO1
+  normConrtol(2514, 2538, 1, 1, true); // 2538.1 = Блокировка ЗЭ разъединителя QSG-T3 = K-T3.DO2
+  normConrtol(2514, 2538, 2, 2, true); // 2538.2 = Отключение выключателя Q3 = K-T1.DO3 
+  normConrtol(2514, 2538, 3, 3, true); // 2538.3 = Отключение выключателя Q1-5 = K-T1.DO4 
  //- 55 -----------------------------------------------------------------------------------------
  // inputs
   diffConrtol(2516, 2528, 0, 1, 0, 1); // 2528.0 + 2528.1 = Выдв. элемент QS-T2 = KT2.DI1 + KT2.DI2
@@ -184,10 +186,12 @@ void handlerLogic(void)
   normConrtol(2517, 2533, 3, 5, false); // 2533.5 = Неисправность коммутатора оптического КО1 = KT2.DI20
 
   // outputs
-  normConrtol(2518, 2538, 0, 0, true); // 2537.0 = Блокировка ВЭ разъединителя QS-T2 = K-T2.DO1
-  normConrtol(2518, 2538, 1, 1, true); // 2537.1 = Блокировка ЗЭ разъединителя QSG-T2 = K-T2.DO2
-  normConrtol(2518, 2538, 2, 2, true); // 2537.2 = Отключение выключателя Q3 = K-T1.DO3 
-  normConrtol(2518, 2538, 3, 3, true); // 2537.3 = Отключение выключателя Q1-5 = K-T1.DO4 
+  normConrtol(2518, 2537, 0, 0, true); // 2537.0 = Блокировка ВЭ разъединителя QS-T2 = K-T2.DO1
+  normConrtol(2518, 2537, 1, 1, true); // 2537.1 = Блокировка ЗЭ разъединителя QSG-T2 = K-T2.DO2
+  normConrtol(2518, 2537, 2, 2, true); // 2537.2 = Отключение выключателя Q3 = K-T1.DO3 
+  normConrtol(2518, 2537, 3, 3, true); // 2537.3 = Отключение выключателя Q1-5 = K-T1.DO4 
+  
+  normConrtol(2517, 2533, 3, 5, false); // 2533.5 = Неисправность коммутатора оптического
   //- 56 -----------------------------------------------------------------------------------------
   diffConrtol(2520, 2532, 0, 1, 0, 1); // 2532.0 + 2532.1 = Выдв. элемент QS-T4 = KT4.DI1 + KT4.DI2
   diffConrtol(2520, 2532, 2, 3, 2, 3); // 2532.2 + 2532.3 = Зазем. элемент QSG-T4 = KT4.DI3 + KT4.DI4
@@ -213,7 +217,9 @@ void handlerLogic(void)
 
 void controlLogic(uint16_t num)
 {
+  int i;
   const uint8_t rep[] = {2,4,3,5};
+  const uint8_t sound[] = {0,1,2,4};
 
   controlBit(0+num%2, 0+(num/2)*4, true, true, getBit(2525+num*2, 0) == false && getBit(2525+num*2, 1) == false 
     && getBit(2525+num*2, 5) == false && getBit(2525+num*2, 6) == false 
@@ -259,6 +265,41 @@ void controlLogic(uint16_t num)
     && !(getBit(2525+num*2, 0) == false && getBit(2525+num*2, 1) == false) 
     && getBit(2525+num*2, 9) == false   && !(getBit(2526+num*2, 4) == true 
     && getBit(2526+num*2, 5) == false))
+
+  controlBit(sound[num], 19, true, true, Alarms[alarmsActual]->count != 0);
+
+
+  controlBit(0+num%2, 3, true, true, false);
+  controlBit(0+num%2, 7, true, true, false);
+  controlBit(0+num%2, 8, true, true, false);
+  controlBit(0+num%2, 9, true, true, false);
+  controlBit(0+num%2, 10, true, true, false);
+  controlBit(0+num%2, 11, true, true, false);
+  controlBit(0+num%2, 12, true, true, false);
+  controlBit(0+num%2, 13, true, true, false);
+  controlBit(0+num%2, 14, true, true, false);
+  controlBit(0+num%2, 15, true, true, false);
+  controlBit(0+num%2, 16, true, true, false);
+  controlBit(0+num%2, 17, true, true, false);
+  controlBit(0+num%2, 18, true, true, false);
+
+  controlBit(rep[num], 4, true, true, false);
+  controlBit(rep[num], 5, true, true, false);
+  controlBit(rep[num], 6, true, true, false);
+  controlBit(rep[num], 7, true, true, false);
+  controlBit(rep[num], 8, true, true, false);
+  controlBit(rep[num], 9, true, true, false);
+  controlBit(rep[num], 10, true, true, false);
+  controlBit(rep[num], 11, true, true, false);
+  controlBit(rep[num], 12, true, true, false);
+  controlBit(rep[num], 13, true, true, false);
+  controlBit(rep[num], 14, true, true, false);
+  controlBit(rep[num], 15, true, true, false);
+  controlBit(rep[num], 16, true, true, false);
+  controlBit(rep[num], 17, true, true, false);
+  controlBit(rep[num], 18, true, true, false);
+  if(num >= 2)
+  controlBit(rep[num], 19, true, true, false);
 }
 
 void alarmLogic(void)
@@ -275,7 +316,7 @@ void alarmLogic(void)
       alExContr(alConFailAtAllPanel,
         ((getEnable(0) == false) || GetPSBStatus(700)) &&
         ((getEnable(1) == false) || GetPSBStatus(701)) &&
-        ((getEnable(2) == false) || GetPSBStatus(702)) &&
+        // ((getEnable(2) == false) || GetPSBStatus(702)) &&
         ((getEnable(3) == false) || GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
@@ -294,7 +335,7 @@ void alarmLogic(void)
       alExContr(alConFailAtAllPanel,
         ((getEnable(0) == false) || GetPSBStatus(700)) &&
         ((getEnable(1) == false) || GetPSBStatus(701)) &&
-        ((getEnable(2) == false) || GetPSBStatus(702)) &&
+        // ((getEnable(2) == false) || GetPSBStatus(702)) &&
         ((getEnable(3) == false) || GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
@@ -346,6 +387,48 @@ void alarmLogic(void)
       break;
   }
 
+  if(Alarms[alarmsSHOT]->count != 0 || alarmIsActive(alConFailShot)) 
+    addCrash(alShortEn);
+  else deleteCrash(alShortEn);
+  if(Alarms[alarmsSHSN]->count != 0 || alarmIsActive(alConFailShsn)) 
+    addCrash(alShsnEn);
+  else deleteCrash(alShSnDEn);
+  if(Alarms[alarmsSHSND]->count != 0 || alarmIsActive(alConFailShsnD)) 
+    addCrash(alShSnDEn);
+  else deleteCrash(alShSnDEn);
+
+  for(i = 0; i < 4; i++) 
+  {
+    if(getBit(2525+2*i, 9) == true ||  getBit(2525+2*i, 10) == true) 
+      addCrash(alTransTemperProtectT1+i);
+    else deleteCrash(alTransTemperProtectT1+i);
+  }
+
+  if(getBit(2533, 0) == true || getBit(2533, 2) == true) 
+    addCrash(alFailOpticalSwitchKO14);
+  else deleteCrash(alFailOpticalSwitchKO14);
+  if(getBit(2533, 1) == true || getBit(2533, 3) == true) 
+    addCrash(alFailOpticalSwitchKO15);
+  else deleteCrash(alFailOpticalSwitchKO15);
+  if(getBit(2533, 4) == true) 
+    addCrash(alFailOpticalSwitchKO2);
+  else deleteCrash(alFailOpticalSwitchKO2);
+  if(getBit(2533, 5) == true) 
+    addCrash(alFailOpticalSwitchKO1);
+  else deleteCrash(alFailOpticalSwitchKO1);
+}
+
+bool_t alarmIsActive(Alarm_t number)
+{
+  size_t i = 0;
+  for(i = 0; i < COUNT_ALARMS && i < Alarms[alarmsActual]->count; i++)
+  {
+    if(Alarms[alarmsActual]->buf[i] == number)
+    {
+      return true;
+    }
+  }
+  return false;
 }
  
 void taskLoop(void)

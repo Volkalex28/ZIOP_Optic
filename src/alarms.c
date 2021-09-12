@@ -204,6 +204,10 @@ void initAlarms(void)
   setMask(alarmsMaskIndicator, alPowerOn2, true);
   setMask(alarmsMaskIndicator, alPowerOn3, true);
   setMask(alarmsMaskIndicator, alPowerOn4, true);
+
+  setMask(alarmsMaskEvent, alShortEn, true);
+  setMask(alarmsMaskEvent, alShsnEn, true);
+  setMask(alarmsMaskEvent, alShSnDEn, true);
 }
 
 void finitAlarms(void)

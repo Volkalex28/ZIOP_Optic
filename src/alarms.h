@@ -308,8 +308,8 @@ typedef enum EAlarm
   alTransTemperProtectT4,
   alFailOpticalSwitchKO14,
   alFailOpticalSwitchKO15,
-  alFailOpticalSwitchKO2,
   alFailOpticalSwitchKO1,
+  alFailOpticalSwitchKO2,
   
   alAll                             ///< Количество всех событий
 } Alarm_t;
