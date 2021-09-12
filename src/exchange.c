@@ -48,6 +48,7 @@
     && CHECK_FOR_WAIT(_NUM_DEV_, _COUNTER_, _COUNT_VAL_)                              \
   ) {                                                                                 \
     _COUNTER_##++;                                                                    \
+    GO_AGAIN_IF(Panel->flags.chooseTestMode == true);                                 \
     _CELL_ = read(_CELL_);                                                            \
     if(_CELL_##.status != memStatusOK) break;                                         \
     Delay(500);                                                                       \
@@ -74,18 +75,62 @@
 #define N_RR_FOR_EVENT 125
 
 //-------------------------
-void writeDevice(void);
+void writeDevice(bool_t enableSlave);
 void readDevice(void);
 void connectionAlarmsHandler(MemTypes_t port, Alarm_t number, bool_t isDelete);
 void connectionEventsHandler(MemTypes_t port, Alarm_t number);
-Time_t correctingTime(Time_t * otherT, Time_t T);
 
 void taskExchangeRead(void)
 {
+  cell_t c;
+
   while(true)
   {
     Delay(20);
     CONTINUE_IF(Panel->flags.enableEx == false);
+
+    if(Panel->controlFlags.invertTest == true)
+    {
+      Panel->controlFlags.stateTest = (Panel->flags.chooseTestMode ? 2 : 1);
+    }
+    if(Panel->controlFlags.stateTest != 0)
+    {
+      controlFlags_t t;
+      t = Panel->controlFlags;
+      t.invertTest = false;
+      c.number = &CAST_TO_U16(Panel->controlFlags) - PSW; c.value = CAST_TO_U16(t);
+
+      switch (Panel->controlFlags.stateTest)
+      {
+      case 1: Panel->flags.chooseTestMode = true;   break;
+      case 2: Panel->flags.chooseTestMode = false;  break;
+      
+      default:
+        break;
+      }
+
+      Panel->controlFlags.stateTest = 0;
+    }
+    if(Panel->controlFlags.invertTest == true)
+    {
+      switch (getMyIP())
+      {
+      case 41:
+      case 42:
+        c.type = net0; write(c);
+        c.type = net1; write(c);
+        c.type = net3; write(c);
+        break;
+
+      case 43:
+      case 44:
+        c.type = net4; write(c);
+        c.type = net5; write(c);
+        c.type = net3; write(c);
+        break;
+      }
+      Panel->controlFlags.invertTest = false;
+    }
 
     readDevice();
   }
@@ -102,6 +147,12 @@ void taskExchangeReadGate(void)
 
     Delay(300);
     GO_AGAIN_IF(Panel->flags.enableEx == false);
+
+    if(Panel->flags.chooseTestMode == true)
+    {
+      writeDevice(false);
+      continue;
+    }
 
     if(Panel->flags.isMaster == false)
     {
@@ -220,8 +271,6 @@ void taskExchangeReadGate(void)
     }
     else
     {
-      
-
       for(i = 0; i < 3; i++)
       {
         c.type = net2; c.number = 49;
@@ -311,6 +360,7 @@ void taskExchangeReadGate(void)
           for(k = 0; k < max_k; k++)
           {
             GO_AGAIN_IF(GetPSBStatus(702) == true);
+            GO_AGAIN_IF(Panel->flags.chooseTestMode == true);
 
             Panel->gateEventsState[i].percent = (float)k/max_k*100;
             
@@ -352,7 +402,7 @@ void taskExchangeWrite(void)
     Delay(20);
     CONTINUE_IF(Panel->flags.enableEx == false);
 
-    writeDevice();
+    writeDevice(true);
   }
 }
 
@@ -360,16 +410,18 @@ void taskExchangeWrite(void)
 void writeDeviceMaster(MemTypes_t port, uint8_t number)
 {
   size_t i;
-  for(i = 0; i < 2; i++)
+  if((PSW[1100] & (1 << number)) || (PSW[1100] & (1 << (number + 8))))
   {
-    if(PSW[1100] & (1 << (number + 8*i)))
+    cell_t c;
+    c.type = port; c.adress = 1; c.number = 1000 + 2*number; c.ptr = PSW + c.number;
+    if(writes(c, 2).status == memStatusOK)
     {
-      cell_t c;
-      c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
+      c.number = 1100; c.value = PSW[c.number];
       if(write(c).status == memStatusOK)
-      c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
-      if(write(c).status == memStatusOK)
-        PSW[1100] &= ~(1 << (number + 8*i));
+      {
+        PSW[1100] &= ~(1 << number);
+        PSW[1100] &= ~(1 << (number + 8));
+      }
     }
   }
 }
@@ -383,13 +435,14 @@ void writeDeviceSlave(MemTypes_t port, uint8_t number)
     {
       cell_t c;
       c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
+      PSW[2502 + 4*number + i] = c.value;
       if(write(c).status == memStatusOK)
         PSW[1100] &= ~(1 << (number + 8*i));
     }
   }
 }
 
-void writeDevice(void)
+void writeDevice(bool_t enableSlave)
 {
   size_t i;
 
@@ -397,19 +450,32 @@ void writeDevice(void)
   {
   case 41:
   case 42:
-
+    writeDeviceMaster(net0, 0);
+    writeDeviceMaster(net1, 1);
+    writeDeviceMaster(net0, 2);
+    writeDeviceMaster(net0, 3);
+    writeDeviceMaster(net1, 4);
+    writeDeviceMaster(net1, 5);
     break;
 
   case 43: 
+    if(enableSlave == false) return;
     writeDeviceSlave(net0, 0); 
     writeDeviceSlave(net1, 2); 
     writeDeviceSlave(net2, 3); 
+    writeDeviceMaster(net3, 1);
+    writeDeviceMaster(net3, 4);
+    writeDeviceMaster(net3, 5);
     break;
     
   case 44: 
+    if(enableSlave == false) return;
     writeDeviceSlave(net0, 1); 
     writeDeviceSlave(net1, 4); 
     writeDeviceSlave(net2, 5); 
+    writeDeviceMaster(net3, 0);
+    writeDeviceMaster(net3, 2);
+    writeDeviceMaster(net3, 3);
     break;
   
   default:
@@ -777,7 +843,7 @@ void connectionEventsHandler(MemTypes_t port, Alarm_t number)
   {
     c.number = &CAST_TO_U16(*getTime()) - PSW; c.ptr = &CAST_TO_U16(otherTime);
     c = reads(c, CALC_COUNT_RR(otherTime));
-    Times_temp[number - firstAl] = correctingTime(&otherTime, Times_temp[number - firstAl]);
+    Times_temp[number - firstAl] = Times_temp[number - firstAl];
     
     if(c.status == memStatusOK 
       && CHECK_EQUALS_TIME(Times_temp[number - firstAl], PFW->statePanelsEvents[num][number - firstAl]) == false
@@ -788,27 +854,4 @@ void connectionEventsHandler(MemTypes_t port, Alarm_t number)
         addEventTime(number, Times_temp[number - firstAl]);
     }
   }
-}
-
-Time_t correctingTime(Time_t * otherT, Time_t T)
-{
-  Time_t retT;
-  Time_t * mainT = getTime();
-  const uint8_t days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  
-  int deltaDay    = mainT->Day    - otherT->Day;
-  int deltaHour   = mainT->Hour   - otherT->Hour;
-  int deltaMin    = mainT->Min    - otherT->Min;
-  int deltaMonth  = mainT->Month  - otherT->Month;
-  int deltaSec    = mainT->Sec    - otherT->Sec;
-  int deltaYear   = mainT->Year   - otherT->Year;
-
-  retT.Hour   = (T.Hour    + deltaHour)   % 24;
-  retT.Min    = (T.Min     + deltaMin)    % 60;
-  retT.Month  = (T.Month   + deltaMonth)  % 12;
-  retT.Sec    = (T.Sec     + deltaSec)    % 60;
-  retT.Year   = (T.Year    + deltaYear)   % 1000;
-  retT.Day    = (T.Day     + deltaDay)    % days[retT.Month] + ((retT.Month == 2 && retT.Year % 4 == 0) ? 1 : 0);
-
-  return retT;
 }

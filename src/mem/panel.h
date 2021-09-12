@@ -27,7 +27,9 @@
 
 typedef struct controlFlags_s
 {
-  uint16_t clearEvents      : 1;      // 1
+  uint16_t clearEvents      : 1;      // 0
+  uint16_t stateTest        : 2;      // 1-2
+  uint16_t invertTest       : 1;      // 3
 } controlFlags_t;
 
 typedef struct StateEventsGate_s
