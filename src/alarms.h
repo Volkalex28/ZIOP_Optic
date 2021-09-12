@@ -299,7 +299,8 @@ typedef enum EAlarm
   alShsnEn,                           // Суммарная авария по ШСН
   alShSnDEn,                          // Суммарная авария по ШСН-Д
 
-  alConFailAtAllPanel,               //< Панель не в сети
+  alConFailAtAllPanel,                // Панель не в сети
+  alConFailHighLevel,                 // Нет связи с верхнем уровнем
   
   alTransTemperProtectT1 = 200,
   alTransTemperProtectT2,
