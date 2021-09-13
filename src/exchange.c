@@ -436,7 +436,7 @@ void writeDeviceSlave(MemTypes_t port, uint8_t number)
     {
       cell_t c;
       c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
-      PSW[2502 + 4*number + i] = c.value;
+      // PSW[2502 + 4*number + i] = c.value;
       if(write(c).status == memStatusOK)
         PSW[1100] &= ~(1 << (number + 8*i));
     }
