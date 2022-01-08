@@ -41,38 +41,6 @@
     }                                                                               \
   }
 
-bool_t alarmIsActive(Alarm_t number);
-
-void diffConrtol(uint16_t inNum, uint16_t outNum, uint8_t fbit, uint8_t sbit, uint8_t ofbit, uint8_t osbit)
-{
-  if((PSW[inNum + fbit/16] & (1 << (fbit%16))) && !(PSW[inNum + sbit/16] & (1 << (sbit%16))))
-  {
-    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
-    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
-  }
-  else if(!(PSW[inNum + fbit/16] & (1 << (fbit%16))) && (PSW[inNum + sbit/16] & (1 << (sbit%16))))
-  {
-    PSW[outNum + ofbit/16] |= (1 << (ofbit%16));
-    PSW[outNum + osbit/16] &= ~(1 << (osbit%16));
-  }
-  else
-  {
-    PSW[outNum + ofbit/16] &= ~(1 << (ofbit%16));
-    PSW[outNum + osbit/16] |= (1 << (osbit%16));
-  }
-}
-
-void normConrtol(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit, bool_t inversion)
-{
-  if((PSW[inNum + bit/16] & (1 << (bit%16))))
-    PSW[outNum + obit/16] |= (1 << (obit%16));
-  else
-    PSW[outNum + obit/16] &= ~(1 << (obit%16));
-  
-  if(inversion)
-    PSW[outNum + obit/16] ^= (1 << (obit%16));
-}
-
 void handlerLogic(void)
 {
   //- 51 -----------------------------------------------------------------------------------------
@@ -121,52 +89,52 @@ void handlerLogic(void)
   
   //- 53 -----------------------------------------------------------------------------------------
   // inputs
-  diffConrtol(2508, 2530, 0, 1, 0, 1);  // 2530.0 + 2530.1 = Выдв. элемент QS-T3 = KT3.DI1 + KT3.DI2
-  diffConrtol(2508, 2530, 2, 3, 2, 3);  // 2530.2 + 2530.3 = Зазем. элемент QS-T3 = KT3.DI3 + KT3.DI4
+  diffConrtol(2512, 2530, 0, 1, 0, 1);  // 2530.0 + 2530.1 = Выдв. элемент QS-T3 = KT3.DI1 + KT3.DI2
+  diffConrtol(2512, 2530, 2, 3, 2, 3);  // 2530.2 + 2530.3 = Зазем. элемент QS-T3 = KT3.DI3 + KT3.DI4
   
-  normConrtol(2508, 2529, 4, 7, false);  // 2529.7 = Защита от дуги в шкафу QS-T3 = KT3.DI5
-  normConrtol(2508, 2529, 5, 8, false);  // 2529.8 = Нет опер тока тепловой защиты тр-ра Т3 = KT3.DI6
-  normConrtol(2508, 2529, 6, 9, false);  // 2529.9 = Предупредительная  тепловая защита 140 гр С тр-ра Т3 = KT3.DI7
-  normConrtol(2508, 2529, 7, 10, false); // 2529.10 = Тепловая авария 155 гр С тр-ра Т3 = KT3.DI8
-  normConrtol(2508, 2529, 14, 11, false); // 2525.11 = Защита от дуги в шкафу Q3: 1-"Авария"; 0 -"Работа" = KT3.DI15
+  normConrtol(2512, 2529, 4, 7, false);  // 2529.7 = Защита от дуги в шкафу QS-T3 = KT3.DI5
+  normConrtol(2512, 2529, 5, 8, false);  // 2529.8 = Нет опер тока тепловой защиты тр-ра Т3 = KT3.DI6
+  normConrtol(2512, 2529, 6, 9, false);  // 2529.9 = Предупредительная  тепловая защита 140 гр С тр-ра Т3 = KT3.DI7
+  normConrtol(2512, 2529, 7, 10, false); // 2529.10 = Тепловая авария 155 гр С тр-ра Т3 = KT3.DI8
+  normConrtol(2512, 2529, 14, 11, false); // 2525.11 = Защита от дуги в шкафу Q3: 1-"Авария"; 0 -"Работа" = KT3.DI15
 
-  diffConrtol(2508, 2530, 8, 9, 4, 5);   // 2530.4 + 2530.5 = Выключатль Q3 = KT3.DI9 + KT3.DI10
-  diffConrtol(2508, 2530, 10, 11, 6, 7); // 2530.6 + 2530.7 = Выдв. элемент Q3 = KT3.DI11 + KT3.DI12
-  diffConrtol(2508, 2530, 12, 13, 8, 9); // 2530.8 + 2530.9 = Зазем. элемент QSG3 = KT3.DI13 + KT3.DI14
+  diffConrtol(2512, 2530, 8, 9, 4, 5);   // 2530.4 + 2530.5 = Выключатль Q3 = KT3.DI9 + KT3.DI10
+  diffConrtol(2512, 2530, 10, 11, 6, 7); // 2530.6 + 2530.7 = Выдв. элемент Q3 = KT3.DI11 + KT3.DI12
+  diffConrtol(2512, 2530, 12, 13, 8, 9); // 2530.8 + 2530.9 = Зазем. элемент QSG3 = KT3.DI13 + KT3.DI14
   
-  diffConrtol(2508, 2530, 15, 16, 10, 11); // 2530.10 + 2530.11 = Выдв. элемент Q1-5 = KT3.DI16 + KT3.DI17
-  diffConrtol(2509, 2530, 1, 2, 12, 13);   // 2530.12 + 2530.13 = Зазем. элемент Q1-5 = KT3.DI18 + KT3.DI19
+  diffConrtol(2512, 2530, 15, 16, 10, 11); // 2530.10 + 2530.11 = Выдв. элемент Q1-5 = KT3.DI16 + KT3.DI17
+  diffConrtol(2513, 2530, 1, 2, 12, 13);   // 2530.12 + 2530.13 = Зазем. элемент Q1-5 = KT3.DI18 + KT3.DI19
 
   // outputs
-  normConrtol(2510, 2536, 0, 0, true); // 2536.0 = Блокировка ВЭ разъединителя QS-T1 = K-T1.DO1
-  normConrtol(2510, 2536, 1, 1, true); // 2536.1 = Блокировка ЗЭ разъединителя QSG-T1 = K-T1.DO2
-  normConrtol(2510, 2536, 2, 2, true); // 2536.2 = Отключение выключателя Q1 = K-T1.DO3 
-  normConrtol(2510, 2536, 3, 3, true); // 2536.3 = Отключение выключателя Q1-3 = K-T1.DO4 
+  normConrtol(2514, 2536, 0, 0, true); // 2536.0 = Блокировка ВЭ разъединителя QS-T1 = K-T1.DO1
+  normConrtol(2514, 2536, 1, 1, true); // 2536.1 = Блокировка ЗЭ разъединителя QSG-T1 = K-T1.DO2
+  normConrtol(2514, 2536, 2, 2, true); // 2536.2 = Отключение выключателя Q1 = K-T1.DO3 
+  normConrtol(2514, 2536, 3, 3, true); // 2536.3 = Отключение выключателя Q1-3 = K-T1.DO4 
   //- 54 -----------------------------------------------------------------------------------------
   // inputs
-  diffConrtol(2512, 2526, 0, 1, 0, 1); // 2526.0 + 2526.1 = Выдв. элемент QS-T1 = KT1.DI1 + KT1.DI2
-  diffConrtol(2512, 2526, 2, 3, 2, 3); // 2526.2 + 2526.3 = Зазем. элемент QSG-T1 = KT1.DI3 + KT1.DI4
+  diffConrtol(2508, 2526, 0, 1, 0, 1); // 2526.0 + 2526.1 = Выдв. элемент QS-T1 = KT1.DI1 + KT1.DI2
+  diffConrtol(2508, 2526, 2, 3, 2, 3); // 2526.2 + 2526.3 = Зазем. элемент QSG-T1 = KT1.DI3 + KT1.DI4
   
-  normConrtol(2512, 2525, 4, 7, false);   // 2525.7 = Защита от дуги в шкафу QS-T1 = KT1.DI5
-  normConrtol(2512, 2525, 5, 8, false);   // 2525.8 = Нет опер тока тепловой защиты тр-ра Т1 = KT1.DI6
-  normConrtol(2512, 2525, 6, 9, false);   // 2525.9 = Предупредительная  тепловая защита 140 гр С тр-ра Т1 = KT1.DI7
-  normConrtol(2512, 2525, 7, 10, false);  // 2525.10 = Тепловая авария 155 гр С тр-ра Т1 = KT1.DI8
-  normConrtol(2512, 2525, 14, 11, false); // 2525.11 = Защита от дуги в шкафу Q1: 1-"Авария"; 0 -"Работа" = KT1.DI15
+  normConrtol(2508, 2525, 4, 7, false);   // 2525.7 = Защита от дуги в шкафу QS-T1 = KT1.DI5
+  normConrtol(2508, 2525, 5, 8, false);   // 2525.8 = Нет опер тока тепловой защиты тр-ра Т1 = KT1.DI6
+  normConrtol(2508, 2525, 6, 9, false);   // 2525.9 = Предупредительная  тепловая защита 140 гр С тр-ра Т1 = KT1.DI7
+  normConrtol(2508, 2525, 7, 10, false);  // 2525.10 = Тепловая авария 155 гр С тр-ра Т1 = KT1.DI8
+  normConrtol(2508, 2525, 14, 11, false); // 2525.11 = Защита от дуги в шкафу Q1: 1-"Авария"; 0 -"Работа" = KT1.DI15
 
-  diffConrtol(2512, 2526, 8, 9, 4, 5);   // 2526.4 + 2526.5 = Выключатль Q1 = KT1.DI9 + KT1.DI10
-  diffConrtol(2512, 2526, 10, 11, 6, 7); // 2526.6 + 2526.7 = Выдв. элемент Q1 = KT1.DI11 + KT1.DI12
-  diffConrtol(2512, 2526, 12, 13, 8, 9); // 2526.8 + 2526.9 = Зазем. элемент QSG1 = KT1.DI13 + KT1.DI14
+  diffConrtol(2508, 2526, 8, 9, 4, 5);   // 2526.4 + 2526.5 = Выключатль Q1 = KT1.DI9 + KT1.DI10
+  diffConrtol(2508, 2526, 10, 11, 6, 7); // 2526.6 + 2526.7 = Выдв. элемент Q1 = KT1.DI11 + KT1.DI12
+  diffConrtol(2508, 2526, 12, 13, 8, 9); // 2526.8 + 2526.9 = Зазем. элемент QSG1 = KT1.DI13 + KT1.DI14
   
-  diffConrtol(2512, 2526, 15, 16, 10, 11); // 2526.10 + 2526.11 = Выдв. элемент Q1-3 = KT1.DI16 + KT1.DI17
-  diffConrtol(2513, 2526, 1, 2, 12, 13);   // 2526.12 + 2526.13 = Зазем. элемент Q1-3 = KT1.DI18 + KT1.DI19
+  diffConrtol(2508, 2526, 15, 16, 10, 11); // 2526.10 + 2526.11 = Выдв. элемент Q1-3 = KT1.DI16 + KT1.DI17
+  diffConrtol(2509, 2526, 1, 2, 12, 13);   // 2526.12 + 2526.13 = Зазем. элемент Q1-3 = KT1.DI18 + KT1.DI19
   
-  normConrtol(2513, 2533, 3, 4, false); // 2533.4 = Неисправность коммутатора оптического КО2 = KT1.DI20
+  normConrtol(2509, 2533, 3, 4, false); // 2533.4 = Неисправность коммутатора оптического КО2 = KT1.DI20
 
   // outputs
-  normConrtol(2514, 2538, 0, 0, true); // 2538.0 = Блокировка ВЭ разъединителя QS-T3 = K-T3.DO1
-  normConrtol(2514, 2538, 1, 1, true); // 2538.1 = Блокировка ЗЭ разъединителя QSG-T3 = K-T3.DO2
-  normConrtol(2514, 2538, 2, 2, true); // 2538.2 = Отключение выключателя Q3 = K-T1.DO3 
-  normConrtol(2514, 2538, 3, 3, true); // 2538.3 = Отключение выключателя Q1-5 = K-T1.DO4 
+  normConrtol(2510, 2538, 0, 0, true); // 2538.0 = Блокировка ВЭ разъединителя QS-T3 = K-T3.DO1
+  normConrtol(2510, 2538, 1, 1, true); // 2538.1 = Блокировка ЗЭ разъединителя QSG-T3 = K-T3.DO2
+  normConrtol(2510, 2538, 2, 2, true); // 2538.2 = Отключение выключателя Q3 = K-T1.DO3 
+  normConrtol(2510, 2538, 3, 3, true); // 2538.3 = Отключение выключателя Q1-5 = K-T1.DO4 
  //- 55 -----------------------------------------------------------------------------------------
  // inputs
   diffConrtol(2516, 2528, 0, 1, 0, 1); // 2528.0 + 2528.1 = Выдв. элемент QS-T2 = KT2.DI1 + KT2.DI2
@@ -268,7 +236,7 @@ void controlLogic(uint16_t num)
     && getBit(2525+num*2, 9) == false   && !(getBit(2526+num*2, 4) == true 
     && getBit(2526+num*2, 5) == false))
 
-  controlBit(sound[num], 19, true, true, Alarms[alarmsActual]->count != 0);
+  controlBit(sound[num], 19, true, true, Alarms[alarmsActual]->count == 0);
 
 
   controlBit(0+num%2, 3, true, true, false);
@@ -389,13 +357,13 @@ void alarmLogic(void)
       break;
   }
 
-  if(Alarms[alarmsSHOT]->count != 0 || alarmIsActive(alConFailShot)) 
+  if(Alarms[alarmsSHOT]->count != 0 || findAlarms(Alarms[alarmsActual], alConFailShot)) 
     addCrash(alShortEn);
   else deleteCrash(alShortEn);
-  if(Alarms[alarmsSHSN]->count != 0 || alarmIsActive(alConFailShsn)) 
+  if(Alarms[alarmsSHSN]->count != 0 || findAlarms(Alarms[alarmsActual], alConFailShsn)) 
     addCrash(alShsnEn);
   else deleteCrash(alShSnDEn);
-  if(Alarms[alarmsSHSND]->count != 0 || alarmIsActive(alConFailShsnD)) 
+  if(Alarms[alarmsSHSND]->count != 0 || findAlarms(Alarms[alarmsActual], alConFailShsnD)) 
     addCrash(alShSnDEn);
   else deleteCrash(alShSnDEn);
 
@@ -418,19 +386,6 @@ void alarmLogic(void)
   if(getBit(2533, 5) == true) 
     addCrash(alFailOpticalSwitchKO1);
   else deleteCrash(alFailOpticalSwitchKO1);
-}
-
-bool_t alarmIsActive(Alarm_t number)
-{
-  size_t i = 0;
-  for(i = 0; i < COUNT_ALARMS && i < Alarms[alarmsActual]->count; i++)
-  {
-    if(Alarms[alarmsActual]->buf[i] == number)
-    {
-      return true;
-    }
-  }
-  return false;
 }
  
 void taskLoop(void)
@@ -522,6 +477,13 @@ void taskLoop(void)
     {
       Panel->flags.StateUserAccessOld = !Panel->flags.StateUserAccessOld;
       if(GetUserLevelAvtorisation) addEvent(alOpenUserAccess1 + getMyIP() - 41);
+    }
+    Panel->flags.notUserAccess = !GetUserLevelAvtorisation;
+    Panel->flags.notAdminAccess = !GetAdminLevelAvtorisation;
+    if(Panel->flags.notLevelAccess)
+    {
+      SHOW_ERROR_MSG(numTE_IncorrectLevelAccess);
+      Panel->flags.notLevelAccess = false;
     }
 
     Delay(20);
