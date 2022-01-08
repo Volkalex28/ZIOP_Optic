@@ -38,12 +38,23 @@ uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm);
 
 void addEvent(Alarm_t number)
 {
+  addEventTime(number, *getTime());
+}
+
+void addEventTime(Alarm_t number, Time_t time)
+{
   size_t i;
   EventByte_t	EventS;
-  Time_t * pTime;
   cell_t c;
 
-  if(isMasked(alarmsMaskEvent, number)) return;
+  if(alPowerOn1 <= number && number <= alPowerOn4)
+    PFW->statePanelsEvents[0][number - alPowerOn1] = time;
+  if(alOpenUserAccess1 <= number && number <= alOpenUserAccess4)
+    PFW->statePanelsEvents[1][number - alOpenUserAccess1] = time;
+  if(alOpenAdminAccess1 <= number && number <= alOpenAdminAccess4)
+    PFW->statePanelsEvents[2][number - alOpenAdminAccess1] = time;
+
+  if(isMasked(alarmsMaskEvent, number) || (Panel->flags.isMaster == false)) return;
 
   if(PFW->N_Event >= COUNT_EVENTS) 
   {
@@ -51,13 +62,12 @@ void addEvent(Alarm_t number)
     PFW->CB++;
   }
     
-  pTime = getTime();		
-  EventS.Sec    = pTime->Sec;
-  EventS.Min    = pTime->Min;
-  EventS.Hour   = pTime->Hour;
-  EventS.Day    = pTime->Day;
-  EventS.Month  = pTime->Month;
-  EventS.Year   = pTime->Year;
+  EventS.Sec    = time.Sec;
+  EventS.Min    = time.Min;
+  EventS.Hour   = time.Hour;
+  EventS.Day    = time.Day;
+  EventS.Month  = time.Month;
+  EventS.Year   = time.Year;
   EventS.Event  = number;
 
   c.type    = memPFW; 
@@ -66,7 +76,6 @@ void addEvent(Alarm_t number)
   writes(c, NUMBER_RR_FOR_ONE_EVENT);
 
   PFW->N_Event++;
-
 }
 
 void clearEvents(bool_t gate)
@@ -105,31 +114,47 @@ void addCrash(Alarm_t NumberCrash)
 	Alarms[alarmsBacklog]->buf[Alarms[alarmsBacklog]->count++] = NumberCrash;
 	addEvent(NumberCrash);
   
-  if (isMasked(alarmsMaskIndicator, NumberCrash)) 
-    Panel->flags.cvitCrash = 0;
+  if (isMasked(alarmsMaskIndicator, NumberCrash) == false) 
+    Panel->flags.cvitCrash = false;
 }
 
 void fillCrash(void) 
 {
 	size_t i, n;
 
-  Alarms[alarmsActual]->count = 0;
 
+  if(Panel->flags.isMaster == true) 
+    Alarms[alarmsActual]->count = 0;
+
+  // if(Panel->flags.isMaster == true) 
   for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
   {
-    if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false)
+    if(isMasked(alarmsMaskMessage, Alarms[alarmsBacklog]->buf[i]) == false
+      && (Panel->flags.isMaster == true || Alarms[alarmsBacklog]->buf[i] == alConFailAtAllPanel)
+    ) {
+      if(Alarms[alarmsBacklog]->buf[i] == alConFailAtAllPanel)
+      {
+        Alarms[alarmsActual]->count = 0;
+      }
       Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
+    }
+    if(Alarms[alarmsBacklog]->buf[i] == alConFailHighLevel)
+    {
+      Alarms[alarmsActual]->count = 0;
+      Alarms[alarmsActual]->buf[Alarms[alarmsActual]->count++] = Alarms[alarmsBacklog]->buf[i];
+    }
   }
 
-  for(i = 0; i < Alarms[alarmsBacklog]->count; i++) 
+  for(i = 0; i < Alarms[Panel->flags.isMaster == true ? alarmsBacklog : alarmsActual]->count; i++) 
   {
-    if(isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i]) == false) 
+    if(Panel->flags.isMaster == true ? isMasked(alarmsMaskIndicator, Alarms[alarmsBacklog]->buf[i]) == false : true) 
     {
       Panel->flags.noneCrash = false;
       return;
     }
   }
   Panel->flags.noneCrash = true;
+  Panel->flags.cvitCrash = false;
 }
 
 void deleteCrash(Alarm_t NumberCrash) 
@@ -147,6 +172,15 @@ void deleteCrash(Alarm_t NumberCrash)
 			for(; i < Alarms[alarmsBacklog]->count; i++)
 				Alarms[alarmsBacklog]->buf[i] = Alarms[alarmsBacklog]->buf[i+1];
 			Alarms[alarmsBacklog]->buf[i] = 0;
+
+      if (NumberCrash >= startAlarmsCon && NumberCrash < endAlarmsCon)
+        addEvent(NumberCrash + (endAlarmsCon - startAlarmsCon));
+
+      if ((GetPSBStatus(702) == false) 
+        && (NumberCrash >= startAlarmsConGate && NumberCrash < endAlarmsConGate)
+      ) {
+        addEvent(NumberCrash + (endAlarmsConGate - startAlarmsConGate));
+      }
 		}
 	}
 }
@@ -161,6 +195,27 @@ void initAlarms(void)
   Alarms[alarmsSHOT]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 0];
   Alarms[alarmsSHSN]    = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 200];
   Alarms[alarmsSHSND]   = (Alarms_t *)&PSW[FIRST_RR_ALARMS_GATE + 400];
+
+  setMask(alarmsMaskMessage, alPowerOn1, true);
+  setMask(alarmsMaskMessage, alPowerOn2, true);
+  setMask(alarmsMaskMessage, alPowerOn3, true);
+  setMask(alarmsMaskMessage, alPowerOn4, true);
+  setMask(alarmsMaskIndicator, alPowerOn1, true);
+  setMask(alarmsMaskIndicator, alPowerOn2, true);
+  setMask(alarmsMaskIndicator, alPowerOn3, true);
+  setMask(alarmsMaskIndicator, alPowerOn4, true);
+
+  setMask(alarmsMaskEvent, alShortEn, true);
+  setMask(alarmsMaskEvent, alShsnEn, true);
+  setMask(alarmsMaskEvent, alShSnDEn, true);
+}
+
+void finitAlarms(void)
+{
+  setMask(alarmsMaskMessage, alConFailAtAllPanel, false);
+  setMask(alarmsMaskIndicator, alConFailAtAllPanel, false);
+  setMask(alarmsMaskMessage, alConFailHighLevel, false);
+  setMask(alarmsMaskIndicator, alConFailHighLevel, false);
 }
 
 bool_t isMasked(AlarmsMask_t typeMask, Alarm_t numberAlarm)
@@ -268,6 +323,15 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
 }
 
 
+bool_t findAlarms(Alarms_t * pAlarms, Alarm_t number)
+{
+  size_t i;
+  for(i = 0; i < COUNT_ALARMS && i < pAlarms->count; i++)
+    if(pAlarms->buf[i] == number)
+      return true;
+  
+  return false;
+}
 // local functions --------------------------------------------------------------------------------
 
 uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm)

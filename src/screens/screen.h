@@ -37,16 +37,16 @@ enum EScreen
 
 enum EWindow
 {
-  winMnemoQ1_7_10 = 1,
-  winMnemoQS_T1_T4,
-  winMnemoQS_1_4,
-  winMnemoQ1_3_6,
-  winLevelAccess,
+  winReboot = 1,
+  winErrors = 5,
   winSettBKI,
   winSettAnP,
   winConfAlarms,
   winMenuSyst,
-  winMenu
+  winMenu,
+  winExControl,
+  winTCPStatistic,
+  winMnemotic
 };
 
 typedef union Screens_s

@@ -31,6 +31,7 @@ void screenEvent(void)
   {
     clearEvents(false);
     Screens->Event.Config.Zero = 0;
+    Panel->controlFlags.clearEvents = true;
   }
 
   if(Panel->ChooseDevice.Select == 0) 

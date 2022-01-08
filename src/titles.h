@@ -22,18 +22,18 @@ typedef struct Title_s
 void finitTitle(void);
 
 const Title_t arrTitles[] = {
-  {alPowerOn1,               "Включение панели 1"},
-  {alPowerOn2,               "Включение панели 2"},
-  {alPowerOn3,               "Включение панели 3"},
-  {alPowerOn4,               "Включение панели 4"},
-  {alOpenUserAccess1,        "Доступ пользователя панели 1 открыт"},
-  {alOpenUserAccess2,        "Доступ пользователя панели 2 открыт"},
-  {alOpenUserAccess3,        "Доступ пользователя панели 3 открыт"},
-  {alOpenUserAccess4,        "Доступ пользователя панели 4 открыт"},
-  {alOpenAdminAccess1,       "Доступ администратора панели 1 открыт"},
-  {alOpenAdminAccess2,       "Доступ администратора панели 2 открыт"},
-  {alOpenAdminAccess3,       "Доступ администратора панели 3 открыт"},
-  {alOpenAdminAccess4,       "Доступ администратора панели 4 открыт"},
+  {alPowerOn1,               "Включение панели К1"},
+  {alPowerOn2,               "Включение панели К2"},
+  {alPowerOn3,               "Включение панели К-Т1/3"},
+  {alPowerOn4,               "Включение панели К-Т1/4"},
+  {alOpenUserAccess1,        "Доступ пользователя панели К1 открыт"},
+  {alOpenUserAccess2,        "Доступ пользователя панели К2 открыт"},
+  {alOpenUserAccess3,        "Доступ пользователя панели К-Т1/3 открыт"},
+  {alOpenUserAccess4,        "Доступ пользователя панели К-Т1/4 открыт"},
+  {alOpenAdminAccess1,       "Доступ администратора панели К1 открыт"},
+  {alOpenAdminAccess2,       "Доступ администратора панели К2 открыт"},
+  {alOpenAdminAccess3,       "Доступ администратора панели К-Т1/3 открыт"},
+  {alOpenAdminAccess4,       "Доступ администратора панели К-Т1/4 открыт"},
 
   {alConFailPanel1,         "Обрыв связи с панелью К1"},
   {alConFailPanel2,         "Обрыв связи с панелью К2"},
@@ -46,6 +46,9 @@ const Title_t arrTitles[] = {
   {alConFailDP5,            "Обрыв связи с контроллером К-Т2"},
   {alConFailDP6,            "Обрыв связи с контроллером К-Т4"},
   {alConFailGate,           "Обрыв связи со Шлюзом 485-RTU-LAN"},
+  {alConFailShot,                "Обрыв связи с ШОТ"},
+  {alConFailShsn,                "Обрыв связи с ШСН"},
+  {alConFailShsnD,               "Обрыв связи с ШСН-Д"},
 
 //---
   
@@ -60,6 +63,9 @@ const Title_t arrTitles[] = {
   {alConRestoredDP5,            "Связь с контроллером К-Т2 восстановлена"},
   {alConRestoredDP6,            "Связь с контроллером К-Т4 восстановлена"},
   {alConRestoredGate,           "Связь со Шлюзом 485-RTU-LAN восстановлена"},
+  {alConRestoredShot,            "Связь со ШОТ восстановлена"},
+  {alConRestoredShsn,            "Связь со ШСН восстановлена"},
+  {alConRestoredShsnD,           "Связь со ШСН-Д восстановлена"},
 
 //-------------------------------------------------------------------------------------
 //--------------------------  SHOT  ---------------------------------------------------
@@ -217,6 +223,22 @@ const Title_t arrTitles[] = {
   {alShsnD_18,                   "Ввод 2 ~36В нет напряжения"},
   {alShsnD_19,                   "Аварийное отключение выключателя секции ~220В"},
   {alShsnD_20,                   "Аварийное отключение выключателя секции ~36В"},
+
+  {alConFailAtAllPanel,          "Панель не в сети"},
+  {alConFailHighLevel,           "Нет связи с верхним уровнем"},
+
+  {alTransTemperProtectT1,       "Тепловая защита трансформатора Т1"}, 
+  {alTransTemperProtectT2,       "Тепловая защита трансформатора Т2"}, 
+  {alTransTemperProtectT3,       "Тепловая защита трансформатора Т3"}, 
+  {alTransTemperProtectT4,       "Тепловая защита трансформатора Т4"}, 
+  {alFailOpticalSwitchKO14,      "Неисправность коммутатора оптического КО14"}, 
+  {alFailOpticalSwitchKO15,      "Неисправность коммутатора оптического КО15"}, 
+  {alFailOpticalSwitchKO2,       "Неисправность коммутатора оптического КО2"}, 
+  {alFailOpticalSwitchKO1,       "Неисправность коммутатора оптического КО1"}, 
+
+  {alShortEn,                    "Авария ШОТ"},
+  {alShsnEn,                     "Авария ШСН"},
+  {alShSnDEn,                    "Авария ШСН-Д"},
 
   {alNone}
 };

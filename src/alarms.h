@@ -111,7 +111,8 @@ typedef enum EAlarm
   alOpenAdminAccess3,                       ///< Открытие доступа администратора в панели 3
   alOpenAdminAccess4,                       ///< Открытие доступа администратора в панели 4
 
-  alConFailPanel1,                          ///< Ошибка соединения с панелью 1
+  startAlarmsCon,
+  alConFailPanel1 = startAlarmsCon,          ///< Ошибка соединения с панелью 1
   alConFailPanel2,                          ///< Ошибка соединения с панелью 2
   alConFailPanel3,                          ///< Ошибка соединения с панелью 3
   alConFailPanel4,                          ///< Ошибка соединения с панелью 4
@@ -122,8 +123,9 @@ typedef enum EAlarm
   alConFailDP5,                             ///< Ошибка соединения с платой дискретных сигналов 5
   alConFailDP6,                             ///< Ошибка соединения с платой дискретных сигналов 6
   alConFailGate,                            ///< Ошибка соединения со шлюзом
+  endAlarmsCon,
 
-  alConRestoredPanel1,                      ///< Соединение с панелью 1 ввостановлено
+  alConRestoredPanel1 = endAlarmsCon,       ///< Соединение с панелью 1 ввостановлено
   alConRestoredPanel2,                      ///< Соединение с панелью 2 ввостановлено
   alConRestoredPanel3,                      ///< Соединение с панелью 3 ввостановлено
   alConRestoredPanel4,                      ///< Соединение с панелью 4 ввостановлено
@@ -134,6 +136,17 @@ typedef enum EAlarm
   alConRestoredDP5,                         ///< Соединение с платой дискретных сигналов 5 ввостановлено
   alConRestoredDP6,                         ///< Соединение с платой дискретных сигналов 6 ввостановлено
   alConRestoredGate,                        ///< Соединение со шлюзом ввостановлено
+
+  startAlarmsConGate,
+  alConFailShot = startAlarmsConGate,   //Обрыв связи с ШОТ"
+  alConFailShsn,                        //Обрыв связи с ШСН"
+  alConFailShsnD,                       //Обрыв связи с ШСН-Д"
+  endAlarmsConGate,
+ 
+  alConRestoredShot = endAlarmsConGate, //Связь со ШОТ восстановлена"
+  alConRestoredShsn,                    //Связь со ШСН восстановлена"
+  alConRestoredShsnD,                   //Связь со ШСН-Д восстановлена"
+
   alEndArm,                           // Количество событий секции АРМ
 
 //------  SHOT  ------
@@ -282,15 +295,23 @@ typedef enum EAlarm
   alShsnD_20,
   alEndShsnD,                         // Количество событий секции ШСНД
 
-  alShortEn = alEndShsnD,
-  alShsnEn,
-  alShSnDEn,                       
+  alShortEn = alEndShsnD,             // Суммарная авария по ШОТ
+  alShsnEn,                           // Суммарная авария по ШСН
+  alShSnDEn,                          // Суммарная авария по ШСН-Д
 
+  alConFailAtAllPanel,                // Панель не в сети
+  alConFailHighLevel,                 // Нет связи с верхнем уровнем
+  
   alTransTemperProtectT1 = 200,
   alTransTemperProtectT2,
   alTransTemperProtectT3,
   alTransTemperProtectT4,
-  alAll                ///< Количество всех событий
+  alFailOpticalSwitchKO14,
+  alFailOpticalSwitchKO15,
+  alFailOpticalSwitchKO1,
+  alFailOpticalSwitchKO2,
+  
+  alAll                             ///< Количество всех событий
 } Alarm_t;
 
 /**
@@ -331,6 +352,8 @@ typedef enum EAlarmsMasks
 
 ///@}
 
+typedef struct Time_s Time_t;
+
 // variables --------------------------------------------------------------------------------------
 /**
  * @defgroup Alarms_ExVars Переменные доступные извне
@@ -358,6 +381,14 @@ extern Alarms_t * Alarms[alarmsCount];
  * @param NumberCrash Номер сообщения
  */
 void addEvent(Alarm_t NumberCrash);
+
+/**
+ * @brief 
+ * 
+ * @param number 
+ * @param time 
+ */
+void addEventTime(Alarm_t number, Time_t time);
 
 /**
  * @brief Функция очистки событий
@@ -388,10 +419,13 @@ void fillCrash(void);
 
 /**
  * @brief Функция инициализации аварийных и системных сообщений
- * 
- * @param alarmsBacklogPtr Указатель на теневой буфер аварий
  */
 void initAlarms(void);
+
+/**
+ * @brief Функция первоначальной инициализации аварийных и системных сообщений
+ */
+void finitAlarms(void);
 
 /**
  * @brief Функция для получения статуса маскировки сообщения
@@ -424,6 +458,15 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm);
  * @param state Состояние маски которое необходимо установить
  */
 void setMask(AlarmsMask_t typeMask, Alarm_t numberAlarm, bool_t state);
+
+/**
+ * @brief 
+ * 
+ * @param pAlarms 
+ * @param number 
+ * @return bool_t 
+ */
+bool_t findAlarms(Alarms_t * pAlarms, Alarm_t number);
 
 ///@}
 
