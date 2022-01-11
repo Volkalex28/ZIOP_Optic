@@ -58,4 +58,24 @@ void screenShot(void)
   }
   Screens->Shot.MaxA = &dMem->Gate->SHOT.AnP.Umax1 + Offset*2;
   Screens->Shot.MinA = &dMem->Gate->SHOT.AnP.Umin1 + Offset*2;
- }
+}
+
+bool_t isNotSHOT(void)
+{
+  return (findAlarms(Alarms[alarmsActual], alConFailGate)
+      || findAlarms(Alarms[alarmsActual], alConFailShot));
+}
+
+bool_t isNotZVU(void)
+{
+  return (findAlarms(Alarms[alarmsActual], alConFailGate)
+      || findAlarms(Alarms[alarmsActual], alConFailShot)
+      || (findAlarms(Alarms[alarmsSHOT], 11) && findAlarms(Alarms[alarmsSHOT], 12)));
+}
+
+bool_t isNotBKIf(void)
+{
+  return (findAlarms(Alarms[alarmsActual], alConFailGate)
+      || findAlarms(Alarms[alarmsActual], alConFailShot)
+      || findAlarms(Alarms[alarmsSHOT], 40));
+}

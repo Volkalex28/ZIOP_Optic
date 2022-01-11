@@ -302,7 +302,11 @@ typedef enum EAlarm
   alConFailAtAllPanel,                // Панель не в сети
   alConFailHighLevel,                 // Нет связи с верхнем уровнем
   
-  alTransTemperProtectT1 = 200,
+  alTransTemperProtectT1_140 = 202,
+  alTransTemperProtectT2_140,
+  alTransTemperProtectT3_140,
+  alTransTemperProtectT4_140,
+  alTransTemperProtectT1,
   alTransTemperProtectT2,
   alTransTemperProtectT3,
   alTransTemperProtectT4,

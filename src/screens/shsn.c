@@ -27,6 +27,10 @@ void screenShsn(void)
   //             I2 = 0;   I4 = 0;   I3 = 1;   I5 = 0;
   //     break;
   // }
+  if(PSW[CURRENT_SCREEN] != Panel->oldScreen && isNotSHSN() && !GetAdminLevelAvtorisation)
+  {
+    Screens->Shsn.Settings.Event.Choose = 1;
+  }
 
   Screens->Shsn.Settings.Event.Vv1_220_inW = dMem->Gate->SHSN[Screens->Shsn.Settings.Event.Choose].DP.DIO.IO.I.I10; // I10;
   Screens->Shsn.Settings.Event.Vv2_220_inW = dMem->Gate->SHSN[Screens->Shsn.Settings.Event.Choose].DP.DIO.IO.I.I11; // I11;
@@ -83,4 +87,16 @@ void screenShsn(void)
     case shieldShsn:  strcpy(Screens->Shsn.Settings.TitleChoose, "ьям");    break;
     case shieldShsnD: strcpy(Screens->Shsn.Settings.TitleChoose, "ьям-д");  break;
   }
+}
+
+bool_t isNotSHSN(void)
+{
+  return (findAlarms(Alarms[alarmsActual], alConFailGate)
+      || findAlarms(Alarms[alarmsActual], alConFailShsn));
+}
+
+bool_t isNotSHSND(void)
+{
+  return (findAlarms(Alarms[alarmsActual], alConFailGate)
+      || findAlarms(Alarms[alarmsActual], alConFailShsnD));
 }

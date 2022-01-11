@@ -31,9 +31,8 @@ enum numberTextErrors_e
 {
   numTE_IncorrectLevelAccess,
   numTE_ErrConectionSHSN,
-  numTE_NotConectionSHSN,
   numTE_ErrConectionSHSND,
-  numTE_NotConectionSHSND,
+  numTE_NotConectionSHSN,
   numTE_ErrConectionSHOT,
   numTE_NotConectionSHOT,
   numTE_ErrConectionZVU,
@@ -47,7 +46,8 @@ typedef struct controlFlags_s
   uint16_t clearEvents      : 1;      // 309:0
   uint16_t stateTest        : 2;      // 309:1..2
   uint16_t invertTest       : 1;      // 309:3
-  uint16_t numTestTransform : 2;      // 309:4
+  uint16_t numTestTransform : 2;      // 309:4..5
+  uint16_t changeTest       : 1;      // 309:6
 } controlFlags_t;
 
 typedef struct StateEventsGate_s
@@ -114,6 +114,8 @@ typedef struct Panel_s
     uint32_t notUserAccess        : 1;  // 257:11
     uint32_t notAdminAccess       : 1;  // 257:12
     uint32_t notLevelAccess       : 1;  // 257:13
+    uint32_t windowErrorsIsOpen   : 1;  // 257:14
+    uint32_t can : 1;
   } flags;                              // 256..257
   struct ChooseDevicePanel_s  
   {
@@ -133,7 +135,9 @@ typedef struct Panel_s
   StateEx_t         StateEx[6];         // 273..295
   StateExOld_t      StateExOld[6];      // 296..308
   controlFlags_t    controlFlags;       // 309
-  uint16_t          numberTextErrors    // 310
+  uint16_t          numberTextErrors;   // 310
+  uint16_t          numberTest;         // 311
+  uint16_t          counterMaster[2];   // 312..313
 } Panel_t;
 
 extern Panel_t * Panel;

@@ -49,5 +49,8 @@ typedef struct ScreenShot_s
 } ScreenShot_t;
 
 void screenShot(void);
+bool_t isNotSHOT(void);
+bool_t isNotZVU(void);
+bool_t isNotBKIf(void);
 
 #endif // __SCREENS_SHOT_H__

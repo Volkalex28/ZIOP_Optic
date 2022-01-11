@@ -40,6 +40,8 @@ typedef struct ScreenShsn_s
 } ScreenShsn_t;
 
 void screenShsn(void);
+bool_t isNotSHSN(void);
+bool_t isNotSHSND(void);
 
 #endif // __SCREENS_SHSN_H__
 

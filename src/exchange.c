@@ -74,7 +74,23 @@
 
 #define N_RR_FOR_EVENT 125
 
+#define CHECK_EQUALS_EVENT(_E1_, _E2_)                                                      \
+  (((_E1_).Day != (_E2_).Day || (_E1_).Month != (_E2_).Month || (_E1_).Year != (_E2_).Year  \
+  || (_E1_).Hour != (_E2_).Hour || (_E1_).Min != (_E2_).Min || (_E1_).Sec != (_E2_).Sec     \
+  || (_E1_).Event != (_E2_).Event) ? false : true)
+
+#define WRITE_STATE_TEST(_NET_)           \
+  c.type = (_NET_); c = write(c);         \
+  if(c.status == memStatusOK) {           \
+    c2.type = (_NET_);                    \
+    c2.number = &Panel->numberTest - PSW; \
+    c2.value = Panel->numberTest;         \
+    write(c2);                            \
+  }
+
 //-------------------------
+void writeAlarms(void);
+void controlTest(void);
 void writeDevice(bool_t enableSlave);
 void readDevice(void);
 void connectionAlarmsHandler(MemTypes_t port, Alarm_t number, bool_t isDelete);
@@ -89,54 +105,13 @@ void taskExchangeRead(void)
     Delay(20);
     CONTINUE_IF(Panel->flags.enableEx == false);
 
-    if(Panel->controlFlags.invertTest == true)
-    {
-      Panel->controlFlags.stateTest = (Panel->flags.chooseTestMode ? 2 : 1);
-    }
-    if(Panel->controlFlags.stateTest != 0)
-    {
-      controlFlags_t t;
-      t = Panel->controlFlags;
-      t.invertTest = false;
-      c.number = &CAST_TO_U16(Panel->controlFlags) - PSW; c.value = CAST_TO_U16(t);
-
-      switch (Panel->controlFlags.stateTest)
-      {
-      case 1: Panel->flags.chooseTestMode = true;   break;
-      case 2: Panel->flags.chooseTestMode = false;  break;
-      
-      default:
-        break;
-      }
-
-      Panel->controlFlags.stateTest = 0;
-    }
-    if(Panel->controlFlags.invertTest == true)
-    {
-      switch (getMyIP())
-      {
-      case 41:
-      case 42:
-        c.type = net0; write(c);
-        c.type = net1; write(c);
-        c.type = net3; write(c);
-        break;
-
-      case 43:
-      case 44:
-        c.type = net4; write(c);
-        c.type = net5; write(c);
-        c.type = net3; write(c);
-        break;
-      }
-      Panel->controlFlags.invertTest = false;
-    }
+    controlTest();
 
     readDevice();
   }
 }
 
-void taskExchangeReadGate(void)
+void taskExchangeReadGateWrite(void)
 {
   while(true)
   {
@@ -144,16 +119,15 @@ void taskExchangeReadGate(void)
     size_t i;
 
   tryAgain:
-
-    Delay(300);
-    GO_AGAIN_IF(Panel->flags.enableEx == false);
+    if(Panel->flags.enableEx == false) { Delay(20); continue; }
 
     if(Panel->flags.chooseTestMode == true)
     {
       writeDevice(false);
-      continue;
+      Delay(20); continue;
     }
 
+    Delay(300);
     if(Panel->flags.isMaster == false)
     {
       size_t n, k;
@@ -177,8 +151,8 @@ void taskExchangeReadGate(void)
       GO_AGAIN_READS(net3, &CAST_TO_U16(PFW->N_Event) - PSW, &CAST_TO_U16(tempSettEvent), 
         c, CALC_COUNT_RR(GateSettEvent_t)
       );
-      if(PFW->N_Event != tempSettEvent[0].N_Event
-      ) {
+      if(PFW->N_Event != tempSettEvent[0].N_Event ) 
+      {
         const uint16_t number = (tempSettEvent[0].CB ? COUNT_EVENTS 
           : tempSettEvent[0].N_Event) * NUMBER_RR_FOR_ONE_EVENT;
         const uint8_t max_k = number%N_RR_FOR_EVENT == 0 ? number/N_RR_FOR_EVENT : number/N_RR_FOR_EVENT + 1;
@@ -286,9 +260,9 @@ void taskExchangeReadGate(void)
         }
       }
       GO_AGAIN_READS(net2, 299, &CAST_TO_U16(dMem->Gate->errCon), c, 1);
-      GO_AGAIN_READS(net2, 71, PSW + 3000, c, 3);
+      // GO_AGAIN_READS(net2, 71, PSW + 3000, c, 3);
 
-      if(dMem->Gate->errCon.SHOT == false || GetPSBStatus(702) == true)
+      if(/* dMem->Gate->errCon.SHOT == false ||  */GetPSBStatus(702) == false)
       {
         GO_AGAIN_READS(net2, 120, &CAST_TO_U16(dMem->Gate), c, CALC_COUNT_RR(dGatemem_t)-1);
       }
@@ -296,8 +270,9 @@ void taskExchangeReadGate(void)
       if(dMem->Gate->errCon.SHOT == true || GetPSBStatus(702) == true)
       {
         memset(&CAST_TO_U16(dMem->Gate->SHOT), 0, sizeof(dMem->Gate->SHOT));
-        memset(&CAST_TO_U16(dMem->Gate->SHSN[2]), 0, 
-          sizeof(dMem->Gate) - sizeof(dMem->Gate->SHOT) - sizeof(dMem->Gate->SHSN) - 2);
+        memset(&CAST_TO_U16(dMem->Gate->SHOT_ConfPanel), 0, sizeof(dMem->Gate->SHOT_ConfPanel));
+        memset(&CAST_TO_U16(dMem->Gate->SettEvent[3]), 0, 
+          &CAST_TO_U8(dMem->Gate->errCon) - &CAST_TO_U8(dMem->Gate->SettEvent[3]));
       }
       if(dMem->Gate->errCon.SHSN == true || GetPSBStatus(702) == true)
         memset(&CAST_TO_U16(dMem->Gate->SHSN[0]), 0, sizeof(dMem->Gate->SHSN[0]));
@@ -340,17 +315,14 @@ void taskExchangeReadGate(void)
         // c = reads(c, 1);
         CONTINUE_READS(net2, 299, &temp, c, 1);
 
-        if((CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false 
-          && CAST_TO_U16(dMem->Gate->errCon) == temp
+        if((CAST_TO_U16(temp) & (1 << i)) == false 
+          // && CAST_TO_U16(dMem->Gate->errCon) == temp
           && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
         ) {
-          const uint16_t number = (dMem->Gate->SettEvent[i].CB 
-            ? COUNT_EVENTS 
-            : dMem->Gate->SettEvent[i].N_Event
+          const uint16_t number = (
+            dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS : dMem->Gate->SettEvent[i].N_Event
           ) * NUMBER_RR_FOR_ONE_EVENT;
-          const uint8_t max_k = number%125 == 0 
-            ? number/125 
-            : number/125 + 1;
+          const uint8_t max_k = number%125 == 0 ? number/125 : number/125 + 1;
           uint16_t temp[125] = {0};
 
           Panel->gateEventsState[i].isWait = true;
@@ -399,7 +371,7 @@ void taskExchangeWrite(void)
 {
   while(true)
   {
-    Delay(20);
+    Delay(10);
     CONTINUE_IF(Panel->flags.enableEx == false);
 
     writeDevice(true);
@@ -430,15 +402,49 @@ void writeDeviceMaster(MemTypes_t port, uint8_t number)
 void writeDeviceSlave(MemTypes_t port, uint8_t number)
 {
   size_t i;
+  bool_t otherWrite = false;
+
+  if(Panel->flags.can == false) return;
+
   for(i = 0; i < 2; i++)
   {
-    if(PSW[1100] & (1 << (number + 8*i)))
+    otherWrite = false;
+    otherWrite = (Panel->flags.chooseTestMode && (PSW[1100] & (1 << (number + 8*i))) && (
+      (number == 0 && Panel->numberTest == 1 && ((i == 0 && (PSW[2502] & 0xFF0F) != (PSW[1000] & 0xFF0F))
+        || (i == 1 && (PSW[2503] & 0x000F) != (PSW[1001] & 0x000F)))) ||
+      (number == 0 && Panel->numberTest == 3 && ((i == 0 && (PSW[2502] & 0xFFF0) != (PSW[1000] & 0xFFF0))
+        || (i == 1 && (PSW[2503] & 0x000F) != (PSW[1001] & 0x000F)))) ||
+      (number == 1 && Panel->numberTest == 2 && ((i == 0 && (PSW[2506] & 0xFF0F) != (PSW[1002] & 0xFF0F))
+        || (i == 1 && (PSW[2507] & 0x000F) != (PSW[1003] & 0x000F)))) ||
+      (number == 1 && Panel->numberTest == 4 && ((i == 0 && (PSW[2506] & 0xFFF0) != (PSW[1002] & 0xFFF0))
+        || (i == 1 && (PSW[2507] & 0x000F) != (PSW[1003] & 0x000F)))) ||
+      (number == 2 && Panel->numberTest == 3) ||
+      (number == 3 && Panel->numberTest == 1) ||
+      (number == 4 && Panel->numberTest == 2) ||
+      (number == 5 && Panel->numberTest == 4)
+    ));
+
+    if(!otherWrite)
+    {
+      PSW[1100] &= ~(1 << (number + 8*i));
+    }
+    else
     {
       cell_t c;
       c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1000 + 2*number + i];
-      PSW[2502 + 4*number + i] = c.value;
-      if(write(c).status == memStatusOK)
-        PSW[1100] &= ~(1 << (number + 8*i));
+      // PSW[2502 + 4*number + i] = c.value;
+      // if(write(c).status == memStatusOK)
+      write(c);
+      PSW[1100] &= ~(1 << (number + 8*i));
+    }
+    if(PSW[1101] & (1 << (number + 8*i)))
+    {
+      cell_t c;
+      c.type = port; c.adress = 1; c.number = 2 + i; c.value = PSW[1050 + 2*number + i];
+      // PSW[2502 + 4*number + i] = c.value;
+      // if(write(c).status == memStatusOK)
+      write(c);
+      PSW[1101] &= ~(1 << (number + 8*i));
     }
   }
 }
@@ -451,12 +457,13 @@ void writeDevice(bool_t enableSlave)
   {
   case 41:
   case 42:
-    writeDeviceMaster(net0, 0);
-    writeDeviceMaster(net1, 1);
-    writeDeviceMaster(net0, 2);
-    writeDeviceMaster(net0, 3);
-    writeDeviceMaster(net1, 4);
-    writeDeviceMaster(net1, 5);
+      writeDeviceMaster(net0, 0);
+      writeDeviceMaster(net1, 1);
+      writeDeviceMaster(net0, 2);
+      writeDeviceMaster(net0, 3);
+      writeDeviceMaster(net1, 4);
+      writeDeviceMaster(net1, 5);
+
     break;
 
   case 43: 
@@ -484,28 +491,175 @@ void writeDevice(bool_t enableSlave)
   }
 }
 
-void readAlarms(void)
+void writeAlarms(void)
 {
   size_t i, n;
   cell_t c;
-  uint16_t temp[CALC_COUNT_RR(Alarms_t)] = {0};
 
-  for(n = 0; n < 4; n++)
+  for(n = 0; n < 4; n++) for(i = 0; i < 2; i++)
   {
-    uint16_t number = &CAST_TO_U16(*Alarms[alarmsActual + n]) - PSW;
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c.type = net0 + i; 
+    c.number = &Alarms[alarmsActual + n]->count - PSW;
 
-    c.type = net4; c.number = number; c.ptr = temp;
-    if(reads(c, CALC_COUNT_RR(Alarms_t)).status != memStatusOK)
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c = read(c);
+    if(/* c.value != Alarms[alarmsActual + n]->count &&  */c.status == memStatusOK)
     {
-      c.type = net5;
-      reads(c, CALC_COUNT_RR(Alarms_t));
+      c.ptr = &CAST_TO_U16(*Alarms[alarmsActual + n]);
+      c.number = c.ptr - PSW;
+      writes(c, CALC_COUNT_RR(Alarms_t));
     }
-    // if(PSW[CURRENT_SCREEN] != scrCrash) break;
+  }
+}
 
-    for(i = 0; i < CALC_COUNT_RR(Alarms_t); i++)
+void writeEvents(void)
+{
+  size_t i, n, k;
+  cell_t c;
+
+  for(n = 0; n < 1; n++) for(i = 0; i < 2; i++)
+  {
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c.type = net0 + i; 
+    c.number = &PFW->N_Event - PSW;
+
+    c = read(c);
+    CONTINUE_IF(c.value == PFW->N_Event || c.status != memStatusOK);
+
+    for(k = 0; k < (PFW->CB ? COUNT_EVENTS : PFW->N_Event); k++)
     {
-      PSW[number + i] = temp[i];
+      EventByte_t temp[2];
+      
+      c.ptr = &CAST_TO_U16(temp[0]);
+      c.type = memPFW; c.number = FIRST_RR_EVENT + k * NUMBER_RR_FOR_ONE_EVENT; 
+      CONTINUE_IF(GetPSBStatus(700+i)); 
+      reads(c, NUMBER_RR_FOR_ONE_EVENT);
+
+      c.ptr = &CAST_TO_U16(temp[1]);
+      c.type = net0 + i; c.number += 10000;
+      CONTINUE_IF(GetPSBStatus(700+i)); 
+      reads(c, NUMBER_RR_FOR_ONE_EVENT);
+
+      if(!CHECK_EQUALS_EVENT(temp[0], temp[1]))
+      {
+        c.ptr = &CAST_TO_U16(temp[0]);
+        c = writes(c, N_RR_FOR_EVENT);
+        PSW[3000]++;
+      }
+
+      if(c.status != memStatusOK) break;
     }
+    if(c.status == memStatusOK)
+    {
+      c.type = net0 + i; c.ptr = &PFW->N_Event; c.number = c.ptr - PSW;
+      writes(c, 2);
+    }
+  }
+
+  for(n = 0; n < 3; n++) for(i = 0; i < 2; i++)
+  {
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c.type = net0 + i; 
+    c.ptr = &CAST_TO_U16(Panel->gateEventsState[n]);
+    c.number = c.ptr - PSW;
+    c = writes(c, CALC_COUNT_RR(Panel->gateEventsState[n]));
+
+    c.number = &PFW->gateSettEvent[n].N_Event - PSW; 
+    c = read(c);
+    CONTINUE_IF(c.value == PFW->gateSettEvent[n].N_Event || c.status != memStatusOK);
+
+    for(k = 0; k < (PFW->gateSettEvent[n].CB ? COUNT_EVENTS : PFW->gateSettEvent[n].N_Event); k++)
+    {
+      EventByte_t temp[2];
+      
+      c.ptr = &CAST_TO_U16(temp[0]);
+      c.type = memPFW; 
+      c.number = FIRST_RR_EVENT_GATE + (n * COUNT_EVENTS + k) * NUMBER_RR_FOR_ONE_EVENT; 
+      CONTINUE_IF(GetPSBStatus(700+i)); 
+      reads(c, NUMBER_RR_FOR_ONE_EVENT);
+
+      c.ptr = &CAST_TO_U16(temp[1]);
+      c.type = net0 + i; 
+      c.number += 10000;
+      CONTINUE_IF(GetPSBStatus(700+i)); 
+      reads(c, NUMBER_RR_FOR_ONE_EVENT);
+
+      if(!CHECK_EQUALS_EVENT(temp[0], temp[1]))
+      {
+        c.ptr = &CAST_TO_U16(temp[0]);
+        c = writes(c, N_RR_FOR_EVENT);
+        PSW[3002]++;
+      }
+
+      if(c.status != memStatusOK) break;
+    }
+    if(c.status == memStatusOK)
+    {
+      c.type = net0 + i; c.ptr = &PFW->gateSettEvent[n].N_Event; c.number = c.ptr - PSW;
+      writes(c, 2);
+    }
+  }
+}
+
+void checkClearEvents(void)
+{
+  size_t i, n, k;
+  cell_t c;
+
+  // bool_t clearEvents = false;
+  controlFlags_t flags;
+
+  for(i = 0; i < 2; i++)
+  {
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c.type = net0 + i;
+    c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+    CONTINUE_IF(GetPSBStatus(700+i)); 
+    c = read(c);
+    CONTINUE_IF(c.status != memStatusOK);
+
+    CAST_TO_U16(flags) = c.value;
+    if(flags.clearEvents)
+    {
+      Panel->controlFlags.clearEvents = true;
+      flags.clearEvents = false;
+      c.value = CAST_TO_U16(flags);
+      write(c);
+
+      PSW[3001]++;
+    }
+  }
+
+  if(Panel->controlFlags.clearEvents == true)
+  {
+    if(Panel->flags.isMaster == true)
+      clearEvents(false);
+    else if(Panel->flags.errConMaster == false)
+    {
+      controlFlags_t f;
+      cell_t c; c.type = net3; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+
+      f.clearEvents = true;
+      c.value = CAST_TO_U16(Panel->controlFlags);
+      write(c);
+    }
+
+    Panel->controlFlags.clearEvents = false;
+  }
+}
+
+void writeGateData(void)
+{
+  size_t i;
+  cell_t c;
+
+  for(i = 0; i < 2; i++)
+  {
+    c.type = net0 + i; 
+    c.ptr = &CAST_TO_U16(dMem->Gate);
+    c.number = c.ptr - PSW;
+    writes(c, CALC_COUNT_RR(dMem->Gate));
   }
 }
 
@@ -585,22 +739,13 @@ void readDevice(void)
     connectionEventsHandler(net3, alOpenAdminAccess2);
     connectionEventsHandler(net0, alOpenAdminAccess3);
     connectionEventsHandler(net1, alOpenAdminAccess4);
-
-    if(Panel->controlFlags.clearEvents == true)
+        
+    if(Panel->flags.isMaster)
     {
-      if(Panel->flags.isMaster == true)
-        clearEvents(false);
-      else if(Panel->flags.errConMaster == false)
-      {
-        controlFlags_t f;
-        cell_t c; c.type = net3; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
-
-        f.clearEvents = true;
-        c.value = CAST_TO_U16(Panel->controlFlags);
-        write(c);
-      }
-
-      Panel->controlFlags.clearEvents = false;
+      writeAlarms();
+      checkClearEvents();
+      writeEvents();
+      writeGateData();
     }
   } 
   break;
@@ -615,9 +760,9 @@ void readDevice(void)
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
     
-    readAlarms();
+    // readAlarms();
 
-    if(Panel->controlFlags.clearEvents == true)
+    /*if(Panel->controlFlags.clearEvents == true)
     {
       size_t i;
       controlFlags_t f;
@@ -634,9 +779,9 @@ void readDevice(void)
       }
 
       Panel->controlFlags.clearEvents = false;
-    }
-tryAgain:
-    for(n = 0; n < 2; n++)
+    }*/
+// tryAgain:
+    /*for(n = 0; n < 2; n++)
     {
       CONTINUE_IF(GetPSBStatus(704 + n) == true);
 
@@ -741,12 +886,107 @@ tryAgain:
         }
       }
       break;
-    }
+    }*/
   }
   break;
       
   default:
     break;
+  }
+}
+
+void controlTest(void)
+{
+  int i;
+  cell_t c, c2;
+
+  struct FlagsPanel_s flags;
+  controlFlags_t cflags;
+  switch (getMyIP())
+  {
+  case 41:
+  case 42:
+    if(Panel->flags.isMaster == false) break;
+
+    for(i = 0; i < 2; i++)
+    {
+      c.type = net0 + i; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+      c = read(c);
+      CAST_TO_U16(cflags) = c.value;
+      CONTINUE_IF(cflags.changeTest == false || c.status != memStatusOK);
+
+      c.type = net0 + i; c.number = &CAST_TO_U16(Panel->flags) - PSW + 1;
+      c = read(c);
+      *(&CAST_TO_U16(flags) + 1) = c.value;
+
+      c.number = &CAST_TO_U16(Panel->numberTest) - PSW;
+      c = read(c);
+      
+      if(c.status == memStatusOK) SetPSB(750); else ResetPSB(750);
+      if(flags.chooseTestMode)    SetPSB(751); else ResetPSB(751);
+      if(cflags.changeTest)       SetPSB(752); else ResetPSB(752);
+
+      if(c.status == memStatusOK 
+        && (flags.chooseTestMode != Panel->flags.chooseTestMode || c.value != Panel->numberTest)
+        && cflags.changeTest == true)
+      {
+        if(c.status == memStatusOK)
+        {
+          Panel->numberTest = c.value;
+          Panel->controlFlags.invertTest = true;
+
+          c.type = net0 + i; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
+          cflags.changeTest = false;
+          c.value = CAST_TO_U16(cflags);
+          write(c);
+        }
+      }
+    }
+    break;
+  }
+
+  if(Panel->controlFlags.invertTest == true)
+  {
+    if(getMyIP() == 43 || getMyIP() == 44) 
+      Panel->controlFlags.changeTest = true;
+    Panel->controlFlags.stateTest = (Panel->flags.chooseTestMode ? 2 : 1);
+  }
+  if(Panel->controlFlags.stateTest != 0)
+  {
+    controlFlags_t tt;
+    tt = Panel->controlFlags;
+    tt.invertTest = false;
+    c.number = &CAST_TO_U16(Panel->controlFlags) - PSW; 
+    c.value = CAST_TO_U16(tt);
+
+    switch (Panel->controlFlags.stateTest)
+    {
+    case 1: Panel->flags.chooseTestMode = true;   break;
+    case 2: Panel->flags.chooseTestMode = false;  break;
+    
+    default:
+      break;
+    }
+
+    Panel->controlFlags.stateTest = 0;
+  }
+  if(Panel->controlFlags.invertTest == true)
+  {
+    switch (getMyIP())
+    {
+    case 41:
+    case 42:
+      WRITE_STATE_TEST(net0);
+      WRITE_STATE_TEST(net1);
+      WRITE_STATE_TEST(net3);
+      break;
+
+    case 43:
+    case 44:
+      WRITE_STATE_TEST(net3);
+      break;
+    }
+    Panel->controlFlags.invertTest = false;
   }
 }
 

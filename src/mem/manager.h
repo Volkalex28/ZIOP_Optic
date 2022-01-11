@@ -28,6 +28,10 @@
  */
 
 /**
+ * @brief Преобразование переменной _VAR_ в тип uint8_t 
+ */
+#define CAST_TO_U8(_VAR_)    (*(uint8_t *)& ## _VAR_)
+/**
  * @brief Преобразование переменной _VAR_ в тип uint16_t 
  */
 #define CAST_TO_U16(_VAR_)    (*(uint16_t *)& ## _VAR_)

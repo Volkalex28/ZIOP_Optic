@@ -90,7 +90,7 @@ cell_t write(cell_t cell)
     break;  
 
   default:
-    if(com != EComMax)
+    if(com != EComMax && !GetPSBStatus(700 + cell.type - net0))
       cell.status = Write(
         com, 
         cell.adress, 
@@ -179,15 +179,21 @@ cell_t writes(cell_t cell, uint16_t count)
     break;
 
   default:
-    if(com != EComMax)
-      cell.status = Writes(
-        com, 
-        cell.adress, 
-        com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
-        cell.number, 
-        count, 
-        cell.ptr
-      ) == 1 ? memStatusOK : memStatusFAIL;
+    if(com != EComMax && !GetPSBStatus(700 + cell.type - net0))
+    {
+      cell.status = memStatusOK;
+      for(i = 0; i <= (count-1)/125 && cell.status == memStatusOK; i++)
+      {
+        cell.status = Writes(
+          com, 
+          cell.adress, 
+          com < NET_0 ? MODBUS_RTU_REGS_4X : MODBUS_TCP_REGS_4X, 
+          cell.number + 125*i, 
+          count/125 - i > 0 ? 100 : count%125, 
+          cell.ptr + 125*i
+        ) == 1 ? memStatusOK : memStatusFAIL;
+      }
+    }
     else
       cell.status = memStatusIncorrectData;
     break;
@@ -202,22 +208,18 @@ void get_ptr(cell_t * cell)
   switch (cell->type)
   {
   case memPFW:
-    if(cell->number < FIRST_RR_EEP || cell->number > (FIRST_RR_EEP + COUNT_RR_EEP))
-      cell->ptr = NULL;
-    else
+    if(!(cell->number < FIRST_RR_EEP || cell->number > (FIRST_RR_EEP + COUNT_RR_EEP)))
       cell->ptr = &PSW[FIRST_RR_FOR_EEP + (cell->number - FIRST_RR_EEP)];
     break;
 
   case memPSW:
-    if(cell->number >= 4096)
-      cell->ptr = NULL;
-    else
+    if(cell->number < 4096)
       cell->ptr = &PSW[cell->number];
     break;
   
-  default:
-    cell->ptr = NULL;
-    break;
+  // default:
+  //   cell->ptr = NULL;
+  //   break;
   }
 }
 
@@ -256,8 +258,10 @@ void selectNormalBlock(int16_t * Select, uint16_t Offset, int16_t Max, int16_t M
 com_t get_com(MemTypes_t type)
 {
   if(type >= net0 && type <= net5)
-    if(getEnable(type - net0) == false)
+  {
+    if((getEnable(type - net0) == false))
       return EComMax;
+  }
 
   switch (type)
   {

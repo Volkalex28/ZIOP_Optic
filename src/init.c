@@ -64,5 +64,7 @@ void init(void)
   }
 
   writes(c, 200);
+
+  Panel->numberTest = 1;
 }
 
