@@ -20,7 +20,37 @@ void screenMnemotic(void)
 {
   short i, k, temp;
 
-  
+  if (findAlarms(Alarms[alarmsActual],alConFailAtAllPanel))
+  {
+    Screens->Mnemotic.Settings.Flags.VisibleTemperT1 = true;
+    Screens->Mnemotic.Settings.Flags.VisibleTemperT2 = true;
+    Screens->Mnemotic.Settings.Flags.VisibleTemperT3 = true;
+    Screens->Mnemotic.Settings.Flags.VisibleTemperT4 = true;
+  }
+  else
+  {
+    if (findAlarms(Alarms[alarmsActual],alConFailPanel3))
+    {  
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT1 = true;
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT3 = true;
+    }
+    else
+    {
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT1 = findAlarms(Alarms[alarmsActual],alConFailDP3);
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT3 = findAlarms(Alarms[alarmsActual],alConFailDP5);
+    }
+    if (findAlarms(Alarms[alarmsActual],alConFailPanel4))
+    {  
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT2 = true;
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT4 = true;
+    }
+    else
+    {
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT2 = findAlarms(Alarms[alarmsActual],alConFailDP4);
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT4 = findAlarms(Alarms[alarmsActual],alConFailDP6);
+    }
+  }
+
 
   for (i = 0; i < 4; i++)
   {

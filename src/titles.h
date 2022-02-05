@@ -22,21 +22,21 @@ typedef struct Title_s
 void finitTitle(void);
 
 const Title_t arrTitles[] = {
-  {alPowerOn1,               "Включение панели К1"},
-  {alPowerOn2,               "Включение панели К2"},
+  {alPowerOn1,               "Включение панели К-1"},
+  {alPowerOn2,               "Включение панели К-2"},
   {alPowerOn3,               "Включение панели К-Т1/3"},
-  {alPowerOn4,               "Включение панели К-Т1/4"},
-  {alOpenUserAccess1,        "Доступ пользователя панели К1 открыт"},
-  {alOpenUserAccess2,        "Доступ пользователя панели К2 открыт"},
+  {alPowerOn4,               "Включение панели К-Т2/4"},
+  {alOpenUserAccess1,        "Доступ пользователя панели К-1 открыт"},
+  {alOpenUserAccess2,        "Доступ пользователя панели К-2 открыт"},
   {alOpenUserAccess3,        "Доступ пользователя панели К-Т1/3 открыт"},
-  {alOpenUserAccess4,        "Доступ пользователя панели К-Т1/4 открыт"},
-  {alOpenAdminAccess1,       "Доступ администратора панели К1 открыт"},
-  {alOpenAdminAccess2,       "Доступ администратора панели К2 открыт"},
+  {alOpenUserAccess4,        "Доступ пользователя панели К-Т2/4 открыт"},
+  {alOpenAdminAccess1,       "Доступ администратора панели К-1 открыт"},
+  {alOpenAdminAccess2,       "Доступ администратора панели К-2 открыт"},
   {alOpenAdminAccess3,       "Доступ администратора панели К-Т1/3 открыт"},
-  {alOpenAdminAccess4,       "Доступ администратора панели К-Т1/4 открыт"},
+  {alOpenAdminAccess4,       "Доступ администратора панели К-Т2/4 открыт"},
 
-  {alConFailPanel1,         "Обрыв связи с панелью К1"},
-  {alConFailPanel2,         "Обрыв связи с панелью К2"},
+  {alConFailPanel1,         "Обрыв связи с панелью К-1"},
+  {alConFailPanel2,         "Обрыв связи с панелью К-2"},
   {alConFailPanel3,         "Обрыв связи с панелью К-Т1/3"},
   {alConFailPanel4,         "Обрыв связи с панелью К-Т2/4"},
   {alConFailDP1,            "Обрыв связи с контроллером К-1"},
@@ -46,14 +46,14 @@ const Title_t arrTitles[] = {
   {alConFailDP5,            "Обрыв связи с контроллером К-Т2"},
   {alConFailDP6,            "Обрыв связи с контроллером К-Т4"},
   {alConFailGate,           "Обрыв связи со Шлюзом 485-RTU-LAN"},
-  {alConFailShot,                "Обрыв связи с ШОТ"},
-  {alConFailShsn,                "Обрыв связи с ШСН"},
-  {alConFailShsnD,               "Обрыв связи с ШСН-Д"},
+  {alConFailShot,           "Обрыв связи с ШОТ"},
+  {alConFailShsn,           "Обрыв связи с ШСН"},
+  {alConFailShsnD,          "Обрыв связи с ШСН-Д"},
 
 //---
   
-  {alConRestoredPanel1,         "Связь с панелью К1 восстановлена"},
-  {alConRestoredPanel2,         "Связь с панелью К2 восстановлена"},
+  {alConRestoredPanel1,         "Связь с панелью К-1 восстановлена"},
+  {alConRestoredPanel2,         "Связь с панелью К-2 восстановлена"},
   {alConRestoredPanel3,         "Связь с панелью К-Т1/3 восстановлена"},
   {alConRestoredPanel4,         "Связь с панелью К-Т2/4 восстановлена"},
   {alConRestoredDP1,            "Связь с контроллером К-1 восстановлена"},
@@ -63,9 +63,9 @@ const Title_t arrTitles[] = {
   {alConRestoredDP5,            "Связь с контроллером К-Т2 восстановлена"},
   {alConRestoredDP6,            "Связь с контроллером К-Т4 восстановлена"},
   {alConRestoredGate,           "Связь со Шлюзом 485-RTU-LAN восстановлена"},
-  {alConRestoredShot,            "Связь со ШОТ восстановлена"},
-  {alConRestoredShsn,            "Связь со ШСН восстановлена"},
-  {alConRestoredShsnD,           "Связь со ШСН-Д восстановлена"},
+  {alConRestoredShot,           "Связь со ШОТ восстановлена"},
+  {alConRestoredShsn,           "Связь со ШСН восстановлена"},
+  {alConRestoredShsnD,          "Связь со ШСН-Д восстановлена"},
 
 //-------------------------------------------------------------------------------------
 //--------------------------  SHOT  ---------------------------------------------------
