@@ -1,0 +1,35 @@
+Трансформатор 1
+Если
+  2525.0  == false and 2525.1  == false and
+  2525.5  == false and 2525.6  == false and
+  2526.2  == false and 2526.3  == false and
+  2526.4  == true  and 2526.5  == falsa and
+  2526.8  == false and 2526.9  == false and
+  2526.10 == true  and 2526.11 == false
+    то    51.0 = true  и 54.0 = true
+    иначе 51.0 = false и 54.0 = false
+
+Если
+  2525.0  == false and 2525.1  == false and
+  2525.3  == true  and 2525.4  == false and
+  2526.0  == true  and 2526.1  == false and
+  2526.4  == true  and 2526.5  == falsa and
+  2526.6  == false and 2526.7  == false and
+  2526.10 == true  and 2526.11 == false and
+  2526.12 == false and 2526.13 == false
+    то 51.1 = true и 54.1 = true
+    иначе 51.1 = false и 54.1 = false
+
+Если
+  2525.3  == false and 2525.4  == false and
+  2525.5  == false and 2525.6  == false and
+  2526.0  == false and 2526.1  == false and
+  2526.2  == true  and 2526.3  == falsa and
+  2526.8  == true  and 2526.9  == false and
+  2526.10 == false and 2526.8  == false and
+  (2525.7 == true or 2525.11 == true) == false
+    то 51.2 = true
+    иначе 51.2 = false
+
+Если 
+  
