@@ -37,7 +37,7 @@ void screenMnemotic(void)
     else
     {
       Screens->Mnemotic.Settings.Flags.VisibleTemperT1 = findAlarms(Alarms[alarmsActual],alConFailDP3);
-      Screens->Mnemotic.Settings.Flags.VisibleTemperT3 = findAlarms(Alarms[alarmsActual],alConFailDP5);
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT3 = findAlarms(Alarms[alarmsActual],alConFailDP4);
     }
     if (findAlarms(Alarms[alarmsActual],alConFailPanel4))
     {  
@@ -46,7 +46,7 @@ void screenMnemotic(void)
     }
     else
     {
-      Screens->Mnemotic.Settings.Flags.VisibleTemperT2 = findAlarms(Alarms[alarmsActual],alConFailDP4);
+      Screens->Mnemotic.Settings.Flags.VisibleTemperT2 = findAlarms(Alarms[alarmsActual],alConFailDP5);
       Screens->Mnemotic.Settings.Flags.VisibleTemperT4 = findAlarms(Alarms[alarmsActual],alConFailDP6);
     }
   }
