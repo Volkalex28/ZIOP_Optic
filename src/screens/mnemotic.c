@@ -20,6 +20,8 @@ void screenMnemotic(void)
 {
   short i, k, temp;
 
+  
+
   for (i = 0; i < 4; i++)
   {
     // Q1-7, Q1-8, Q1-9, Q1-10
@@ -38,6 +40,8 @@ void screenMnemotic(void)
   if (Screens->Mnemotic.Settings.Flags.EventOpenWindow)
   {
     OpenWindow(20,100,122);
+
+    Screens->Mnemotic.Settings.TitleWindowNumberDouble = Screens->Mnemotic.Settings.TitleWindowNumber;
 
     if (Screens->Mnemotic.Settings.TitleWindowNumber > 11)
       {

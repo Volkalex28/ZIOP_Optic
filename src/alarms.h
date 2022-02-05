@@ -314,6 +314,19 @@ typedef enum EAlarm
   alFailOpticalSwitchKO15,
   alFailOpticalSwitchKO1,
   alFailOpticalSwitchKO2,
+
+  alFailOperCurrentT1,
+  alFailOperCurrentT2,
+  alFailOperCurrentT3,
+  alFailOperCurrentT4,
+  alFailArcProtectionQST1,
+  alFailArcProtectionQST2,
+  alFailArcProtectionQST3,
+  alFailArcProtectionQST4,
+  alFailArcProtectionQ1,
+  alFailArcProtectionQ2,
+  alFailArcProtectionQ3,
+  alFailArcProtectionQ4,
   
   alAll                             ///< Количество всех событий
 } Alarm_t;

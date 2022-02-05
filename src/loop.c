@@ -266,8 +266,13 @@ void controlLogic(uint16_t num)
     && getBit(2525+num*2, 9) == false   && !(getBit(2526+num*2, 4) == true 
     && getBit(2526+num*2, 5) == false))
 
-  controlBit(sound[num], 19, true, true, Alarms[alarmsActual]->count == 0);
-
+  // controlBit(sound[num], 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(0, 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(1, 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(2, 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(3, 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(4, 19, true, true, Alarms[alarmsActual]->count == 0);
+  controlBit(5, 19, true, true, Alarms[alarmsActual]->count == 0);
 
   controlBit(0+num%2, 3, true, true, false);
   controlBit(0+num%2, 7, true, true, false);
@@ -298,8 +303,8 @@ void controlLogic(uint16_t num)
   controlBit(rep[num], 16, true, true, false);
   controlBit(rep[num], 17, true, true, false);
   controlBit(rep[num], 18, true, true, false);
-  if(num >= 2)
-  controlBit(rep[num], 19, true, true, false);
+  // if(num >= 2)
+  // controlBit(rep[num], 19, true, true, false);
 }
 
 void alarmLogic(void)
@@ -399,30 +404,55 @@ void alarmLogic(void)
 
   for(i = 0; i < 4; i++) 
   {
-    if(getBit(2525+2*i, 10) == true) 
+    if (getBit(2525+2*i, 8) == true)  //Нет опер тока тепловой защиты тр-ра
     {
-      deleteCrash(alTransTemperProtectT1_140+i);
-      addCrash(alTransTemperProtectT1+i);
+      addCrash(alFailOperCurrentT1+i);            //Нет опер тока тепловой защиты тр-ра
+      deleteCrash(alTransTemperProtectT1_140+i);  //Предупредительная  тепловая защита 140 гр С тр-ра
+      deleteCrash(alTransTemperProtectT1+i);      //Тепловая авария 155 гр С тр-ра Т1
     }
-    else 
+    else
     {
-      deleteCrash(alTransTemperProtectT1+i);
-      if(getBit(2525+2*i, 9) == true) 
-        addCrash(alTransTemperProtectT1_140+i);
-      else deleteCrash(alTransTemperProtectT1_140+i);
+      deleteCrash(alFailOperCurrentT1+i);
+      if(getBit(2525+2*i, 10) == true) 
+      {
+        deleteCrash(alTransTemperProtectT1_140+i);
+        addCrash(alTransTemperProtectT1+i);
+      }
+      else 
+      {
+        deleteCrash(alTransTemperProtectT1+i);
+        if(getBit(2525+2*i, 9) == true) 
+          addCrash(alTransTemperProtectT1_140+i);
+        else deleteCrash(alTransTemperProtectT1_140+i);
+      }
     }
+    if (getBit(2525+2*i, 7) == true)  //Защита от дуги в шкафу QS-Tx
+      addCrash(alFailArcProtectionQST1+i);  
+    else   
+      deleteCrash(alFailArcProtectionQST1+i);  
+    if (getBit(2525+2*i, 11) == true)  //Защита от дуги в шкафу Qx
+      addCrash(alFailArcProtectionQ1+i);  
+    else   
+      deleteCrash(alFailArcProtectionQ1+i);  
+  
   }
 
-  if(getBit(2533, 0) == true || getBit(2533, 2) == true) 
+  // if(getBit(2533, 0) == true || getBit(2533, 2) == true) 
+  //   addCrash(alFailOpticalSwitchKO14);
+  // else deleteCrash(alFailOpticalSwitchKO14);
+  // if(getBit(2533, 1) == true || getBit(2533, 3) == true) 
+  //   addCrash(alFailOpticalSwitchKO15);
+  // else deleteCrash(alFailOpticalSwitchKO15);
+  if(getBit(2533, 0) == false || getBit(2533, 2) == false) 
     addCrash(alFailOpticalSwitchKO14);
   else deleteCrash(alFailOpticalSwitchKO14);
-  if(getBit(2533, 1) == true || getBit(2533, 3) == true) 
+  if(getBit(2533, 1) == false || getBit(2533, 3) == false) 
     addCrash(alFailOpticalSwitchKO15);
   else deleteCrash(alFailOpticalSwitchKO15);
-  if(getBit(2533, 4) == true) 
+  if(getBit(2533, 4) == false) 
     addCrash(alFailOpticalSwitchKO2);
   else deleteCrash(alFailOpticalSwitchKO2);
-  if(getBit(2533, 5) == true) 
+  if(getBit(2533, 5) == false) 
     addCrash(alFailOpticalSwitchKO1);
   else deleteCrash(alFailOpticalSwitchKO1);
 }

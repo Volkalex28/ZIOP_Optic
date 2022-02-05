@@ -121,11 +121,11 @@ void taskExchangeReadGateWrite(void)
   tryAgain:
     if(Panel->flags.enableEx == false) { Delay(20); continue; }
 
-    if(Panel->flags.chooseTestMode == true)
-    {
-      writeDevice(false);
-      Delay(20); continue;
-    }
+    // if(Panel->flags.chooseTestMode == true)
+    // {
+    //   writeDevice(false);
+    //   Delay(20); continue;
+    // }
 
     Delay(300);
     if(Panel->flags.isMaster == false)
@@ -747,6 +747,13 @@ void readDevice(void)
       writeEvents();
       writeGateData();
     }
+
+      if(Panel->flags.chooseTestMode == true)
+    {
+      writeDevice(false);
+      // Delay(20); continue;
+    }
+  
   } 
   break;
 

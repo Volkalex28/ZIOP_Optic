@@ -24,12 +24,19 @@ typedef struct ScreenMnemotic_s
       uint16_t Led1Visible	: 1;    // 5
       uint16_t Led2Visible	: 1;    // 6
       uint16_t Led3Visible	: 1;    // 7
+      uint16_t VisibleTemperT1 : 1; // 8
+      uint16_t VisibleTemperT2 : 1; // 9
+      uint16_t VisibleTemperT3 : 1; // 10
+      uint16_t VisibleTemperT4 : 1; // 11
+
     } Flags;                      // 551
     uint16_t RegimeWindow1;       // 552
     uint16_t RegimeWindow2;       // 553
     
     uint16_t RegimeScreen [28];   // 554...581
     uint16_t Temp;   // 582
+    uint16_t TitleWindowNumberDouble;    // 583    
+
   );
 } ScreenMnemotic_t;
 

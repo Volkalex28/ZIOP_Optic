@@ -273,13 +273,13 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
         default:
           // AnP
           if (numberAlarm >= 214 && numberAlarm <= 229)  // 52...67
-            return (numberAlarm - 162);
+            return (numberAlarm - 162 + 6);
           // DP
           if (numberAlarm >= 262 && numberAlarm <= 301)  // 68...107
-            return (numberAlarm - 194);
+            return (numberAlarm - 194 + 6);
           // BKIf
           if (numberAlarm >= 614 && numberAlarm <= 627)  // 108...121
-            return (numberAlarm - 506);
+            return (numberAlarm - 506 + 6);
         } 
     break;
     case shieldShsn:
@@ -297,7 +297,7 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
         default:
           // DP
           if (numberAlarm >= 262 && numberAlarm <= 281)   // 127...146
-            return (numberAlarm - 135);
+            return (numberAlarm - 135 + 6);
       } 
     break;
     case shieldShsnD:
@@ -315,7 +315,7 @@ Alarm_t convertionNumberAlarm(Shield_t numberShield, uint16_t numberAlarm)
         default:
           // DP
           if (numberAlarm >= 262 && numberAlarm <= 281)   //  152...171
-            return (numberAlarm - 110);
+            return (numberAlarm - 110 + 6);
       } 
     break;
   }
