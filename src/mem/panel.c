@@ -11,6 +11,7 @@
 #include "pfw.h"
 
 #include "../devices/devices_mem.h"
+#include "../screens/screen.h"
 
 Panel_t * Panel;
 
@@ -36,4 +37,68 @@ Time_t * getTime(void)
 void initPanel(void)
 {
   Panel = (Panel_t *)&PSW[FIRST_RR_PANEL];
+
+  memset(&CAST_TO_U8(Panel->newTime), 0xFF, sizeof(Panel->newTime));
+}
+
+void updateTime()
+{
+  int i, n;
+  bool_t write = false;
+
+  switch (dMem->time.Month)  
+  {
+  case 1:  Panel->maxDay = 31; break;
+  case 2:  Panel->maxDay = (dMem->time.Year % 4 == 0) ? 29 : 28; break;
+  case 3:  Panel->maxDay = 31; break;
+  case 4:  Panel->maxDay = 30; break;
+  case 5:  Panel->maxDay = 31; break;
+  case 6:  Panel->maxDay = 30; break;
+  case 7:  Panel->maxDay = 31; break;
+  case 8:  Panel->maxDay = 31; break;
+  case 9:  Panel->maxDay = 30; break;
+  case 10: Panel->maxDay = 31; break;
+  case 11: Panel->maxDay = 30; break;
+  case 12: Panel->maxDay = 31; break;
+  }
+
+  if(dMem->time.Day > Panel->maxDay) Panel->newTime.Day = Panel->maxDay;
+
+  for(i = 0; i < 6; i++)
+  {
+    uint16_t * newTime = &CAST_TO_U16(Panel->newTime) + i;
+
+    if(*newTime != 0xFFFF)
+    {
+      PSW[TIME_BUF_HEX] = ((*newTime / 100) * 256 + (*newTime / 10) * 16 + (*newTime % 10));
+
+      switch (i)
+      {
+      case 0: PSW[TIME_BUF_SET] |= (1 << 3); break;
+      case 1: PSW[TIME_BUF_SET] |= (1 << 4); break;
+      case 2: PSW[TIME_BUF_SET] |= (1 << 5); break;
+      case 3: PSW[TIME_BUF_SET] |= (1 << 2); break;
+      case 4: PSW[TIME_BUF_SET] |= (1 << 1); break;
+      case 5: PSW[TIME_BUF_SET] |= (1 << 0); break;
+      }
+
+      for(n = 0; PSW[TIME_BUF_SET] != 0 && n < 10; n++) Delay(100);
+      
+      *newTime = 0xFFFF;
+      write = true;
+    }
+  }
+
+  if(Panel->flags.isMaster == false 
+     && Panel->flags2.saveDataTimeSlave == true 
+     && Panel->flags2.saveDataTimeMaster == false
+     && write)
+  {
+    Panel->flags2.saveDataTimeSlave = false;
+    Panel->flags2.saveDataTime = false;
+    return;
+  }
+
+  if(Panel->flags.isMaster && write) Panel->flags2.saveDataTime = true;
+  else if(write) Panel->flags2.saveDataTimeMaster = true;
 }

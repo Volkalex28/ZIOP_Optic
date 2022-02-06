@@ -39,6 +39,11 @@ uint16_t getMaskValue(AlarmsMask_t typeMask, Alarm_t numberAlarm);
 void addEvent(Alarm_t number)
 {
   addEventTime(number, *getTime());
+
+  if(number >= alConRestoredPanel1 && number <= alConRestoredPanel4)
+  {
+    Panel->flags2.saveDataTime = true;
+  }
 }
 
 void addEventTime(Alarm_t number, Time_t time)

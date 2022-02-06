@@ -38,6 +38,7 @@ enum EScreen
 enum EWindow
 {
   winReboot = 1,
+  winTime,
   winErrors = 5,
   winSettBKI,
   winSettAnP,

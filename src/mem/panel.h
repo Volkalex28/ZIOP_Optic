@@ -138,6 +138,14 @@ typedef struct Panel_s
   uint16_t          numberTextErrors;   // 310
   uint16_t          numberTest;         // 311
   uint16_t          counterMaster[2];   // 312..313
+  Time_t            newTime;            // 314..319
+  struct FlagsPanel2_s
+  {
+    uint32_t saveDataTime               : 1;  // 320:0
+    uint32_t saveDataTimeMaster         : 1;  // 320:1
+    uint32_t saveDataTimeSlave          : 1;  // 320:2
+  } flags2;                              // 320..321
+  uint16_t          maxDay;             // 322
 } Panel_t;
 
 extern Panel_t * Panel;
@@ -145,5 +153,6 @@ extern Panel_t * Panel;
 uint8_t getMyIP(void);
 Time_t * getTime(void);
 void initPanel(void);
+void updateTime(void);
 
 #endif // __MEM_PANEL_H__

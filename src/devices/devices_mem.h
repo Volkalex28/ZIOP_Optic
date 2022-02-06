@@ -17,11 +17,11 @@
 
 typedef struct devices_mem_s
 {
-  dDPmem_t    DP[N_DP]; 
-  uint16_t    handledDP[16];
-  Time_t      time;
-  uint16_t    reserve[54];
-  dGatemem_t  Gate[N_Gate];
+  dDPmem_t    DP[N_DP];         // 2500..2523
+  uint16_t    handledDP[16];    // 2524..2539
+  Time_t      time;             // 2540..2545
+  uint16_t    reserve[54];      // 2546..2599
+  dGatemem_t  Gate[N_Gate];     // 2600...
 } devices_mem_t;
 
 typedef struct devices_pfw_s

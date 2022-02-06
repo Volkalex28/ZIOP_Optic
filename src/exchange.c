@@ -463,7 +463,6 @@ void writeDevice(bool_t enableSlave)
       writeDeviceMaster(net0, 3);
       writeDeviceMaster(net1, 4);
       writeDeviceMaster(net1, 5);
-
     break;
 
   case 43: 
@@ -663,6 +662,72 @@ void writeGateData(void)
   }
 }
 
+void syncTime(void)
+{
+  cell_t c;
+  int i = -1;
+
+  if(Panel->flags.isMaster && Panel->flags2.saveDataTime)
+  {
+    for(i = 0; i < 3; i++)
+    {
+      struct FlagsPanel2_s flags2;
+      switch (i)
+      {
+      case 0: c.type = net0; break;
+      case 1: c.type = net1; break;
+      case 2: c.type = net3; break;
+      }
+
+      c.ptr = &CAST_TO_U16(flags2); c.number = &CAST_TO_U16(Panel->flags2) - PSW;
+      reads(c, 1);
+      
+      if(flags2.saveDataTimeMaster == false)
+      {
+        flags2.saveDataTimeSlave = true;
+        writes(c, 1);
+        c.number = &CAST_TO_U16(Panel->newTime) - PSW; c.ptr = &CAST_TO_U16(dMem->time);
+        writes(c, CALC_COUNT_RR(dMem->time));
+      }
+    }
+
+    Panel->flags2.saveDataTime = false;
+
+    return;
+  }
+
+  if(Panel->flags.isMaster)
+  {
+    struct FlagsPanel2_s flags2;
+    c.number = &CAST_TO_U16(Panel->flags2) - PSW; 
+
+    for(i = 0; i < 3; i++)
+    {
+      switch (i)
+      {
+      case 0: c.type = net0; break;
+      case 1: c.type = net1; break;
+      case 2: c.type = net3; break;
+      }
+
+      c.ptr = &CAST_TO_U16(flags2); 
+      reads(c, 1);
+
+      if(flags2.saveDataTimeMaster == true)
+      {        
+        c.number = &CAST_TO_U16(dMem->time) - PSW; c.ptr = &CAST_TO_U16(Panel->newTime);
+        reads(c, CALC_COUNT_RR(dMem->time));
+
+        c.number = &CAST_TO_U16(Panel->flags2) - PSW; c.ptr = &CAST_TO_U16(flags2); 
+        flags2.saveDataTimeMaster = false;
+        writes(c, 1);
+
+        break;
+      }
+    }
+  }
+}
+
 void readDevice(void)
 {
   size_t i, n, k;
@@ -748,12 +813,12 @@ void readDevice(void)
       writeGateData();
     }
 
-      if(Panel->flags.chooseTestMode == true)
+    if(Panel->flags.chooseTestMode == true)
     {
       writeDevice(false);
       // Delay(20); continue;
     }
-  
+    syncTime();
   } 
   break;
 
@@ -996,7 +1061,6 @@ void controlTest(void)
     Panel->controlFlags.invertTest = false;
   }
 }
-
 
 void connectionFaultHandler(uint8_t number)
 {

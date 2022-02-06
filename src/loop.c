@@ -608,6 +608,7 @@ void taskLoop(void)
 
     updatePFW();
     getTime();
+    updateTime();
 
     if(GetAdminLevelAvtorisation != Panel->flags.StateAdminAccessOld)
     {
