@@ -45,9 +45,8 @@ enum EWindow
   winConfAlarms,
   winMenuSyst,
   winMenu,
-  winExControl,
-  winTCPStatistic,
-  winMnemotic
+  winExControl = 13,
+  winMnemotic = 20
 };
 
 typedef union Screens_s
