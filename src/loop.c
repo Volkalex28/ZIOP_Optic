@@ -75,6 +75,79 @@ void normControl(uint16_t inNum, uint16_t outNum, uint8_t bit, uint8_t obit, boo
     PSW[outNum + obit/16] ^= (1 << (obit%16));
 }
 
+void checkConnection(void)
+{
+  int i = 0;
+  
+    if (findAlarms(Alarms[alarmsActual],alConFailAtAllPanel))
+    {
+      for(i = 0; i < 6; i++) 
+      {
+        PSW[2500+i] = 0;
+        PSW[2501+i] = 0;
+      }
+    }
+    else
+    {
+      if (findAlarms(Alarms[alarmsActual],alConFailPanel3))
+      {  
+        PSW[2500+i] = 0;  //51
+        PSW[2501+i] = 0;
+        PSW[2508+i] = 0;  //53
+        PSW[2509+i] = 0;
+        PSW[2512+i] = 0;  //54
+        PSW[2513+i] = 0;
+      }
+      else
+      {
+        if (findAlarms(Alarms[alarmsActual],alConFailDP1))
+        {
+          PSW[2500+i] = 0;  //51 K-1
+          PSW[2501+i] = 0;
+        }
+        if (findAlarms(Alarms[alarmsActual],alConFailDP3))
+        {
+          PSW[2512+i] = 0;  //54 KT-T1
+          PSW[2513+i] = 0;
+        }
+        if (findAlarms(Alarms[alarmsActual],alConFailDP4))
+        {
+          PSW[2508+i] = 0;  //53 KT-T3
+          PSW[2509+i] = 0;
+        }
+      }
+      if (findAlarms(Alarms[alarmsActual],alConFailPanel4))
+      {  
+        PSW[2504+i] = 0;  //52
+        PSW[2505+i] = 0;
+        PSW[2516+i] = 0;  //55
+        PSW[2517+i] = 0;
+        PSW[2520+i] = 0;  //56
+        PSW[2521+i] = 0;
+      }
+      else
+      {
+        if (findAlarms(Alarms[alarmsActual],alConFailDP2))
+        {
+          PSW[2504+i] = 0;  //52 K-2
+          PSW[2505+i] = 0;
+        }
+        if (findAlarms(Alarms[alarmsActual],alConFailDP5))
+        {
+          PSW[2516+i] = 0;  //55 KT-T2
+          PSW[2517+i] = 0;
+        }
+        if (findAlarms(Alarms[alarmsActual],alConFailDP6))
+        {
+          PSW[2520+i] = 0;  //56 KT-T4
+          PSW[2521+i] = 0;
+        }
+      }
+    }
+
+
+}
+
 void handlerLogicInputs(void)
 {
   // PSW[1101] = PSW[1100];
@@ -584,6 +657,8 @@ void taskLoop(void)
     for(i = 0; i < 6; i++) connectionFaultHandler(i);
 
     Panel->flags.can = false;
+
+    checkConnection();
     handlerLogicInputs();
     handlerLogicOutputs();
     switch (getMyIP())
@@ -617,13 +692,16 @@ void taskLoop(void)
       {
         addEvent(alOpenAdminAccess1 + getMyIP() - 41);
         SetUserLevelAvtorisation;
+        Panel->flags.StateUserAccessOld = true;
       }
     }
     if(GetUserLevelAvtorisation != Panel->flags.StateUserAccessOld)
     {
       Panel->flags.StateUserAccessOld = !Panel->flags.StateUserAccessOld;
+//      Panel->flags.StateAdminAccessOld = true;
       if(GetUserLevelAvtorisation) addEvent(alOpenUserAccess1 + getMyIP() - 41);
     }
+
     Panel->flags.notUserAccess = !GetUserLevelAvtorisation;
     Panel->flags.notAdminAccess = !GetAdminLevelAvtorisation;
     if(Panel->flags.notLevelAccess)
