@@ -44,7 +44,7 @@ bool_t getEnable(uint8_t number)
   cell_t c;
 
   c.type = memPFW; c.number = 2064 + 16*number;
-  return read(c).value & 0x2 ? false : true;
+  return ((read(c).value & 0x2) ? false : true);
 }
 
 void setEnable(uint8_t number, bool_t state)

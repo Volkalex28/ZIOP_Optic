@@ -133,6 +133,12 @@ cell_t reads(cell_t cell, uint16_t count)
   default:
     if(com != EComMax)
     {
+      if(Panel->flags.isMaster == false && (getMyIP() == 41 || getMyIP() == 42) && cell.type == net2 && cell.status != memStatusIGNORE)
+      {
+        cell.status = memStatusIncorrectData;
+        break;
+      }
+      
       cell.status = memStatusOK;
       for(i = 0; i <= (count-1)/125 && cell.status == memStatusOK; i++)
       {

@@ -150,11 +150,14 @@ typedef struct Panel_s
   uint16_t          numberTest;         // 311
   uint16_t          counterMaster[2];   // 312..313
   Time_t            newTime;            // 314..319
+  uint16_t          counterEx[2];       // 320..321
   struct FlagsPanel2_s
   {
     uint32_t saveDataTime               : 1;  // 320:0
     uint32_t saveDataTimeMaster         : 1;  // 320:1
     uint32_t saveDataTimeSlave          : 1;  // 320:2
+    uint32_t stateExDP                  : 6;  // 320:3..8
+    uint32_t invertExDP                 : 6;  // 320:9..14
   } flags2;                              // 320..321
   uint16_t          maxDay;             // 322
 } Panel_t;

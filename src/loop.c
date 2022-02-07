@@ -83,8 +83,8 @@ void checkConnection(void)
     {
       for(i = 0; i < 6; i++) 
       {
-        PSW[2500+i] = 0;
-        PSW[2501+i] = 0;
+        PSW[2500+4*i] = 0;
+        PSW[2501+4*i] = 0;
       }
     }
     else
@@ -391,11 +391,8 @@ void alarmLogic(void)
       alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
       alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
       alExContr(alConFailPanel2, (getEnable(3) == false) || GetPSBStatus(703));
-      alExContr(alConFailAtAllPanel,
-        ((getEnable(0) == false) || GetPSBStatus(700)) &&
-        ((getEnable(1) == false) || GetPSBStatus(701)) &&
-        // ((getEnable(2) == false) || GetPSBStatus(702)) &&
-        ((getEnable(3) == false) || GetPSBStatus(703)) 
+      alExContr(alConFailAtAllPanel, (GetPSBStatus(700) && GetPSBStatus(701) 
+                                      && GetPSBStatus(702) && GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
         && dMem->Gate->errCon.SHOT && Panel->flags.isMaster)); 
@@ -410,11 +407,8 @@ void alarmLogic(void)
       alExContr(alConFailPanel4, (getEnable(1) == false) || GetPSBStatus(701));
       alExContr(alConFailGate,   (getEnable(2) == false) || GetPSBStatus(702));
       alExContr(alConFailPanel1, (getEnable(3) == false) || GetPSBStatus(703));
-      alExContr(alConFailAtAllPanel,
-        ((getEnable(0) == false) || GetPSBStatus(700)) &&
-        ((getEnable(1) == false) || GetPSBStatus(701)) &&
-        // ((getEnable(2) == false) || GetPSBStatus(702)) &&
-        ((getEnable(3) == false) || GetPSBStatus(703)) 
+      alExContr(alConFailAtAllPanel, (GetPSBStatus(700) && GetPSBStatus(701) 
+                                      && GetPSBStatus(702) && GetPSBStatus(703)) 
       );
       alExContr(alConFailShot, (!((getEnable(2) == false) || GetPSBStatus(702)) 
         && dMem->Gate->errCon.SHOT && Panel->flags.isMaster)); 
@@ -583,7 +577,7 @@ bool_t controlGateAccess(void)
     }
     return true;
   }
-  if(Panel->flags.cannotGoToZVU && PSW[CURRENT_SCREEN] == scrBKI)
+  if(Panel->flags.cannotGoToBKI && PSW[CURRENT_SCREEN] == scrBKI)
   {
     Panel->numberTextErrors = numTE_ErrConectionBKI;
     if(Panel->flags.cannotGoToSHOT)

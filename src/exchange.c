@@ -260,9 +260,8 @@ void taskExchangeReadGateWrite(void)
         }
       }
       GO_AGAIN_READS(net2, 299, &CAST_TO_U16(dMem->Gate->errCon), c, 1);
-      // GO_AGAIN_READS(net2, 71, PSW + 3000, c, 3);
 
-      if(/* dMem->Gate->errCon.SHOT == false ||  */GetPSBStatus(702) == false)
+      if(GetPSBStatus(702) == false)
       {
         GO_AGAIN_READS(net2, 120, &CAST_TO_U16(dMem->Gate), c, CALC_COUNT_RR(dGatemem_t)-1);
       }
@@ -311,8 +310,6 @@ void taskExchangeReadGateWrite(void)
         }
         alTemp.count = 0;
         
-        // c.type = net2; c.number = 49; c.ptr = ;
-        // c = reads(c, 1);
         CONTINUE_READS(net2, 299, &temp, c, 1);
 
         if((CAST_TO_U16(temp) & (1 << i)) == false 
@@ -356,12 +353,6 @@ void taskExchangeReadGateWrite(void)
           Panel->gateEventsState[i].isWait = false;
           Panel->gateEventsState[i].isError = false;
         }
-        
-        // c.type = net2; c.number = 49; c.ptr = &CAST_TO_U16(dMem->Gate->errCon);
-        // c = reads(c, 1);
-        // if(c.status == memStatusOK && (CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false)
-        // {
-        // }
       }
     }
   }
@@ -728,6 +719,43 @@ void syncTime(void)
   }
 }
 
+void updateCounters()
+{
+  cell_t c;
+  if(getMyIP() == 41 || getMyIP() == 42)
+  {
+    c.number = &Panel->counterEx[getMyIP() == 41 ? 0 : 1] - PSW; 
+    c.value = 0;
+
+    c.type = net0; write(c);
+    c.type = net1; write(c);
+  }
+}
+
+void getValuesDP()
+{
+  cell_t c;
+
+  if(getMyIP() == 43 || getMyIP() == 44) return;
+
+  if(Panel->flags.isMaster)
+  {
+    c.type = net0; c.ptr = &CAST_TO_U16(dMem->DP[0]); c.number = c.ptr - PSW; 
+    reads(c, CALC_COUNT_RR(dMem->DP[0]));
+    c.type = net1; c.ptr = &CAST_TO_U16(dMem->DP[1]); c.number = c.ptr - PSW; 
+    reads(c, CALC_COUNT_RR(dMem->DP[1]));
+    c.type = net0; c.ptr = &CAST_TO_U16(dMem->DP[2]); c.number = c.ptr - PSW; 
+    reads(c, CALC_COUNT_RR(dMem->DP[2])*2);
+    c.type = net1; c.ptr = &CAST_TO_U16(dMem->DP[4]); c.number = c.ptr - PSW; 
+    reads(c, CALC_COUNT_RR(dMem->DP[4])*2);
+  }
+  else
+  {
+    c.type = net3; c.ptr = &CAST_TO_U16(dMem->DP[0]); c.number = c.ptr - PSW; 
+    reads(c, CALC_COUNT_RR(dMem->DP[0])*6);
+  }
+}
+
 void readDevice(void)
 {
   size_t i, n, k;
@@ -737,6 +765,7 @@ void readDevice(void)
   uint16_t temp;
   GateSettEvent_t tempSettEvent[3];
   const uint16_t numberRR_DP = CALC_COUNT_RR(dMem->DP->DIO);
+  bool_t haveGate = false;
 
   c.adress = 1;
 
@@ -746,42 +775,51 @@ void readDevice(void)
   case 42: 
   {
     c.type = net3; 
-    c.number = FIRST_RR_PANEL + (&CAST_TO_U16(Panel->flags) - &CAST_TO_U16(*Panel)); 
+    c.number = &CAST_TO_U16(Panel->flags) - PSW; 
+    c.ptr = &CAST_TO_U16(flags);
+    Panel->flags.errConMaster 
+      = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
+    
+    c.type = net0; c.number = 2500;
+    Panel->flags.errConPanel1 = read(c).status != memStatusOK;
+    c.type = net1; c.number = 2500;
+    Panel->flags.errConPanel2 = read(c).status != memStatusOK;
+
+    if(Panel->flags.errConMaster && Panel->flags.isMaster == false)
+    {
+      c.type = net2; c.number = 120; c.status = memStatusIGNORE;
+      haveGate = read(c).status == memStatusOK;
+
+      if(haveGate) Panel->flags.isMaster = true;
+    }
+    
+    c.type = net3; 
+    c.number = &CAST_TO_U16(Panel->flags) - PSW; 
     c.ptr = &CAST_TO_U16(flags);
     Panel->flags.errConMaster 
       = reads(c, sizeof(flags)/2).status != memStatusOK ? true : false;
 
-    for(n = 0; n < 2; n++) for(i = 0; i < 2; i++)
-      if((CAST_TO_U16(Panel->flags) & (1 << (n+7))) == false || i == 0)
-      {
-        c.type = (n == 0 ? net0 : net1); 
-        c.ptr = &CAST_TO_U16(dMem->DP[(i+1)*n + 2*i]); 
-        c.number = c.ptr - PSW;
-        
-        if(reads(c, numberRR_DP*(1+i)).status != memStatusOK || getEnable(n) == false) 
-          CAST_TO_U16(Panel->flags) |= (1 << (n+7));
-        else 
-          CAST_TO_U16(Panel->flags) &= ~(1 << (n+7));
-      }
+    if(Panel->flags.errConMaster && haveGate) Panel->flags.isMaster = true;
 
-    if(Panel->flags.errConMaster && Panel->flags.errConPanel1 && Panel->flags.errConPanel2)
+    if(Panel->flags.errConMaster 
+       && Panel->flags.errConPanel1 
+       && Panel->flags.errConPanel2
+       && haveGate == false)
+    {
       Panel->flags.isMaster = false;
-    
-    if(Panel->flags.isMaster && flags.isMaster && Panel->flags.initMaster == false 
-      && Panel->flags.errConMaster == false && Panel->flags.errConMasterOld == false
-    ) Panel->flags.isMaster = false;
-
-    if((Panel->flags.errConPanel1 == false && Panel->flags.errConPanel1Old == false) 
-      || (Panel->flags.errConPanel2 == false && Panel->flags.errConPanel2Old == false)
-    ) if((Panel->flags.errConMaster == true && Panel->flags.errConMasterOld == true) 
-        || (Panel->flags.errConMaster == false && Panel->flags.errConMasterOld == false 
-          && flags.initMaster == false && flags.isMaster == false
-        )
-      ) Panel->flags.isMaster = true;
+    }
+    else if(Panel->flags.isMaster && flags.isMaster && Panel->flags.initMaster == false 
+            && Panel->flags.errConMaster == false) 
+    {
+      Panel->flags.isMaster = false;
+    }
+    else if((Panel->flags.errConMaster == true && Panel->flags.errConMasterOld == true) 
+            || (Panel->flags.errConMaster == false && flags.isMaster == false)) 
+    {
+      Panel->flags.isMaster = true;
+    }
 
     Panel->flags.errConMasterOld = Panel->flags.errConMaster;
-    Panel->flags.errConPanel1Old = Panel->flags.errConPanel1;
-    Panel->flags.errConPanel2Old = Panel->flags.errConPanel2;
 
     connectionAlarmsHandler(net0, alConFailDP1, true);
     connectionAlarmsHandler(net1, alConFailDP2, true);
@@ -804,6 +842,10 @@ void readDevice(void)
     connectionEventsHandler(net3, alOpenAdminAccess2);
     connectionEventsHandler(net0, alOpenAdminAccess3);
     connectionEventsHandler(net1, alOpenAdminAccess4);
+
+    updateCounters();
+
+    getValuesDP();
         
     if(Panel->flags.isMaster)
     {
@@ -819,6 +861,7 @@ void readDevice(void)
       // Delay(20); continue;
     }
     syncTime();
+
   } 
   break;
 
@@ -831,134 +874,6 @@ void readDevice(void)
     for(n = 0; n < 2; n++) for(i = 0; i < 4 * (n + 1); i++) 
       dMem->DP[getMyIP() == 43 ? 1 + 3*n : 2*n].DIO.regs[i] 
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
-    
-    // readAlarms();
-
-    /*if(Panel->controlFlags.clearEvents == true)
-    {
-      size_t i;
-      controlFlags_t f;
-      f.clearEvents = true;
-
-      for(i = 0; i < 2; i++)
-      {
-        cell_t c; c.type = net4 + i; c.number = &CAST_TO_U16(Panel->controlFlags) - PSW;
-
-        c.value = CAST_TO_U16(f);
-        c = write(c);
-
-        if(c.status == memStatusOK) break;
-      }
-
-      Panel->controlFlags.clearEvents = false;
-    }*/
-// tryAgain:
-    /*for(n = 0; n < 2; n++)
-    {
-      CONTINUE_IF(GetPSBStatus(704 + n) == true);
-
-      CONTINUE_READS(net4 + n, &CAST_TO_U16(dMem->Gate) - PSW, &CAST_TO_U16(dMem->Gate), 
-        c, CALC_COUNT_RR(dGatemem_t)
-      );
-
-      if(PSW[CURRENT_SCREEN] != scrEvent) break;
-
-      CONTINUE_READS(net4 + n, &CAST_TO_U16(PFW->N_Event) - PSW, &CAST_TO_U16(tempSettEvent), 
-        c, CALC_COUNT_RR(GateSettEvent_t)
-      );
-      if(PFW->N_Event != tempSettEvent[0].N_Event
-      ) {
-        const uint16_t number = (tempSettEvent[0].CB ? COUNT_EVENTS 
-          : tempSettEvent[0].N_Event) * NUMBER_RR_FOR_ONE_EVENT;
-        const uint8_t max_k = number%N_RR_FOR_EVENT == 0 ? number/N_RR_FOR_EVENT : number/N_RR_FOR_EVENT + 1;
-
-        for(k = 0; k < max_k; k++)
-        {
-          uint16_t temp[N_RR_FOR_EVENT] = {0};
-
-          GO_AGAIN_IF(GetPSBStatus(704 + n) == true);
-          
-          CONTINUE_READS(net4 + n, 
-            FIRST_RR_EVENT + 10000 + N_RR_FOR_EVENT*k, 
-            temp, 
-            c, 
-            N_RR_FOR_EVENT
-          );
-          
-          c.type = memPFW; c.number = FIRST_RR_EVENT + N_RR_FOR_EVENT*k;
-          writes(c, N_RR_FOR_EVENT);
-        }
-        PFW->CB = tempSettEvent[0].CB;
-        PFW->N_Event = tempSettEvent[0].N_Event;
-      }
-
-      CONTINUE_READS(net4 + n, &CAST_TO_U16(PFW->gateSettEvent) - PSW, &CAST_TO_U16(tempSettEvent), 
-        c, CALC_COUNT_RR(dMem->Gate->SettEvent)
-      );
-      for(i = 0; i < 3; i++)
-      {
-        if(CAST_TO_U16(dMem->Gate->errCon) & (1 << i))
-        {
-          Panel->gateEventsState[i].isError = true;
-          Panel->gateEventsState[i].percent = 0;
-          Panel->gateEventsState[i].isWait = false;
-        }
-        else
-        {
-          Panel->gateEventsState[i].isError = false;
-        }
-
-        if(tempSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event)
-        {
-          Panel->gateEventsState[i].isWait = true;
-          continue;
-        }
-        else
-        {
-          Panel->gateEventsState[i].isWait = false;
-        }
-
-        if((CAST_TO_U16(dMem->Gate->errCon) & (1 << i)) == false 
-          && PFW->gateSettEvent[i].N_Event != dMem->Gate->SettEvent[i].N_Event
-        ) {
-          const uint16_t number = (dMem->Gate->SettEvent[i].CB ? COUNT_EVENTS 
-            : dMem->Gate->SettEvent[i].N_Event) * NUMBER_RR_FOR_ONE_EVENT;
-          const uint8_t max_k = number%N_RR_FOR_EVENT == 0 ? number/N_RR_FOR_EVENT : number/N_RR_FOR_EVENT + 1;
-
-          for(k = 0; k < max_k; k++)
-          {
-            uint16_t temp[N_RR_FOR_EVENT] = {0};
-
-            GO_AGAIN_IF(GetPSBStatus(704 + n) == true);
-
-            Panel->gateEventsState[i].percent = (float)k/max_k*100;
-            
-            CONTINUE_READS(net4 + n, 
-              FIRST_RR_EVENT_GATE + 10000 + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + N_RR_FOR_EVENT*k, 
-              temp, 
-              c, 
-              N_RR_FOR_EVENT
-            );
-            
-            c.type = memPFW; c.number = FIRST_RR_EVENT_GATE + COUNT_EVENTS*NUMBER_RR_FOR_ONE_EVENT*i + N_RR_FOR_EVENT*k;
-            writes(c, N_RR_FOR_EVENT);
-          }
-          Panel->gateEventsState[i].percent = 100;
-          PFW->gateSettEvent[i].CB = dMem->Gate->SettEvent[i].CB;
-          PFW->gateSettEvent[i].N_Event = dMem->Gate->SettEvent[i].N_Event;
-        }
-
-        if((dMem->Gate->SettEvent[i].CB != 0 || dMem->Gate->SettEvent[i].N_Event != 0)
-          && PFW->gateSettEvent[i].N_Event == dMem->Gate->SettEvent[i].N_Event
-          && PFW->gateSettEvent[i].CB == dMem->Gate->SettEvent[i].CB
-        ) {
-          Panel->gateEventsState[i].percent = 100;
-          Panel->gateEventsState[i].isWait = false;
-          Panel->gateEventsState[i].isError = false;
-        }
-      }
-      break;
-    }*/
   }
   break;
       
@@ -1066,43 +981,37 @@ void connectionFaultHandler(uint8_t number)
 {
   size_t i;
 
-  if(Panel->StateEx[number].CounterCorrect > Panel->StateExOld[number].CounterCorrect
-    && Panel->StateEx[number].CounterNotCorrect == Panel->StateExOld[number].CounterNotCorrect
-  ) {
-    Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
-    ResetPSB(700 + number);
+  if((getMyIP() == 43 || getMyIP() == 44) && number > 3)
+  {
+    if(Panel->counterEx[number-4] >= 150) SetPSB(700 + number); else ResetPSB(700 + number);
   }
-  else if(Panel->StateEx[number].CounterNotCorrect > Panel->StateExOld[number].CounterNotCorrect
-    && Panel->StateEx[number].CounterCorrect == Panel->StateExOld[number].CounterCorrect
-  ) {
+  else
+  {
+    if(Panel->StateEx[number].CounterCorrect > Panel->StateExOld[number].CounterCorrect
+      && Panel->StateEx[number].CounterNotCorrect == Panel->StateExOld[number].CounterNotCorrect
+    ) {
+      Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
+      ResetPSB(700 + number);
+    }
+    else if(Panel->StateEx[number].CounterNotCorrect > Panel->StateExOld[number].CounterNotCorrect
+      && Panel->StateEx[number].CounterCorrect == Panel->StateExOld[number].CounterCorrect
+    ) {
+      Panel->StateExOld[number].CounterCorrect = Panel->StateEx[number].CounterCorrect;
+      SetPSB(700 + number);
+
+      if((getMyIP() == 43 || getMyIP() == 44) && getEnable(number) == true && number < 3)
+        setEnable(number, false);
+    }
+
     Panel->StateExOld[number].CounterCorrect = Panel->StateEx[number].CounterCorrect;
-    SetPSB(700 + number);
+    Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
 
-    if((getMyIP() == 43 || getMyIP() == 44) && getEnable(number) == true && number < 3)
-      setEnable(number, false);
+    PSW[2960 + number] = Panel->StateExOld[number].CounterCorrect;
+    PSW[2970 + number] = Panel->StateExOld[number].CounterNotCorrect;
+
+    PSW[2980 + number] = Panel->StateEx[number].CounterCorrect;
+    PSW[2990 + number] = Panel->StateEx[number].CounterNotCorrect;
   }
-
-  Panel->StateExOld[number].CounterCorrect = Panel->StateEx[number].CounterCorrect;
-  Panel->StateExOld[number].CounterNotCorrect = Panel->StateEx[number].CounterNotCorrect;
-
-  PSW[2960 + number] = Panel->StateExOld[number].CounterCorrect;
-  PSW[2970 + number] = Panel->StateExOld[number].CounterNotCorrect;
-
-  PSW[2980 + number] = Panel->StateEx[number].CounterCorrect;
-  PSW[2990 + number] = Panel->StateEx[number].CounterNotCorrect;
-
-  // if(getMyIP() == 43)
-  // {
-  //   Panel->flags.errConC1 = GetPSBStatus(700);
-  //   Panel->flags.errConC3 = GetPSBStatus(701);
-  //   Panel->flags.errConC4 = GetPSBStatus(702);
-  // }
-  // else if(getMyIP() == 44)
-  // {
-  //   Panel->flags.errConC2 = GetPSBStatus(700);
-  //   Panel->flags.errConC5 = GetPSBStatus(701);
-  //   Panel->flags.errConC6 = GetPSBStatus(702);
-  // }
 }
 
 void connectionAlarmsHandler(MemTypes_t port, Alarm_t number, bool_t isDelete)

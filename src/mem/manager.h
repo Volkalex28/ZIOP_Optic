@@ -133,7 +133,8 @@ typedef enum EMemStatus
 {
   memStatusIncorrectData = -1,  ///< Неверно переданный запрос на обмен данных
   memStatusFAIL,                ///< Ошибка обмена данными
-  memStatusOK                   ///< Успешно проведенный обмен
+  memStatusOK,                  ///< Успешно проведенный обмен
+  memStatusIGNORE
 } MemStatus_t;
 
 /**
