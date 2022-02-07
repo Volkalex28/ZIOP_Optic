@@ -114,3 +114,32 @@ void updateTime()
   if(Panel->flags.isMaster && write) Panel->flags2.saveDataTime = true;
   else if(write) Panel->flags2.saveDataTimeMaster = true;
 }
+
+void controlExDP()
+{
+  int i = 0, n = 0;
+  cell_t c;
+
+  if(getMyIP() == 41 || getMyIP() == 42) return;
+  c.type = memPFW;
+  
+  n = (getMyIP() == 43 ? 0 : 1);
+
+  for(i = 0; i < 3; i++)
+  {
+    bool_t value = getEnable(i);
+    
+    if(Panel->flags2.invertExDP & (1 << (i + n*3)))
+    {
+      value = !value;
+      setEnable(i, value);
+
+      Panel->flags2.invertExDP &= ~(1 << (i + n*3));
+
+      OpenWindow(3, 0, 0);
+    }
+
+    if(value) Panel->flags2.stateExDP |= (1 << (i + n*3));
+    else      Panel->flags2.stateExDP &= ~(1 << (i + n*3));
+  }
+}

@@ -79,73 +79,71 @@ void checkConnection(void)
 {
   int i = 0;
   
-    if (findAlarms(Alarms[alarmsActual],alConFailAtAllPanel))
+  if (findAlarms(Alarms[alarmsActual],alConFailAtAllPanel))
+  {
+    for(i = 0; i < 6; i++) 
     {
-      for(i = 0; i < 6; i++) 
-      {
-        PSW[2500+4*i] = 0;
-        PSW[2501+4*i] = 0;
-      }
+      PSW[2500+4*i] = 0;
+      PSW[2501+4*i] = 0;
+    }
+  }
+  else
+  {
+    if (findAlarms(Alarms[alarmsActual],alConFailPanel3))
+    {  
+      PSW[2500+i] = 0;  //51
+      PSW[2501+i] = 0;
+      PSW[2508+i] = 0;  //53
+      PSW[2509+i] = 0;
+      PSW[2512+i] = 0;  //54
+      PSW[2513+i] = 0;
     }
     else
     {
-      if (findAlarms(Alarms[alarmsActual],alConFailPanel3))
-      {  
-        PSW[2500+i] = 0;  //51
+      if (findAlarms(Alarms[alarmsActual],alConFailDP1))
+      {
+        PSW[2500+i] = 0;  //51 K-1
         PSW[2501+i] = 0;
-        PSW[2508+i] = 0;  //53
-        PSW[2509+i] = 0;
-        PSW[2512+i] = 0;  //54
+      }
+      if (findAlarms(Alarms[alarmsActual],alConFailDP3))
+      {
+        PSW[2512+i] = 0;  //54 KT-T1
         PSW[2513+i] = 0;
       }
-      else
+      if (findAlarms(Alarms[alarmsActual],alConFailDP4))
       {
-        if (findAlarms(Alarms[alarmsActual],alConFailDP1))
-        {
-          PSW[2500+i] = 0;  //51 K-1
-          PSW[2501+i] = 0;
-        }
-        if (findAlarms(Alarms[alarmsActual],alConFailDP3))
-        {
-          PSW[2512+i] = 0;  //54 KT-T1
-          PSW[2513+i] = 0;
-        }
-        if (findAlarms(Alarms[alarmsActual],alConFailDP4))
-        {
-          PSW[2508+i] = 0;  //53 KT-T3
-          PSW[2509+i] = 0;
-        }
-      }
-      if (findAlarms(Alarms[alarmsActual],alConFailPanel4))
-      {  
-        PSW[2504+i] = 0;  //52
-        PSW[2505+i] = 0;
-        PSW[2516+i] = 0;  //55
-        PSW[2517+i] = 0;
-        PSW[2520+i] = 0;  //56
-        PSW[2521+i] = 0;
-      }
-      else
-      {
-        if (findAlarms(Alarms[alarmsActual],alConFailDP2))
-        {
-          PSW[2504+i] = 0;  //52 K-2
-          PSW[2505+i] = 0;
-        }
-        if (findAlarms(Alarms[alarmsActual],alConFailDP5))
-        {
-          PSW[2516+i] = 0;  //55 KT-T2
-          PSW[2517+i] = 0;
-        }
-        if (findAlarms(Alarms[alarmsActual],alConFailDP6))
-        {
-          PSW[2520+i] = 0;  //56 KT-T4
-          PSW[2521+i] = 0;
-        }
+        PSW[2508+i] = 0;  //53 KT-T3
+        PSW[2509+i] = 0;
       }
     }
-
-
+    if (findAlarms(Alarms[alarmsActual],alConFailPanel4))
+    {  
+      PSW[2504+i] = 0;  //52
+      PSW[2505+i] = 0;
+      PSW[2516+i] = 0;  //55
+      PSW[2517+i] = 0;
+      PSW[2520+i] = 0;  //56
+      PSW[2521+i] = 0;
+    }
+    else
+    {
+      if (findAlarms(Alarms[alarmsActual],alConFailDP2))
+      {
+        PSW[2504+i] = 0;  //52 K-2
+        PSW[2505+i] = 0;
+      }
+      if (findAlarms(Alarms[alarmsActual],alConFailDP5))
+      {
+        PSW[2516+i] = 0;  //55 KT-T2
+        PSW[2517+i] = 0;
+      }
+      if (findAlarms(Alarms[alarmsActual],alConFailDP6))
+      {
+        PSW[2520+i] = 0;  //56 KT-T4
+        PSW[2521+i] = 0;
+      }
+    }
+  }
 }
 
 void handlerLogicInputs(void)
@@ -434,7 +432,8 @@ void alarmLogic(void)
       );
       alExContr(alConFailHighLevel, 
         ((getEnable(4) == false) || GetPSBStatus(704)) &&
-        ((getEnable(5) == false) || GetPSBStatus(705))
+        ((getEnable(5) == false) || GetPSBStatus(705)) &&
+        findAlarms(Alarms[alarmsActual], alConFailAtAllPanel) == false
       );
       break;
     case 44:  // K-2, KT-2, KT-4, Panel 43, Panel 41, Panel 42
@@ -454,7 +453,8 @@ void alarmLogic(void)
       );
       alExContr(alConFailHighLevel, 
         ((getEnable(4) == false) || GetPSBStatus(704)) &&
-        ((getEnable(5) == false) || GetPSBStatus(705))
+        ((getEnable(5) == false) || GetPSBStatus(705)) &&
+        findAlarms(Alarms[alarmsActual], alConFailAtAllPanel) == false
       );
       break;
   }
@@ -678,6 +678,7 @@ void taskLoop(void)
     updatePFW();
     getTime();
     updateTime();
+    controlExDP();
 
     if(GetAdminLevelAvtorisation != Panel->flags.StateAdminAccessOld)
     {

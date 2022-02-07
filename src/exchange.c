@@ -756,6 +756,70 @@ void getValuesDP()
   }
 }
 
+void controlExDPOther()
+{
+  int i, n;
+  cell_t c;
+  struct FlagsPanel2_s flags2;
+  
+  c.ptr = &CAST_TO_U16(flags2); c.number = &CAST_TO_U16(Panel->flags2) - PSW;
+
+  switch (getMyIP())
+  {
+  case 41: 
+  case 42: 
+    for(i = 0; i < 2; i++)
+    {
+      c.type = net0 + i; 
+      if(reads(c, 2).status == memStatusOK)
+      {        
+        Panel->flags2.stateExDP = flags2.stateExDP;
+        break;
+      }
+    }
+    for(n = 0; n < 2; n++) 
+    {
+      c.type = net0 + n; 
+      if(Panel->flags2.invertExDP != 0)
+      {        
+        flags2.invertExDP = Panel->flags2.invertExDP & (0x7 << (n*3));
+        writes(c, 2);
+      }
+    }
+    Panel->flags2.invertExDP = 0;
+  
+    break;
+
+  case 43: 
+  case 44: 
+    c.type = net3; 
+    n = (getMyIP() == 43 ? 1 : 0);
+
+    if(reads(c, 2).status == memStatusOK)
+    {
+      int i = 0;
+      
+      for(i = 0; i < 3; i++)
+      {
+        if(flags2.stateExDP & (1 << (i + n*3)))
+          Panel->flags2.stateExDP |= (1 << (i + n*3));
+        else
+          Panel->flags2.stateExDP &= ~(1 << (i + n*3));
+      }
+    }
+     
+    if(Panel->flags2.invertExDP != 0)
+    {        
+      flags2.invertExDP = Panel->flags2.invertExDP & (0x7 << (n*3));
+      writes(c, 2);
+    }
+    Panel->flags2.invertExDP &= ~(0x7 << (n*3));
+  
+    break;
+  }
+  
+}
+
 void readDevice(void)
 {
   size_t i, n, k;
@@ -876,10 +940,10 @@ void readDevice(void)
         = tempDP[getMyIP() == 43 ? 1 +3*n : 2*n].DIO.regs[i];
   }
   break;
-      
-  default:
-    break;
+
   }
+
+  controlExDPOther();
 }
 
 void controlTest(void)
