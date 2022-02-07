@@ -64,6 +64,18 @@ void updateTime()
 
   if(dMem->time.Day > Panel->maxDay) Panel->newTime.Day = Panel->maxDay;
 
+  if((getMyIP() == 41 || getMyIP() == 42) && dMem->setTime[1].Day != 0)
+  {
+    Panel->newTime.Day   = dMem->setTime[1].Day;
+    Panel->newTime.Hour  = dMem->setTime[1].Hour;
+    Panel->newTime.Min   = dMem->setTime[1].Min;
+    Panel->newTime.Month = dMem->setTime[1].Month;
+    Panel->newTime.Sec   = dMem->setTime[1].Sec;
+    Panel->newTime.Year  = dMem->setTime[1].Year;
+
+    dMem->setTime[1].Day = 0;
+  }
+
   for(i = 0; i < 6; i++)
   {
     uint16_t * newTime = &CAST_TO_U16(Panel->newTime) + i;

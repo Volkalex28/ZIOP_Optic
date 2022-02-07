@@ -71,7 +71,8 @@ typedef struct StateExOld_s
   uint16_t CounterNotCorrect;
 } StateExOld_t;
 
-typedef struct Time_s {
+typedef struct Time_s 
+{
   uint16_t Hour;
   uint16_t Min;
   uint16_t Sec;
@@ -79,6 +80,16 @@ typedef struct Time_s {
   uint16_t Month;
   uint16_t Year;
 } Time_t;
+
+typedef struct TimeByte_s 
+{
+  uint8_t Min;
+  uint8_t Hour;
+  uint8_t Day;
+  uint8_t Sec;
+  uint8_t Year;
+  uint8_t Month;
+} TimeByte_t; // 9.15.32 3.12.24
 
 typedef struct Panel_s
 {
